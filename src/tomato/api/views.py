@@ -291,6 +291,8 @@ def get_search_results(request):
     meeting_key = request.GET.get('meeting_key')
     meeting_key_value = request.GET.get('meeting_key_value')
 
+    root_server_id = request.GET.get('root_server_id')
+
     data_field_keys = extract_specific_keys_param(request.GET)
 
     starts_after = parse_time_params(request.GET.get('StartsAfterH'), request.GET.get('StartsAfterM'))
@@ -339,6 +341,8 @@ def get_search_results(request):
         meeting_qs = meeting_qs.filter(duration__gte=min_duration)
     if max_duration:
         meeting_qs = meeting_qs.filter(duration__lte=max_duration)
+    if root_server_id:
+        meeting_qs = meeting_qs.filter(root_server_id=root_server_id)
     if data_field_keys:
         values = []
         for key in data_field_keys:
