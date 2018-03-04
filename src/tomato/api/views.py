@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.postgres.aggregates.general import ArrayAgg
 from django.db import models
 from django.http import response
+from xml.etree import ElementTree as ET
 from .models import Format, Meeting
 
 
@@ -188,6 +189,16 @@ def model_to_csv(writer, model, map):
     writer.writerow(d)
 
 
+def model_to_xml(elem, model, map):
+    row = ET.SubElement(elem, 'row')
+    for to_attr, from_attr in map.items():
+        value = model_get_value(model, from_attr)
+        if value:
+            sub = ET.SubElement(row, to_attr)
+            sub.text = value
+    return row
+
+
 def parse_time_params(hour, minute):
     ret = hour
     if ret:
@@ -321,7 +332,7 @@ def get_search_results(request):
 
 def semantic_query(request, format='json'):
     switcher = request.GET.get('switcher')
-    if format not in ('csv', 'json'):
+    if format not in ('csv', 'json', 'xml'):
         return response.HttpResponseBadRequest()
     if not switcher:
         return response.HttpResponseBadRequest()
@@ -332,10 +343,10 @@ def semantic_query(request, format='json'):
     content_type = 'text/html'
     if switcher == 'GetSearchResults':
         meetings = get_search_results(request)
+        data_field_keys = extract_specific_keys_param(request.GET)
         if format == 'json':
             content_type = 'application/json'
             kwargs = {}
-            data_field_keys = extract_specific_keys_param(request.GET)
             if data_field_keys:
                 kwargs['return_attrs'] = data_field_keys
             if 'get_used_formats' in request.GET:
@@ -356,7 +367,6 @@ def semantic_query(request, format='json'):
                 ret = json.dumps(ret, separators=(',', ':'))
         elif format == 'csv':
             content_type = 'text/csv'
-            data_field_keys = extract_specific_keys_param(request.GET)
             if not data_field_keys:
                 data_field_keys = meeting_field_map.keys()
             stream = io.StringIO()
@@ -368,5 +378,14 @@ def semantic_query(request, format='json'):
                 ret = stream.getvalue()
             finally:
                 stream.close()
+        elif format == 'xml':
+            content_type = 'application/xml'
+            root = ET.Element('meetings')
+            i = 0
+            for m in meetings:
+                row = model_to_xml(root, m, meeting_field_map)
+                row.set('sequence_index', str(i))
+                i += 1
+            ret = ET.tostring(root)
 
     return response.HttpResponse(ret, content_type=content_type)
