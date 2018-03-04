@@ -293,9 +293,8 @@ class Meeting(models.Model):
                 continue
 
             try:
-                meeting = Meeting.objects\
-                    .prefetch_related('meetinginfo', 'service_body', 'formats')\
-                    .get(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
+                qs = Meeting.objects.prefetch_related('meetinginfo', 'service_body', 'formats')
+                meeting = qs.get(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
             except Meeting.DoesNotExist:
                 meeting = Meeting(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
                 meeting.meetinginfo = MeetingInfo.objects.create(meeting=meeting)
@@ -369,7 +368,7 @@ class Meeting(models.Model):
                     'location_nation': bmlt_meeting.get('location_nation', None),
                     'train_lines': bmlt_meeting.get('train_lines', None),
                     'bus_lines': bmlt_meeting.get('bus_lines', None),
-                    'world_id': bmlt_meeting.get('world_id', None),
+                    'world_id': bmlt_meeting.get('worldid_mixed', None),
                     'comments': bmlt_meeting.get('comments', None),
                 }
             }
