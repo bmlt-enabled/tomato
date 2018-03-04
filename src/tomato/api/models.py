@@ -78,6 +78,32 @@ def get_time(d, key):
         raise ImportException('Unknown problem with {}'.format(key), d)
 
 
+def get_timedelta(d, key):
+    try:
+        value = get_key(d, key)
+        if ':' not in value:
+            # assume we're dealing with minutes
+            value = int(value)
+            if value < 60:
+                hours = 0
+                minutes = str(value)
+            else:
+                hours = int(value / 60)
+                minutes = value % 60
+            return datetime.timedelta(hours=hours, minutes=minutes)
+        else:
+            value = [int(t) for t in value.split(':')]
+            return datetime.timedelta(hours=value[0], minutes=value[1])
+    except ValueError:
+        raise ImportException('Malformed {}'.format(key), d)
+    except TypeError:
+        raise ImportException('Malformed {}'.format(key), d)
+    except ImportException:
+        raise
+    except Exception:
+        raise ImportException('Unknown problem with {}'.format(key), d)
+
+
 class RootServer(models.Model):
     id = models.BigAutoField(primary_key=True)
     url = models.URLField()
@@ -246,7 +272,7 @@ class Meeting(models.Model):
     name = models.CharField(max_length=255)
     weekday = models.SmallIntegerField(choices=WEEKDAY_CHOICES)
     start_time = models.TimeField(null=True)
-    duration = models.TimeField(null=True)
+    duration = models.DurationField(null=True)
     formats = models.ManyToManyField(Format)
     language = models.CharField(max_length=7, null=True)
     latitude = models.DecimalField(max_digits=15, decimal_places=12)
@@ -267,9 +293,12 @@ class Meeting(models.Model):
                 continue
 
             try:
-                meeting = Meeting.objects.get(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
+                meeting = Meeting.objects\
+                    .prefetch_related('meetinginfo', 'service_body', 'formats')\
+                    .get(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
             except Meeting.DoesNotExist:
                 meeting = Meeting(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
+                meeting.meetinginfo = MeetingInfo.objects.create(meeting=meeting)
 
             dirty = False
             field_names = ('service_body', 'name', 'weekday', 'start_time',
@@ -316,7 +345,7 @@ class Meeting(models.Model):
                 'name': get_required_str(bmlt_meeting, 'meeting_name'),
                 'weekday': get_int(bmlt_meeting, 'weekday_tinyint', valid_choices=Meeting.VALID_WEEKDAY_INTS),
                 'start_time': get_time(bmlt_meeting, 'start_time'),
-                'duration': get_time(bmlt_meeting, 'duration_time'),
+                'duration': get_timedelta(bmlt_meeting, 'duration_time'),
                 'language': bmlt_meeting.get('lang_enum', 'en'),
                 'latitude': get_decimal(bmlt_meeting, 'latitude'),
                 'longitude': get_decimal(bmlt_meeting, 'longitude'),
