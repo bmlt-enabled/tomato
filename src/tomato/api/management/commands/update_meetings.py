@@ -1,13 +1,11 @@
-import datetime
 import json
-import pytz
 import requests
 import requests.exceptions
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from urllib.parse import urljoin
-from ...models import Format, Meeting, RootServer, ServiceBody
+from ...models import Format, Meeting, RootServer, ServiceBody, ImportProblem
 
 
 class Command(BaseCommand):
@@ -28,6 +26,7 @@ class Command(BaseCommand):
             if not url.endswith('/'):
                 url += '/'
             root = RootServer.objects.get_or_create(url=url)[0]
+            ImportProblem.objects.filter(root_server=root).delete()
             try:
                 with transaction.atomic():
                     self.update_service_bodies(root)
