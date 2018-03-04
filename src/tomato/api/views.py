@@ -18,11 +18,13 @@ format_field_map = OrderedDict([
     ('description_string', 'description'),
     ('lang', 'language'),
     ('id', 'id'),
+    ('root_server_id', 'root_server_id'),
     ('world_id', 'world_id'),
 ])
 
 meeting_field_map = OrderedDict([
     ('id_bigint', 'id'),
+    ('root_server_id', 'root_server_id'),
     ('worldid_mixed', 'meetinginfo.world_id'),
     ('shared_group_id_bigint', ''),
     ('service_body_bigint', 'service_body.id'),
@@ -60,28 +62,30 @@ meeting_field_map = OrderedDict([
 ])
 
 valid_meeting_search_keys = [
-     'worldid_mixed',
-     'start_time',
-     'duration_time',
-     'lang_enum',
-     'meeting_name',
-     'location_text',
-     'location_info',
-     'location_street',
-     'location_city_subsection',
-     'location_neighborhood',
-     'location_municipality',
-     'location_sub_province',
-     'location_province',
-     'location_postal_code_1',
-     'location_nation',
-     'comments',
-     'train_lines',
-     'bus_lines',
+    'root_server_id',
+    'worldid_mixed',
+    'start_time',
+    'duration_time',
+    'lang_enum',
+    'meeting_name',
+    'location_text',
+    'location_info',
+    'location_street',
+    'location_city_subsection',
+    'location_neighborhood',
+    'location_municipality',
+    'location_sub_province',
+    'location_province',
+    'location_postal_code_1',
+    'location_nation',
+    'comments',
+    'train_lines',
+    'bus_lines',
 ]
 
 valid_specific_fields_keys = [
     'id_bigint',
+    'root_server_id',
     'worldid_mixed',
     'service_body_bigint',
     'weekday_tinyint',
@@ -197,6 +201,37 @@ def model_to_xml(elem, model, map):
             sub = ET.SubElement(row, to_attr)
             sub.text = value
     return row
+
+
+def models_to_json(models, field_map, return_attrs=None):
+    models = [model_to_json(m, field_map, return_attrs=return_attrs) for m in models]
+    if getattr(settings, 'DEBUG', False):
+        return json.dumps(models, indent=2)
+    json.dumps(models, parators=(',', ':'))
+
+
+def models_to_csv(models, field_map, fieldnames=None):
+    if not fieldnames:
+        fieldnames = field_map.keys()
+    stream = io.StringIO()
+    try:
+        writer = csv.DictWriter(stream, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
+        writer.writeheader()
+        for m in models:
+            model_to_csv(writer, m, field_map)
+        return stream.getvalue()
+    finally:
+        stream.close()
+
+
+def models_to_xml(models, field_map, root_element_name):
+    root = ET.Element(root_element_name)
+    i = 0
+    for m in models:
+        row = model_to_xml(root, m, field_map)
+        row.set('sequence_index', str(i))
+        i += 1
+    return ET.tostring(root)
 
 
 def parse_time_params(hour, minute):
@@ -330,22 +365,35 @@ def get_search_results(request):
     return meeting_qs
 
 
+def get_formats(request):
+    root_server_id = request.GET.get('root_server_id')
+    format_qs = Format.objects.all()
+    if root_server_id:
+        format_qs = format_qs.filter(root_server_id=root_server_id)
+    return format_qs
+
+
 def semantic_query(request, format='json'):
     switcher = request.GET.get('switcher')
     if format not in ('csv', 'json', 'xml'):
         return response.HttpResponseBadRequest()
     if not switcher:
         return response.HttpResponseBadRequest()
-    if switcher not in ('GetSearchResults',):
+    if switcher not in ('GetSearchResults','GetFormats',):
         return response.HttpResponseBadRequest()
 
     ret = None
-    content_type = 'text/html'
+    if format == 'json':
+        content_type = 'application/json'
+    elif format == 'csv':
+        content_type = 'text/csv'
+    elif format == 'xml':
+        content_type = 'application/xml'
+
     if switcher == 'GetSearchResults':
         meetings = get_search_results(request)
         data_field_keys = extract_specific_keys_param(request.GET)
         if format == 'json':
-            content_type = 'application/json'
             kwargs = {}
             if data_field_keys:
                 kwargs['return_attrs'] = data_field_keys
@@ -357,35 +405,23 @@ def semantic_query(request, format='json'):
                 else:
                     meetings = [model_to_json(m, meeting_field_map, **kwargs) for m in meetings]
                     ret = {'meetings': meetings, 'formats': formats}
+                if getattr(settings, 'DEBUG', False):
+                    ret = json.dumps(ret, indent=2)
+                else:
+                    ret = json.dumps(ret, separators=(',', ':'))
             else:
-                ret = [model_to_json(m, meeting_field_map, **kwargs) for m in meetings]
-
-            if getattr(settings, 'DEBUG', False):
-                # no harm in making the json a little more readable in debug mode
-                ret = json.dumps(ret, indent=2)
-            else:
-                ret = json.dumps(ret, separators=(',', ':'))
+                ret = models_to_json(meetings, meeting_field_map, return_attrs=data_field_keys)
         elif format == 'csv':
-            content_type = 'text/csv'
-            if not data_field_keys:
-                data_field_keys = meeting_field_map.keys()
-            stream = io.StringIO()
-            try:
-                writer = csv.DictWriter(stream, fieldnames=data_field_keys, quoting=csv.QUOTE_ALL)
-                writer.writeheader()
-                for m in meetings:
-                    model_to_csv(writer, m, meeting_field_map)
-                ret = stream.getvalue()
-            finally:
-                stream.close()
+            ret = models_to_csv(meetings, meeting_field_map, data_field_keys)
         elif format == 'xml':
-            content_type = 'application/xml'
-            root = ET.Element('meetings')
-            i = 0
-            for m in meetings:
-                row = model_to_xml(root, m, meeting_field_map)
-                row.set('sequence_index', str(i))
-                i += 1
-            ret = ET.tostring(root)
+            ret = models_to_xml(meetings, meeting_field_map, 'meetings')
+    elif switcher == 'GetFormats':
+        formats = get_formats(request)
+        if format == 'json':
+            ret = models_to_json(formats, format_field_map)
+        elif format == 'csv':
+            ret = models_to_csv(formats, format_field_map)
+        elif format == 'xml':
+            ret = models_to_xml(formats, format_field_map, 'formats')
 
     return response.HttpResponse(ret, content_type=content_type)

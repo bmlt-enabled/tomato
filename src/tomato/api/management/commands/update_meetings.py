@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from urllib.parse import urljoin
-from ...models import Format, Meeting, RootServer, ServiceBody, ImportProblem
+from ...models import Format, ImportProblem, Meeting, RootServer, ServiceBody
 
 
 class Command(BaseCommand):
