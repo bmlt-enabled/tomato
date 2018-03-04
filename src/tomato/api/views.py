@@ -288,10 +288,14 @@ def get_search_results(request):
     formats_include = [f for f in formats if f > 0]
     formats_exclude = [abs(f) for f in formats if f < 0]
 
+    root_server_ids = request.GET.get('root_server_ids')
+    root_server_ids = request.GET.getlist('root_server_ids[]', []) if root_server_ids is None else [root_server_ids]
+    root_server_ids = [int(rs) for rs in root_server_ids]
+    root_server_ids_include = [rs for rs in root_server_ids if rs > 0]
+    root_server_ids_exclude = [abs(rs) for rs in root_server_ids if rs < 0]
+
     meeting_key = request.GET.get('meeting_key')
     meeting_key_value = request.GET.get('meeting_key_value')
-
-    root_server_id = request.GET.get('root_server_id')
 
     data_field_keys = extract_specific_keys_param(request.GET)
 
@@ -320,6 +324,10 @@ def get_search_results(request):
     if formats_exclude:
         for id in formats_exclude:
             meeting_qs = meeting_qs.filter(~models.Q(formats__id=id))
+    if root_server_ids_include:
+        meeting_qs = meeting_qs.filter(root_server_id__in=root_server_ids_include)
+    if root_server_ids_exclude:
+        meeting_qs = meeting_qs.exclude(root_server_id__in=root_server_ids_exclude)
     if meeting_key and meeting_key_value:
         if meeting_key in valid_meeting_search_keys:
             model_field = meeting_field_map.get(meeting_key)
@@ -341,8 +349,6 @@ def get_search_results(request):
         meeting_qs = meeting_qs.filter(duration__gte=min_duration)
     if max_duration:
         meeting_qs = meeting_qs.filter(duration__lte=max_duration)
-    if root_server_id:
-        meeting_qs = meeting_qs.filter(root_server_id=root_server_id)
     if data_field_keys:
         values = []
         for key in data_field_keys:
