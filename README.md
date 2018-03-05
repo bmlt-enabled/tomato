@@ -25,7 +25,6 @@ ROOT_SERVERS = [
 ```
 
 ###  Environment Variables
-Database connection information and the django secret key are read from environment variables.
 
 | Name | Description |
 | :--- | :---------- |
