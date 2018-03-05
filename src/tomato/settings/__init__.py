@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'tomato.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': os.environ.get('RDS_NAME', 'tomato'),
         'USER': os.environ.get('RDS_USER', 'tomato'),
         'PASSWORD': os.environ.get('RDS_PASSWORD', 'tomato'),

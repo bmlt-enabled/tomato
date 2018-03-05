@@ -5,6 +5,8 @@ import json
 import io
 from collections import OrderedDict
 from django.conf import settings
+from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import D
 from django.contrib.postgres.aggregates.general import ArrayAgg
 from django.db import models
 from django.http import response
@@ -305,6 +307,11 @@ def get_search_results(request):
     min_duration = parse_timedelta_params(request.GET.get('MinDurationH'), request.GET.get('MinDurationM'))
     max_duration = parse_timedelta_params(request.GET.get('MaxDurationH'), request.GET.get('MaxDurationM'))
 
+    long_val = request.GET.get('long_val')
+    lat_val = request.GET.get('lat_val')
+    geo_width = request.GET.get('geo_width')
+    geo_width_km = request.GET.get('geo_width_km')
+
     sort_keys = extract_specific_keys_param(request.GET, 'sort_keys')
 
     meeting_qs = Meeting.objects.all()
@@ -362,6 +369,20 @@ def get_search_results(request):
                 model_field = model_field.replace('.', '__')
                 values.append(model_field)
         meeting_qs = meeting_qs.values(*values)
+    if long_val and lat_val and (geo_width or geo_width_km):
+        try:
+            long_val = float(long_val)
+            lat_val = float(lat_val)
+            if geo_width is not None:
+                geo_width = float(geo_width)
+            if geo_width_km is not None:
+                geo_width_km - float(geo_width_km)
+            point = Point(long_val, lat_val)
+        except:
+            pass
+        else:
+            d = D(mi=geo_width) if geo_width else D(km=geo_width_km)
+            meeting_qs = meeting_qs.filter(point__distance_lte=(point, d))
     if sort_keys:
         values = []
         for key in sort_keys:

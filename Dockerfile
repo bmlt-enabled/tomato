@@ -8,6 +8,10 @@ RUN apk add --no-cache \
     libffi-dev \
     postgresql-dev
 
+RUN apk add --no-cache \
+    --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+    gdal
+
 RUN mkdir /code
 WORKDIR /code
 ADD src/tomato /code/tomato

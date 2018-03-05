@@ -1,6 +1,7 @@
 import datetime
 import decimal
-from django.db import models
+from django.contrib.gis.db import models
+from django.contrib.gis.geos import Point
 
 
 class ImportException(Exception):
@@ -277,6 +278,7 @@ class Meeting(models.Model):
     language = models.CharField(max_length=7, null=True)
     latitude = models.DecimalField(max_digits=15, decimal_places=12)
     longitude = models.DecimalField(max_digits=15, decimal_places=12)
+    point = models.PointField(null=True)
     published = models.BooleanField(default=False)
 
     @staticmethod
@@ -297,7 +299,6 @@ class Meeting(models.Model):
                 meeting = qs.get(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
             except Meeting.DoesNotExist:
                 meeting = Meeting(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
-                meeting.meetinginfo = MeetingInfo.objects.create(meeting=meeting)
 
             dirty = False
             field_names = ('service_body', 'name', 'weekday', 'start_time',
@@ -307,6 +308,12 @@ class Meeting(models.Model):
             for field_name in field_names:
                 if set_if_changed(meeting, field_name, bmlt_meeting[field_name]):
                     changed_fields.append(field_name)
+                    dirty = True
+
+            if meeting.longitude and meeting.latitude:
+                point = Point(float(meeting.longitude), float(meeting.latitude))
+                if meeting.point != point:
+                    meeting.point = point
                     dirty = True
 
             if dirty:
