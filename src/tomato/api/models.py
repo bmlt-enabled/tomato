@@ -278,7 +278,7 @@ class Meeting(models.Model):
     language = models.CharField(max_length=7, null=True)
     latitude = models.DecimalField(max_digits=15, decimal_places=12)
     longitude = models.DecimalField(max_digits=15, decimal_places=12)
-    point = models.PointField(null=True)
+    point = models.PointField(null=True, geography=True)
     published = models.BooleanField(default=False)
 
     @staticmethod

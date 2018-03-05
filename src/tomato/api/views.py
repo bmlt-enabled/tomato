@@ -5,6 +5,7 @@ import json
 import io
 from collections import OrderedDict
 from django.conf import settings
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.contrib.postgres.aggregates.general import ArrayAgg
@@ -311,6 +312,7 @@ def get_search_results(request):
     lat_val = request.GET.get('lat_val')
     geo_width = request.GET.get('geo_width')
     geo_width_km = request.GET.get('geo_width_km')
+    sort_results_by_distance = request.GET.get('sort_results_by_distance', None) == '1'
 
     sort_keys = extract_specific_keys_param(request.GET, 'sort_keys')
 
@@ -383,7 +385,10 @@ def get_search_results(request):
         else:
             d = D(mi=geo_width) if geo_width else D(km=geo_width_km)
             meeting_qs = meeting_qs.filter(point__distance_lte=(point, d))
-    if sort_keys:
+            if sort_results_by_distance:
+                meeting_qs = meeting_qs.annotate(distance=Distance('point', point))
+                meeting_qs = meeting_qs.order_by('distance')
+    if sort_keys and not sort_results_by_distance:
         values = []
         for key in sort_keys:
             model_field = meeting_field_map.get(key)
