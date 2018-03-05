@@ -3,7 +3,7 @@
 Tomato aggregates meetings from multiple BMLT Root Servers and provides query access to those meetings through a clone of BMLT's Semantic API.
 
 ## Components
-Tomato consists of two components: the Web Application and the Daemon
+Tomato consists of two components, the Web Application and the Daemon.
 
 ### Web Application
 Hosts our clone of the BMLT Semantic API and the Django Admin Console.
