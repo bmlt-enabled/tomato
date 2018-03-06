@@ -21,11 +21,18 @@ class Command(BaseCommand):
             url = 'https://raw.githubusercontent.com/LittleGreenViper/BMLTTally/master/rootServerList.json'
             try:
                 root_server_urls = [rs['rootURL'] for rs in json.loads(self.request(url))]
+                root_server_urls = [url if url.endswith('/') else url + '/' for url in root_server_urls]
             except Exception as e:
                 logger.error('Error retrieving root server list: {}'.format(str(e)))
             else:
+                for old in RootServer.objects.exclude(url__in=root_server_urls):
+                    try:
+                        logger.info('Deleting old root server {}'.format(old.url))
+                        old.delete()
+                    except Exception as e:
+                        logger.error('Error deleting old root server {}'.format(str(e)))
+
                 for url in root_server_urls:
-                    url = url if url.endswith('/') else url + '/'
                     logger.info('importing root server {}'.format(url))
                     try:
                         root = RootServer.objects.get_or_create(url=url)[0]
