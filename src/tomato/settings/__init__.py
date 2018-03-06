@@ -124,11 +124,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
-
-ROOT_SERVERS = [
-    'http://bmlt.ncregion-na.org/main_server/',
-    'http://crna.org/main_server/',
-    'http://www.alnwfl.org/main_server/',
-    'http://naflorida.org/bmlt_server/',
-    'http://www.grscnabmlt.tk/main_server/',
-]

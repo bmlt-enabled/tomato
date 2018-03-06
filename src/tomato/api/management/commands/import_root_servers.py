@@ -3,7 +3,6 @@ import logging
 import requests
 import requests.exceptions
 import time
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from urllib.parse import urljoin
@@ -15,63 +14,54 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logger = logging.getLogger('django')
-        logger.info('starting')
-        for old in RootServer.objects.exclude(url__in=settings.ROOT_SERVERS):
-            try:
-                old.delete()
-            except:
-                # TODO This probably means a root server was removed from the list, but we can't
-                # delete it because it has objects referencing it that depend on it. We should log
-                # something so that we can decide what to do about it. Maybe we want to keep the historical
-                # data, maybe we don't.
-                pass
+        logger.info('starting daemon')
 
         while True:
-            for url in settings.ROOT_SERVERS:
-                logger.info('updating from {}'.format(url))
-                if not url.endswith('/'):
-                    url += '/'
-                root = RootServer.objects.get_or_create(url=url)[0]
-                ImportProblem.objects.filter(root_server=root).delete()
-                try:
-                    with transaction.atomic():
-                        logger.info('updating service bodies')
-                        self.update_service_bodies(root)
-                        logger.info('updating formats')
-                        self.update_formats(root)
-                        logger.info('updating meetings')
-                        self.update_meetings(root)
-                except Exception as e:
-                    # TODO Update something on the root_server indicating last successful sync and last tried sync
-                    raise
+            logger.info('retrieving root servers')
+            url = 'https://raw.githubusercontent.com/LittleGreenViper/BMLTTally/master/rootServerList.json'
+            try:
+                root_server_urls = [rs['rootURL'] for rs in json.loads(self.request(url))]
+            except Exception as e:
+                logger.error('Error retrieving root server list: {}'.format(str(e)))
+            else:
+                for url in root_server_urls:
+                    url = url if url.endswith('/') else url + '/'
+                    logger.info('importing root server {}'.format(url))
+                    try:
+                        root = RootServer.objects.get_or_create(url=url)[0]
+                        ImportProblem.objects.filter(root_server=root).delete()
+                        with transaction.atomic():
+                            logger.info('importing service bodies')
+                            self.update_service_bodies(root)
+                            logger.info('importing formats')
+                            self.update_formats(root)
+                            logger.info('importing meetings')
+                            self.update_meetings(root)
+                    except Exception as e:
+                        logger.error('Error updating root server: {}'.format(str(e)))
             logger.info('sleeping')
             time.sleep(3600)
 
-    def update_service_bodies(self, root):
-        url = urljoin(root.url, 'client_interface/json/?switcher=GetServiceBodies')
+    def request(self, url):
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'}
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
             raise Exception('Unexpected status code from root server')
-        service_bodies = json.loads(response.content)
+        return response.content
+
+    def update_service_bodies(self, root):
+        url = urljoin(root.url, 'client_interface/json/?switcher=GetServiceBodies')
+        service_bodies = json.loads(self.request(url))
         ServiceBody.import_from_bmlt_objects(root, service_bodies)
 
     def update_formats(self, root):
         url = urljoin(root.url, 'client_interface/json/?switcher=GetFormats')
-        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'}
-        response = requests.get(url, headers=headers)
-        if response.status_code != 200:
-            raise Exception('Unexpected status code from root server')
-        formats = json.loads(response.content)
+        formats = json.loads(self.request(url))
         Format.import_from_bmlt_objects(root, formats)
 
     def update_meetings(self, root):
         url = urljoin(root.url, 'client_interface/json/?switcher=GetSearchResults')
-        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'}
-        response = requests.get(url, headers=headers)
-        if response.status_code != 200:
-            raise Exception('Unexpected status code from root server')
-        meetings = json.loads(response.content)
+        meetings = json.loads(self.request(url))
 
         # Delete meetings that no longer exist
         meeting_ids = [int(m['id_bigint']) for m in meetings]
