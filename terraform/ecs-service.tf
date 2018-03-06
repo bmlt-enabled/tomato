@@ -176,7 +176,7 @@ resource "aws_ecs_task_definition" "daemon" {
     "command": [
       "sh",
       "-c",
-      "python3 manage.py initialize && python3 manage.py update_meetings"
+      "python3 manage.py initialize && python3 manage.py import_root_servers"
     ],
     "user": null,
     "dockerLabels": null,

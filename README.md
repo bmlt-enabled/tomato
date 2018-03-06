@@ -9,9 +9,9 @@ Tomato consists of two components, the Web Application and the Daemon.
 Hosts our clone of the BMLT Semantic API and the Django Admin Console.
 
 ### Daemon
-Loop that updates the meetings database from the BMLT Root Servers on a timer.
+Loop that updates the database from the BMLT Root Servers on a timer.
 
-`python3 manage.py update_meetings`
+`python3 manage.py import_root_servers`
 
 ## Configuration
 
