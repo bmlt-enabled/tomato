@@ -10,7 +10,8 @@ RUN apk add --no-cache \
 
 RUN apk add --no-cache \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-    gdal
+    gdal \
+    geos-dev
 
 RUN mkdir /code
 WORKDIR /code

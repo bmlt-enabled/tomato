@@ -1,6 +1,8 @@
 import json
+import logging
 import requests
 import requests.exceptions
+import time
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -12,6 +14,8 @@ class Command(BaseCommand):
     help = 'Updates the meetings database from root servers'
 
     def handle(self, *args, **options):
+        logger = logging.getLogger('django')
+        logger.info('starting')
         for old in RootServer.objects.exclude(url__in=settings.ROOT_SERVERS):
             try:
                 old.delete()
@@ -22,19 +26,26 @@ class Command(BaseCommand):
                 # data, maybe we don't.
                 pass
 
-        for url in settings.ROOT_SERVERS:
-            if not url.endswith('/'):
-                url += '/'
-            root = RootServer.objects.get_or_create(url=url)[0]
-            ImportProblem.objects.filter(root_server=root).delete()
-            try:
-                with transaction.atomic():
-                    self.update_service_bodies(root)
-                    self.update_formats(root)
-                    self.update_meetings(root)
-            except Exception as e:
-                # TODO Update something on the root_server indicating last successful sync and last tried sync
-                raise
+        while True:
+            for url in settings.ROOT_SERVERS:
+                logger.info('updating from {}'.format(url))
+                if not url.endswith('/'):
+                    url += '/'
+                root = RootServer.objects.get_or_create(url=url)[0]
+                ImportProblem.objects.filter(root_server=root).delete()
+                try:
+                    with transaction.atomic():
+                        logger.info('updating service bodies')
+                        self.update_service_bodies(root)
+                        logger.info('updating formats')
+                        self.update_formats(root)
+                        logger.info('updating meetings')
+                        self.update_meetings(root)
+                except Exception as e:
+                    # TODO Update something on the root_server indicating last successful sync and last tried sync
+                    raise
+            logger.info('sleeping')
+            time.sleep(3600)
 
     def update_service_bodies(self, root):
         url = urljoin(root.url, 'client_interface/json/?switcher=GetServiceBodies')

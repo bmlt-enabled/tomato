@@ -9,7 +9,7 @@ Tomato consists of two components, the Web Application and the Daemon.
 Hosts our clone of the BMLT Semantic API and the Django Admin Console.
 
 ### Daemon
-In its current state, this is not really a daemon. It's just a command that updates the meetings database from the configured BMLT root servers, and then exits. The intent is to eventually make it a proper daemon by giving it a `while True` loop, running the synchronization logic on a timer to keep things up to date.
+Loop that updates the meetings database from the BMLT Root Servers on a timer.
 
 `python3 manage.py update_meetings`
 
@@ -41,7 +41,7 @@ ROOT_SERVERS = [
 | :--- | :---------- |
 | RDS_NAME | PostgreSQL Database Name |
 | RDS_USER | PostgreSQL Database User |
-| PASSWORD | PostgreSQL Password |
+| RDS_PASSWORD | PostgreSQL Password |
 | RDS_HOST | PostgreSQL Hostname |
 | RDS_PORT | PostgreSQL Port |
 | SECRET_KEY | Secret key used for Django crypto things |
