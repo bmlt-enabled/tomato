@@ -482,21 +482,21 @@ def semantic_query(request, format='json'):
             ret = models_to_csv(meetings, meeting_field_map, data_field_keys)
         elif format == 'xml':
             ret = models_to_xml(meetings, meeting_field_map, 'meetings')
-    elif switcher == 'GetFormats':
-        formats = get_formats(request)
+    else:
+        if switcher == 'GetFormats':
+            models = get_formats(request)
+            field_map = format_field_map
+            xml_node_name = 'formats'
+        elif switcher == 'GetServiceBodies':
+            models = get_service_bodies(request)
+            field_map = service_bodies_field_map
+            xml_node_name = 'serviceBodies'
+
         if format == 'json':
-            ret = models_to_json(formats, format_field_map)
+            ret = models_to_json(models, field_map)
         elif format == 'csv':
-            ret = models_to_csv(formats, format_field_map)
+            ret = models_to_csv(models, field_map)
         elif format == 'xml':
-            ret = models_to_xml(formats, format_field_map, 'formats')
-    elif switcher == 'GetServiceBodies':
-        bodies = get_service_bodies(request)
-        if format == 'json':
-            ret = models_to_json(bodies, service_bodies_field_map)
-        elif format == 'csv':
-            ret = models_to_csv(bodies, service_bodies_field_map)
-        elif format == 'xml':
-            ret = models_to_xml(bodies, service_bodies_field_map, 'serviceBodies')
+            ret = models_to_xml(models, field_map, xml_node_name)
 
     return response.HttpResponse(ret, content_type=content_type)
