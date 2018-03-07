@@ -330,7 +330,7 @@ def get_search_results(request):
 
     meeting_qs = Meeting.objects.all()
     meeting_qs = meeting_qs.prefetch_related('meetinginfo', 'service_body', 'formats')
-    #meeting_qs = meeting_qs.filter(root_server__url='http://www.grscnabmlt.tk/main_server/')
+
     if weekdays_include:
         meeting_qs = meeting_qs.filter(weekday__in=weekdays_include)
     if weekdays_exclude:
