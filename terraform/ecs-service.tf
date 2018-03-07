@@ -7,6 +7,52 @@ resource "aws_cloudwatch_log_group" "tomato" {
   retention_in_days = 7
 }
 
+# IAM Role for ECS Service interaction with load balancer
+resource "aws_iam_role" "tomato_lb" {
+  name = "tomato-lb"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "tomato_lb" {
+  name = "${aws_iam_role.tomato_lb.name}"
+  role = "${aws_iam_role.tomato_lb.name}"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:Describe*",
+        "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+        "elasticloadbalancing:DeregisterTargets",
+        "elasticloadbalancing:Describe*",
+        "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+        "elasticloadbalancing:RegisterTargets"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
 # RDS
 resource "aws_security_group" "tomato_rds" {
   name   = "tomato-rds"
@@ -66,7 +112,7 @@ resource "aws_ecs_task_definition" "webapp" {
     "dnsSearchDomains": null,
     "portMappings": [
       {
-        "hostPort": 80,
+        "hostPort": 0,
         "containerPort": 8000,
         "protocol": "tcp"
       }
@@ -200,7 +246,19 @@ resource "aws_ecs_service" "webapp" {
   name            = "webapp"
   cluster         = "${aws_ecs_cluster.main.id}"
   desired_count   = 1
+  iam_role        = "${aws_iam_role.tomato_lb.name}"
   task_definition = "${aws_ecs_task_definition.webapp.arn}"
+
+  load_balancer {
+    target_group_arn = "${aws_alb_target_group.tomato.id}"
+    container_name   = "tomato"
+    container_port   = 8000
+  }
+
+  depends_on = [
+    "aws_iam_role_policy.tomato_lb",
+    "aws_alb_listener.tomato",
+  ]
 }
 
 resource "aws_ecs_service" "daemon" {

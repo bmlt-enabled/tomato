@@ -80,17 +80,13 @@ resource "aws_security_group" "cluster" {
   name        = "${aws_ecs_cluster.main.name}"
 
   ingress {
-    protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+    protocol  = "tcp"
+    from_port = 32768
+    to_port   = 61000
 
-  ingress {
-    protocol    = "tcp"
-    from_port   = 22
-    to_port     = 22
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [
+      "${aws_security_group.ecs_http_load_balancers.id}",
+    ]
   }
 
   egress {
