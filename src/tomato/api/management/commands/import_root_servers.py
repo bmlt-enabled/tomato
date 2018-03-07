@@ -47,7 +47,7 @@ class Command(BaseCommand):
                     except Exception as e:
                         logger.error('Error updating root server: {}'.format(str(e)))
             logger.info('sleeping')
-            time.sleep(3600)
+            time.sleep(3600 * 6)
 
     def request(self, url):
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'}
