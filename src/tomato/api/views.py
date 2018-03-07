@@ -388,12 +388,12 @@ def get_search_results(request):
             is_km = False
             long_val = float(long_val)
             lat_val = float(lat_val)
+            point = Point(x=long_val, y=lat_val, srid=4326)
             if geo_width is not None:
                 geo_width = float(geo_width)
-            if geo_width_km is not None:
+            elif geo_width_km is not None:
+                geo_width_km = float(geo_width_km)
                 is_km = True
-                geo_width_km - float(geo_width_km)
-            point = Point(x=long_val, y=lat_val, srid=4326)
         except:
             pass
         else:
