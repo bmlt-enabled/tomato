@@ -119,7 +119,7 @@ class ImportProblem(models.Model):
     root_server = models.ForeignKey(RootServer, on_delete=models.CASCADE)
     message = models.CharField(max_length=255)
     timestamp = models.DateTimeField(auto_now=True)
-    data = models.TextField()
+    data = models.TextField(null=True)
 
     def __str__(self):
         return '({}:{}:{})'.format(self.id, self.root_server if self.root_server else '', self.message)
@@ -146,6 +146,16 @@ class ServiceBody(models.Model):
 
     @staticmethod
     def import_from_bmlt_objects(root_server, bmlt_bodies):
+        logger = logging.getLogger('django')
+
+        try:
+            body_ids = [int(b['id']) for b in bmlt_bodies]
+            ServiceBody.objects.filter(root_server=root_server).exclude(source_id__in=body_ids).delete()
+        except Exception as e:
+            message = 'Error deleting old service bodies: {}'.format(str(e))
+            logger.error(message)
+            ImportProblem.objects.create(root_server=root_server, message=message)
+
         for bmlt_body in bmlt_bodies:
             try:
                 bmlt_body = ServiceBody.validate_bmlt_object(root_server, bmlt_body)
@@ -211,6 +221,16 @@ class Format(models.Model):
 
     @staticmethod
     def import_from_bmlt_objects(root_server, bmlt_formats):
+        logger = logging.getLogger('django')
+
+        try:
+            format_ids = [int(f['id']) for f in bmlt_formats]
+            Format.objects.filter(root_server=root_server).exclude(source_id__in=format_ids).delete()
+        except Exception as e:
+            message = 'Error deleting old formats: {}'.format(str(e))
+            logger.error(message)
+            ImportProblem.objects.create(root_server=root_server, message=message)
+
         for bmlt_format in bmlt_formats:
             try:
                 bmlt_format = Format.validate_bmlt_object(root_server, bmlt_format)
@@ -285,6 +305,15 @@ class Meeting(models.Model):
     @staticmethod
     def import_from_bmlt_objects(root_server, bmlt_meetings):
         logger = logging.getLogger('django')
+
+        try:
+            meeting_ids = [int(m['id_bigint']) for m in bmlt_meetings]
+            Meeting.objects.filter(root_server=root_server).exclude(source_id__in=meeting_ids).delete()
+        except Exception as e:
+            message = 'Error deleting old meetings: {}'.format(str(e))
+            logger.error(message)
+            ImportProblem.objects.create(root_server=root_server, message=message)
+
         for bmlt_meeting in bmlt_meetings:
             try:
                 bmlt_meeting = Meeting.validate_bmlt_object(root_server, bmlt_meeting)
@@ -340,8 +369,9 @@ class Meeting(models.Model):
                 elif meeting.formats.exists():
                     meeting.formats.clear()
             except Exception as e:
-                logger.error('Error saving meeting: {}'.format(str(e)))
-                ImportProblem.objects.create(root_server=root_server, message=str(e), data=str(bmlt_meeting))
+                message = 'Error saving meeting: {}'.format(str(e))
+                logger.error(message)
+                ImportProblem.objects.create(root_server=root_server, message=message, data=str(bmlt_meeting))
 
 
     @staticmethod

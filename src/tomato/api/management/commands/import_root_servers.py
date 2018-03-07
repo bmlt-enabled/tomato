@@ -69,10 +69,4 @@ class Command(BaseCommand):
     def update_meetings(self, root):
         url = urljoin(root.url, 'client_interface/json/?switcher=GetSearchResults')
         meetings = json.loads(self.request(url))
-
-        # Delete meetings that no longer exist
-        meeting_ids = [int(m['id_bigint']) for m in meetings]
-        Meeting.objects.filter(root_server=root).exclude(source_id__in=meeting_ids).delete()
-
-        # Import the rest
         Meeting.import_from_bmlt_objects(root, meetings)
