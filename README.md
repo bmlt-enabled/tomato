@@ -23,18 +23,6 @@ A default SECRET_KEY has been provided, but this should be swapped out by using 
 
 https://docs.djangoproject.com/en/2.0/ref/settings/#std:setting-SECRET_KEY
 
-### BMLT Root Servers
-The list of BMLT servers is configured in the django settings file:
-```
-ROOT_SERVERS = [
-    'http://bmlt.ncregion-na.org/main_server/',
-    'http://crna.org/main_server/',
-    'http://www.alnwfl.org/main_server/',
-    'http://naflorida.org/bmlt_server/',
-    'http://www.grscnabmlt.tk/main_server/',
-]
-```
-
 ###  Environment Variables
 
 | Name | Description |
