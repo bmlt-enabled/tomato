@@ -318,7 +318,7 @@ class Meeting(models.Model):
             try:
                 bmlt_meeting = Meeting.validate_bmlt_object(root_server, bmlt_meeting)
             except ImportException as e:
-                logger.warn('Error parsing meeting: {}'.format(str(e)))
+                logger.warning('Error parsing meeting: {}'.format(str(e)))
                 ImportProblem.objects.create(root_server=root_server, message=str(e), data=str(e.bmlt_object))
                 continue
 
