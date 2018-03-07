@@ -403,7 +403,8 @@ def get_search_results(request):
                 num_meetings = abs(int(d))
                 qs = meeting_qs.annotate(distance=Distance('point', point))
                 qs = qs.order_by('distance')
-                meeting_ids = [m.id for m in qs[:num_meetings]]
+                qs = qs.values_list('id')
+                meeting_ids = [m[0] for m in qs[:num_meetings]]
                 meeting_qs = meeting_qs.filter(id__in=meeting_ids)
             else:
                 d = D(km=d) if is_km else D(mi=d)
