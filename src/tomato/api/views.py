@@ -12,8 +12,20 @@ from django.contrib.postgres.aggregates.general import ArrayAgg
 from django.db import models
 from django.http import response
 from xml.etree import ElementTree as ET
-from .models import Format, Meeting
+from .models import Format, Meeting, ServiceBody
 
+
+service_bodies_field_map = OrderedDict([
+    ('id', 'id'),
+    ('parent_id', 'parent_id'),
+    ('name', 'name'),
+    ('description', 'description'),
+    ('type', 'type'),
+    ('url', 'url'),
+    ('helpline', ''),
+    ('root_server_id', 'root_server_id'),
+    ('world_id', 'world_id'),
+])
 
 format_field_map = OrderedDict([
     ('key_string', 'key_string'),
@@ -420,13 +432,21 @@ def get_formats(request):
     return format_qs
 
 
+def get_service_bodies(request):
+    root_server_id = request.GET.get('root_server_id')
+    body_qs = ServiceBody.objects.all()
+    if root_server_id:
+        body_qs = body_qs.filter(root_server_id=root_server_id)
+    return body_qs
+
+
 def semantic_query(request, format='json'):
     switcher = request.GET.get('switcher')
     if format not in ('csv', 'json', 'xml'):
         return response.HttpResponseBadRequest()
     if not switcher:
         return response.HttpResponseBadRequest()
-    if switcher not in ('GetSearchResults','GetFormats',):
+    if switcher not in ('GetSearchResults', 'GetFormats', 'GetServiceBodies'):
         return response.HttpResponseBadRequest()
 
     ret = None
@@ -470,5 +490,13 @@ def semantic_query(request, format='json'):
             ret = models_to_csv(formats, format_field_map)
         elif format == 'xml':
             ret = models_to_xml(formats, format_field_map, 'formats')
+    elif switcher == 'GetServiceBodies':
+        bodies = get_service_bodies(request)
+        if format == 'json':
+            ret = models_to_json(bodies, service_bodies_field_map)
+        elif format == 'csv':
+            ret = models_to_csv(bodies, service_bodies_field_map)
+        elif format == 'xml':
+            ret = models_to_xml(bodies, service_bodies_field_map, 'serviceBodies')
 
     return response.HttpResponse(ret, content_type=content_type)
