@@ -373,7 +373,6 @@ class Meeting(models.Model):
                 logger.error(message)
                 ImportProblem.objects.create(root_server=root_server, message=message, data=str(bmlt_meeting))
 
-
     @staticmethod
     def validate_bmlt_object(root_server, bmlt_meeting):
         try:

@@ -373,18 +373,29 @@ def get_search_results(request):
         meeting_qs = meeting_qs.values(*values)
     if long_val and lat_val and (geo_width or geo_width_km):
         try:
+            is_km = False
             long_val = float(long_val)
             lat_val = float(lat_val)
             if geo_width is not None:
                 geo_width = float(geo_width)
             if geo_width_km is not None:
+                is_km = True
                 geo_width_km - float(geo_width_km)
-            point = Point(long_val, lat_val)
+            point = Point(x=long_val, y=lat_val, srid=4326)
         except:
             pass
         else:
-            d = D(mi=geo_width) if geo_width else D(km=geo_width_km)
-            meeting_qs = meeting_qs.filter(point__distance_lte=(point, d))
+            d = geo_width_km if is_km else geo_width
+            get_nearest = d < 0
+            if get_nearest:
+                num_meetings = abs(int(d))
+                qs = meeting_qs.annotate(distance=Distance('point', point))
+                qs = qs.order_by('distance')
+                meeting_ids = [m.id for m in qs[:num_meetings]]
+                meeting_qs = meeting_qs.filter(id__in=meeting_ids)
+            else:
+                d = D(km=d) if is_km else D(mi=d)
+                meeting_qs = meeting_qs.filter(point__distance_lte=(point, d))
             if sort_results_by_distance:
                 meeting_qs = meeting_qs.annotate(distance=Distance('point', point))
                 meeting_qs = meeting_qs.order_by('distance')
