@@ -1,5 +1,6 @@
 import datetime
 import decimal
+import logging
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
 
@@ -283,62 +284,65 @@ class Meeting(models.Model):
 
     @staticmethod
     def import_from_bmlt_objects(root_server, bmlt_meetings):
+        logger = logging.getLogger('django')
         for bmlt_meeting in bmlt_meetings:
             try:
                 bmlt_meeting = Meeting.validate_bmlt_object(root_server, bmlt_meeting)
             except ImportException as e:
-                ImportProblem.objects.create(
-                    root_server=root_server,
-                    message=str(e),
-                    data=str(e.bmlt_object)
-                )
+                logger.warn('Error parsing meeting: {}'.format(str(e)))
+                ImportProblem.objects.create(root_server=root_server, message=str(e), data=str(e.bmlt_object))
                 continue
 
             try:
-                qs = Meeting.objects.prefetch_related('meetinginfo', 'service_body', 'formats')
-                meeting = qs.get(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
-            except Meeting.DoesNotExist:
-                meeting = Meeting(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
+                try:
+                    qs = Meeting.objects.prefetch_related('meetinginfo', 'service_body', 'formats')
+                    meeting = qs.get(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
+                except Meeting.DoesNotExist:
+                    meeting = Meeting(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
 
-            dirty = False
-            field_names = ('service_body', 'name', 'weekday', 'start_time',
-                           'duration', 'language', 'latitude', 'longitude',
-                           'published')
-            changed_fields = []
-            for field_name in field_names:
-                if set_if_changed(meeting, field_name, bmlt_meeting[field_name]):
-                    changed_fields.append(field_name)
-                    dirty = True
+                dirty = False
+                field_names = ('service_body', 'name', 'weekday', 'start_time',
+                               'duration', 'language', 'latitude', 'longitude',
+                               'published')
+                changed_fields = []
+                for field_name in field_names:
+                    if set_if_changed(meeting, field_name, bmlt_meeting[field_name]):
+                        changed_fields.append(field_name)
+                        dirty = True
 
-            if meeting.longitude and meeting.latitude:
-                point = Point(float(meeting.longitude), float(meeting.latitude))
-                if meeting.point != point:
-                    meeting.point = point
-                    dirty = True
+                if meeting.longitude and meeting.latitude:
+                    point = Point(float(meeting.longitude), float(meeting.latitude))
+                    if meeting.point != point:
+                        meeting.point = point
+                        dirty = True
 
-            if dirty:
-                meeting.save()
+                if dirty:
+                    meeting.save()
 
-            try:
-                meeting.meetinginfo
-            except MeetingInfo.DoesNotExist:
-                meeting.meetinginfo = MeetingInfo.objects.create(meeting=meeting)
-                meeting.save()
+                try:
+                    meeting.meetinginfo
+                except MeetingInfo.DoesNotExist:
+                    meeting.meetinginfo = MeetingInfo.objects.create(meeting=meeting)
+                    meeting.save()
 
-            dirty = False
-            for field_name in bmlt_meeting['meetinginfo'].keys():
-                if set_if_changed(meeting.meetinginfo, field_name, bmlt_meeting['meetinginfo'][field_name]):
-                    changed_fields.append(field_name)
-                    dirty = True
+                dirty = False
+                for field_name in bmlt_meeting['meetinginfo'].keys():
+                    if set_if_changed(meeting.meetinginfo, field_name, bmlt_meeting['meetinginfo'][field_name]):
+                        changed_fields.append(field_name)
+                        dirty = True
 
-            if dirty:
-                meeting.meetinginfo.save()
+                if dirty:
+                    meeting.meetinginfo.save()
 
-            if bmlt_meeting['formats']:
-                if meeting.formats != bmlt_meeting['formats']:
-                    meeting.formats.set(bmlt_meeting['formats'])
-            elif meeting.formats.exists():
-                meeting.formats.clear()
+                if bmlt_meeting['formats']:
+                    if meeting.formats != bmlt_meeting['formats']:
+                        meeting.formats.set(bmlt_meeting['formats'])
+                elif meeting.formats.exists():
+                    meeting.formats.clear()
+            except Exception as e:
+                logger.error('Error saving meeting: {}'.format(str(e)))
+                ImportProblem.objects.create(root_server=root_server, message=str(e), data=str(bmlt_meeting))
+
 
     @staticmethod
     def validate_bmlt_object(root_server, bmlt_meeting):
@@ -409,4 +413,4 @@ class MeetingInfo(models.Model):
     train_lines = models.CharField(max_length=255, null=True)
     bus_lines = models.CharField(max_length=255, null=True)
     world_id = models.CharField(max_length=255, null=True)
-    comments = models.CharField(max_length=255, null=True)
+    comments = models.TextField(null=True)
