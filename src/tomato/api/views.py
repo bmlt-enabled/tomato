@@ -76,65 +76,35 @@ meeting_field_map = OrderedDict([
     ('published', 'published'),
 ])
 
-valid_meeting_search_keys = [
-    'root_server_id',
-    'worldid_mixed',
-    'start_time',
-    'duration_time',
-    'lang_enum',
-    'meeting_name',
-    'location_text',
-    'location_info',
-    'location_street',
-    'location_city_subsection',
-    'location_neighborhood',
-    'location_municipality',
-    'location_sub_province',
-    'location_province',
-    'location_postal_code_1',
-    'location_nation',
-    'comments',
-    'train_lines',
-    'bus_lines',
-]
+valid_meeting_search_keys_with_descriptions = OrderedDict([
+    ('id_bigint', 'ID'),
+    ('worldid_mixed', 'World ID'),
+    ('service_body_bigint', 'Service Body ID'),
+    ('weekday_tinyint', 'Weekday'),
+    ('start_time', 'Start Time'),
+    ('duration_time', 'Duration'),
+    ('formats', 'Formats'),
+    ('lang_enum', 'Language'),
+    ('longitude', 'Longitude'),
+    ('latitude', 'Latitude'),
+    ('meeting_name', 'Meeting Name'),
+    ('location_text', 'Location Name'),
+    ('location_info', 'Additional Location Information'),
+    ('location_street', 'Street Address'),
+    ('location_city_subsection', 'Borough'),
+    ('location_neighborhood', 'Neighborhood'),
+    ('location_municipality', 'Town'),
+    ('location_sub_province', 'County'),
+    ('location_province', 'State'),
+    ('location_postal_code_1', 'Zip Code'),
+    ('location_nation', 'Nation'),
+    ('comments', 'Comments'),
+    ('train_lines', 'Train Lines'),
+    ('bus_lines', 'Bus Lines'),
+    ('root_server_id', 'Root Server ID'),
+])
 
-valid_specific_fields_keys = [
-    'id_bigint',
-    'root_server_id',
-    'worldid_mixed',
-    'service_body_bigint',
-    'weekday_tinyint',
-    'start_time',
-    'duration_time',
-    'formats',
-    'lang_enum',
-    'longitude',
-    'latitude',
-    'distance_in_km',
-    'distance_in_miles',
-    'email_contact',
-    'meeting_name',
-    'location_text',
-    'location_info',
-    'location_street',
-    'location_city_subsection',
-    'location_neighborhood',
-    'location_municipality',
-    'location_sub_province',
-    'location_province',
-    'location_postal_code_1',
-    'location_nation',
-    'comments',
-    'train_lines',
-    'bus_lines',
-    'contact_phone_2',
-    'contact_email_2',
-    'contact_name_2',
-    'contact_phone_1',
-    'contact_email_1',
-    'contact_name_1',
-    'published',
-]
+valid_meeting_search_keys = valid_meeting_search_keys_with_descriptions.keys()
 
 
 def model_get_attr(model, attr):
@@ -279,8 +249,7 @@ def parse_timedelta_params(hour, minute):
 def extract_specific_keys_param(GET, key='data_field_key'):
     data_field_keys = GET.get(key)
     if data_field_keys:
-        data_field_keys = [k.strip() for k in data_field_keys.split(',')]
-        data_field_keys = [k for k in data_field_keys if k in valid_specific_fields_keys]
+        data_field_keys = [k for k in data_field_keys.split(',') if k in valid_meeting_search_keys]
     return data_field_keys
 
 
@@ -447,7 +416,7 @@ def semantic_query(request, format='json'):
         return response.HttpResponseBadRequest()
     if not switcher:
         return response.HttpResponseBadRequest()
-    if switcher not in ('GetSearchResults', 'GetFormats', 'GetServiceBodies'):
+    if switcher not in ('GetSearchResults', 'GetFormats', 'GetServiceBodies', 'GetFieldKeys'):
         return response.HttpResponseBadRequest()
 
     ret = None
@@ -492,6 +461,10 @@ def semantic_query(request, format='json'):
             models = get_service_bodies(request)
             field_map = service_bodies_field_map
             xml_node_name = 'serviceBodies'
+        elif switcher == 'GetFieldKeys':
+            models = [{'key': k, 'description': d} for k, d in valid_meeting_search_keys_with_descriptions.items()]
+            field_map = {'key': 'key', 'description': 'description'}
+            xml_node_name = 'fields'
 
         if format == 'json':
             ret = models_to_json(models, field_map)
