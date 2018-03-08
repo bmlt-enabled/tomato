@@ -41,3 +41,15 @@ A terraform configuration is included in this repository. The configuration depl
 2. Make sure you have a private key at ~/.ssh/id_rsa. Terraform uses this file as a data source to create a public key used for accessing the ECS instances.
 3. Create an ECR repository named "tomato". See https://aws.amazon.com/ecr/getting-started/ for more information.
 4. Build the docker image, and push it to the "tomato" repository.
+
+## Local cluster (beta)
+
+*No data is being populated yet*
+
+To test using docker run the following.
+
+```shell
+docker-compose up
+```
+
+From there you can issue queries to the instance at `http://localhost:8080`, or use the bundled semantic workshop container at `http://localhost:8081/index.php`.  From there you can reference the tomato server as the root `http://tomato:8080/main_server`.
