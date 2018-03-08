@@ -140,7 +140,7 @@ def model_get_value(model, attr):
         if isinstance(value, bool):
             value = '1' if value else '0'
         elif isinstance(value, list):
-            value = ','.join(value)
+            value = ','.join([str(v) for v in value])
         elif isinstance(value, datetime.timedelta):
             if value.seconds < 36000:
                 value = '0' + str(value)
@@ -394,6 +394,23 @@ def get_search_results(request):
     return meeting_qs
 
 
+def get_field_values(request):
+    root_server_id = request.GET.get('root_server_id')
+    meeting_key = request.GET.get('meeting_key')
+    meeting_qs = Meeting.objects.all()
+    if root_server_id:
+        meeting_qs = Meeting.objects.filter(root_server_id=root_server_id)
+    if meeting_key in valid_meeting_search_keys:
+        model_field = meeting_field_map.get(meeting_key)
+        if isinstance(model_field, tuple):
+            model_field = model_field[0]
+        if model_field:
+            model_field = model_field.replace('.', '__')
+            meeting_qs = meeting_qs.values(model_field)
+            meeting_qs = meeting_qs.annotate(ids=ArrayAgg('id'))
+    return meeting_qs
+
+
 def get_formats(request):
     root_server_id = request.GET.get('root_server_id')
     format_qs = Format.objects.all()
@@ -416,7 +433,7 @@ def semantic_query(request, format='json'):
         return response.HttpResponseBadRequest()
     if not switcher:
         return response.HttpResponseBadRequest()
-    if switcher not in ('GetSearchResults', 'GetFormats', 'GetServiceBodies', 'GetFieldKeys'):
+    if switcher not in ('GetSearchResults', 'GetFormats', 'GetServiceBodies', 'GetFieldKeys', 'GetFieldValues'):
         return response.HttpResponseBadRequest()
 
     ret = None
@@ -465,6 +482,14 @@ def semantic_query(request, format='json'):
             models = [{'key': k, 'description': d} for k, d in valid_meeting_search_keys_with_descriptions.items()]
             field_map = {'key': 'key', 'description': 'description'}
             xml_node_name = 'fields'
+        elif switcher == 'GetFieldValues':
+            meeting_key = request.GET.get('meeting_key')
+            if meeting_key in valid_meeting_search_keys:
+                models = get_field_values(request)
+                field_map = {meeting_key: meeting_field_map.get(meeting_key), 'ids': 'ids'}
+                xml_node_name = 'fields'
+            else:
+                return response.HttpResponseBadRequest()
 
         if format == 'json':
             ret = models_to_json(models, field_map)
