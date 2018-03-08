@@ -1,0 +1,22 @@
+version: '2'
+services:
+  tomato:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      RDS_HOST: postgis
+    links:
+      - postgis
+  postgis:
+    image: mdillon/postgis:9.5-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: tomato
+      POSTGRES_USER: tomato
+      POSTGRES_PASSWORD: tomato
+  semantic-workshop:
+    image: radius314/bmlt-semantic-workshop:1.3.2
+    ports:
+      - "8081:80"
