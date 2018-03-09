@@ -19,65 +19,72 @@ from .models import Format, Meeting, ServiceBody
 
 logger = logging.getLogger('django')
 
+
+def model_has_distance(model):
+    if isinstance(model, dict):
+        return 'distance' in model
+    return hasattr(model, 'distance')
+
+
 service_bodies_field_map = OrderedDict([
-    ('id', 'id'),
-    ('parent_id', 'parent_id'),
-    ('name', 'name'),
-    ('description', 'description'),
-    ('type', 'type'),
-    ('url', 'url'),
-    ('helpline', ''),
-    ('root_server_id', 'root_server_id'),
-    ('world_id', 'world_id'),
+    ('id',             ('id',),),
+    ('parent_id',      ('parent_id',),),
+    ('name',           ('name',),),
+    ('description',    ('description',),),
+    ('type',           ('type',),),
+    ('url',            ('url',),),
+    ('helpline',       ('',),),
+    ('root_server_id', ('root_server_id',),),
+    ('world_id',       ('world_id',),),
 ])
 
 format_field_map = OrderedDict([
-    ('key_string', 'key_string'),
-    ('name_string', 'name'),
-    ('description_string', 'description'),
-    ('lang', 'language'),
-    ('id', 'id'),
-    ('root_server_id', 'root_server_id'),
-    ('world_id', 'world_id'),
+    ('key_string',         ('key_string',),),
+    ('name_string',        ('name',),),
+    ('description_string', ('description',),),
+    ('lang',               ('language',),),
+    ('id',                 ('id',),),
+    ('root_server_id',     ('root_server_id',),),
+    ('world_id',           ('world_id',),),
 ])
 
 meeting_field_map = OrderedDict([
-    ('id_bigint', 'id'),
-    ('root_server_id', 'root_server_id'),
-    ('worldid_mixed', 'meetinginfo.world_id'),
-    ('shared_group_id_bigint', ''),
-    ('service_body_bigint', 'service_body.id'),
-    ('weekday_tinyint', 'weekday'),
-    ('start_time', 'start_time'),
-    ('duration_time', 'duration'),
-    ('formats', ('formats.key_string', 'formats_aggregate'),),
-    ('lang_enum', 'language'),
-    ('longitude', 'longitude'),
-    ('latitude', 'latitude'),
-    ('distance_in_km', ''),
-    ('distance_in_miles', ''),
-    ('email_contact', 'meetinginfo.email'),
-    ('meeting_name', 'name'),
-    ('location_text', 'meetinginfo.location_text'),
-    ('location_info', 'meetinginfo.location_info'),
-    ('location_street', 'meetinginfo.location_street'),
-    ('location_city_subsection', 'meetinginfo.location_city_subsection'),
-    ('location_neighborhood', 'meetinginfo.location_neighborhood'),
-    ('location_municipality', 'meetinginfo.location_municipality'),
-    ('location_sub_province', 'meetinginfo.location_sub_province'),
-    ('location_province', 'meetinginfo.location_province'),
-    ('location_postal_code_1', 'meetinginfo.location_postal_code_1'),
-    ('location_nation', 'meetinginfo.location_nation'),
-    ('comments', 'meetinginfo.comments'),
-    ('train_lines', 'meetinginfo.train_lines'),
-    ('bus_lines', 'meetinginfo.bus_lines'),
-    ('contact_phone_2', ''),
-    ('contact_email_2', ''),
-    ('contact_name_2', ''),
-    ('contact_phone_1', ''),
-    ('contact_email_1', ''),
-    ('contact_name_1', ''),
-    ('published', 'published'),
+    ('id_bigint',                ('id',),),
+    ('root_server_id',           ('root_server_id',),),
+    ('worldid_mixed',            ('meetinginfo.world_id',),),
+    ('shared_group_id_bigint',   ('',),),
+    ('service_body_bigint',      ('service_body.id',),),
+    ('weekday_tinyint',          ('weekday',),),
+    ('start_time',               ('start_time',),),
+    ('duration_time',            ('duration',),),
+    ('formats',                  (('formats.key_string', 'formats_aggregate',),),),
+    ('lang_enum',                ('language',),),
+    ('longitude',                ('longitude',),),
+    ('latitude',                 ('latitude',),),
+    ('distance_in_km',           (('distance.km',), model_has_distance),),
+    ('distance_in_miles',        (('distance.mi',), model_has_distance),),
+    ('email_contact',            ('meetinginfo.email',),),
+    ('meeting_name',             ('name',),),
+    ('location_text',            ('meetinginfo.location_text',),),
+    ('location_info',            ('meetinginfo.location_info',),),
+    ('location_street',          ('meetinginfo.location_street',),),
+    ('location_city_subsection', ('meetinginfo.location_city_subsection',),),
+    ('location_neighborhood',    ('meetinginfo.location_neighborhood',),),
+    ('location_municipality',    ('meetinginfo.location_municipality',),),
+    ('location_sub_province',    ('meetinginfo.location_sub_province',),),
+    ('location_province',        ('meetinginfo.location_province',),),
+    ('location_postal_code_1',   ('meetinginfo.location_postal_code_1',),),
+    ('location_nation',          ('meetinginfo.location_nation',),),
+    ('comments',                 ('meetinginfo.comments',),),
+    ('train_lines',              ('meetinginfo.train_lines',),),
+    ('bus_lines',                ('meetinginfo.bus_lines',),),
+    ('contact_phone_2',          ('',),),
+    ('contact_email_2',          ('',),),
+    ('contact_name_2',           ('',),),
+    ('contact_phone_1',          ('',),),
+    ('contact_email_1',          ('',),),
+    ('contact_name_1',           ('',),),
+    ('published',                ('published',),),
 ])
 
 valid_meeting_search_keys_with_descriptions = OrderedDict([
@@ -163,9 +170,14 @@ def model_to_json(model, map, return_attrs=None):
     ret = OrderedDict()
     keys = return_attrs if return_attrs else map.keys()
     for to_attr in keys:
-        from_attr = map.get(to_attr, None)
-        if from_attr is None:
+        from_params = map.get(to_attr, None)
+        if from_params is None:
             continue
+        if len(from_params) > 1:
+            qualifier = from_params[1]
+            if not qualifier(model):
+                continue
+        from_attr = from_params[0]
         value = model_get_value(model, from_attr)
         ret[to_attr] = value
     return ret
@@ -174,9 +186,14 @@ def model_to_json(model, map, return_attrs=None):
 def model_to_csv(writer, model, map):
     d = {}
     for to_attr in writer.fieldnames:
-        from_attr = map.get(to_attr, None)
-        if from_attr is None:
+        from_params = map.get(to_attr, None)
+        if from_params is None:
             continue
+        if len(from_params) > 1:
+            qualifier = from_params[1]
+            if not qualifier(model):
+                continue
+        from_attr = from_params[0]
         value = model_get_value(model, from_attr)
         d[to_attr] = value
     writer.writerow(d)
@@ -184,7 +201,12 @@ def model_to_csv(writer, model, map):
 
 def model_to_xml(elem, model, map):
     row = ET.SubElement(elem, 'row')
-    for to_attr, from_attr in map.items():
+    for to_attr, from_params in map.items():
+        if len(from_params) > 1:
+            qualifier = from_params[1]
+            if not qualifier(model):
+                continue
+        from_attr = from_params[0]
         value = model_get_value(model, from_attr)
         if value:
             sub = ET.SubElement(row, to_attr)
@@ -201,7 +223,16 @@ def models_to_json(models, field_map, return_attrs=None):
 
 def models_to_csv(models, field_map, fieldnames=None):
     if not fieldnames:
-        fieldnames = field_map.keys()
+        fieldnames = []
+        for k, v in field_map.items():
+            if len(v) > 1:
+                if models:
+                    qualifier = v[1]
+                    model = models[0]
+                    if qualifier(model):
+                        fieldnames.append(k)
+            else:
+                fieldnames.append(k)
     stream = io.StringIO()
     try:
         writer = csv.DictWriter(stream, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
@@ -330,7 +361,7 @@ def get_search_results(request):
         meeting_qs = meeting_qs.exclude(root_server_id__in=root_server_ids_exclude)
     if meeting_key and meeting_key_value:
         if meeting_key in valid_meeting_search_keys:
-            model_field = meeting_field_map.get(meeting_key)
+            model_field = meeting_field_map.get(meeting_key)[0]
             if isinstance(model_field, tuple):
                 model_field = model_field[0]
             if model_field:
@@ -352,7 +383,7 @@ def get_search_results(request):
     if data_field_keys:
         values = []
         for key in data_field_keys:
-            model_field = meeting_field_map.get(key)
+            model_field = meeting_field_map.get(key)[0]
             if isinstance(model_field, tuple):
                 field_name = model_field[0].replace('.', '__')
                 agg_name = model_field[1]
@@ -392,10 +423,9 @@ def get_search_results(request):
         except:
             pass
         else:
+            meeting_qs = meeting_qs.annotate(distance=Distance('point', point))
             if get_nearest:
-                qs = meeting_qs.annotate(distance=Distance('point', point))
-                qs = qs.order_by('distance')
-                qs = qs.values_list('id')
+                qs = meeting_qs.order_by('distance').values_list('id')
                 meeting_ids = [m[0] for m in qs[:get_nearest]]
                 meeting_qs = meeting_qs.filter(id__in=meeting_ids)
             else:
@@ -403,12 +433,11 @@ def get_search_results(request):
                 d = D(mi=d) if geo_width is not None else D(km=d)
                 meeting_qs = meeting_qs.filter(point__distance_lte=(point, d))
             if sort_results_by_distance:
-                meeting_qs = meeting_qs.annotate(distance=Distance('point', point))
                 meeting_qs = meeting_qs.order_by('distance')
     if sort_keys and not sort_results_by_distance:
         values = []
         for key in sort_keys:
-            model_field = meeting_field_map.get(key)
+            model_field = meeting_field_map.get(key)[0]
             if model_field:
                 if isinstance(model_field, tuple):
                     continue  # no sorting by many to many relationships
@@ -425,7 +454,7 @@ def get_field_values(request):
     if root_server_id:
         meeting_qs = Meeting.objects.filter(root_server_id=root_server_id)
     if meeting_key in valid_meeting_search_keys:
-        model_field = meeting_field_map.get(meeting_key)
+        model_field = meeting_field_map.get(meeting_key)[0]
         if isinstance(model_field, tuple):
             model_field = model_field[0]
         if model_field:
@@ -504,13 +533,13 @@ def semantic_query(request, format='json'):
             xml_node_name = 'serviceBodies'
         elif switcher == 'GetFieldKeys':
             models = [{'key': k, 'description': d} for k, d in valid_meeting_search_keys_with_descriptions.items()]
-            field_map = {'key': 'key', 'description': 'description'}
+            field_map = {'key': ('key',), 'description': ('description',)}
             xml_node_name = 'fields'
         elif switcher == 'GetFieldValues':
             meeting_key = request.GET.get('meeting_key')
             if meeting_key in valid_meeting_search_keys:
                 models = get_field_values(request)
-                field_map = {meeting_key: meeting_field_map.get(meeting_key), 'ids': 'ids'}
+                field_map = {meeting_key: (meeting_field_map.get(meeting_key)[0],), 'ids': ('ids',)}
                 xml_node_name = 'fields'
             else:
                 return response.HttpResponseBadRequest()
