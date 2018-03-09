@@ -218,7 +218,7 @@ def models_to_json(models, field_map, return_attrs=None):
     models = [model_to_json(m, field_map, return_attrs=return_attrs) for m in models]
     if getattr(settings, 'DEBUG', False):
         return json.dumps(models, indent=2)
-    json.dumps(models, separators=(',', ':'))
+    return json.dumps(models, separators=(',', ':'))
 
 
 def models_to_csv(models, field_map, fieldnames=None):
