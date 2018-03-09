@@ -33,6 +33,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/#std:setting-SECRET_KEY
 | RDS_HOST | PostgreSQL Hostname |
 | RDS_PORT | PostgreSQL Port |
 | SECRET_KEY | Secret key used for Django crypto things |
+| GOOGLE_MAPS_API_KEY | Google Maps API Key |
 
 ## Deploying with terraform
 A terraform configuration is included in this repository. The configuration deploys both the Web Application and the Daemon to a small ECS Cluster in your AWS account. Some familiarity with AWS and Terraform is assumed, but there are a few things you'll need to put into place for the configuration to work.

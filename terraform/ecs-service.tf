@@ -213,6 +213,10 @@ resource "aws_ecs_task_definition" "daemon" {
       {
         "name": "RDS_PORT",
         "value": "${aws_db_instance.tomato.port}"
+      },
+      {
+        "name": "GOOGLE_MAPS_API_KEY",
+        "value": "AIzaSyD4BPAvDHL4CiRcFORdoUCpqwVuVz1F9r8"
       }
     ],
     "links": [],

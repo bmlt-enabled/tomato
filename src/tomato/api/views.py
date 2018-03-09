@@ -1,8 +1,10 @@
 import csv
 import datetime
 import decimal
-import json
 import io
+import json
+import logging
+import requests
 from collections import OrderedDict
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
@@ -14,6 +16,8 @@ from django.http import response
 from xml.etree import ElementTree as ET
 from .models import Format, Meeting, ServiceBody
 
+
+logger = logging.getLogger('django')
 
 service_bodies_field_map = OrderedDict([
     ('id', 'id'),
@@ -295,6 +299,12 @@ def get_search_results(request):
     geo_width_km = request.GET.get('geo_width_km')
     sort_results_by_distance = request.GET.get('sort_results_by_distance', None) == '1'
 
+    search_string = request.GET.get('SearchString')
+    search_string_is_address = request.GET.get('StringSearchIsAnAddress', None) == '1'
+    search_string_radius = request.GET.get('SearchStringRadius')
+    search_string_all = request.GET.get('SearchStringAll')
+    search_string_exact = request.GET.get('SearchStringExact')
+
     sort_keys = extract_specific_keys_param(request.GET, 'sort_keys')
 
     meeting_qs = Meeting.objects.all()
@@ -352,31 +362,45 @@ def get_search_results(request):
                 model_field = model_field.replace('.', '__')
                 values.append(model_field)
         meeting_qs = meeting_qs.values(*values)
-    if long_val and lat_val and (geo_width or geo_width_km):
+    if (long_val and lat_val and (geo_width or geo_width_km)) or (search_string and search_string_is_address):
         try:
-            is_km = False
-            long_val = float(long_val)
-            lat_val = float(lat_val)
-            point = Point(x=long_val, y=lat_val, srid=4326)
-            if geo_width is not None:
-                geo_width = float(geo_width)
-            elif geo_width_km is not None:
-                geo_width_km = float(geo_width_km)
-                is_km = True
+            get_nearest = False
+            if search_string and search_string_is_address:
+                # Translate address to lat/long using geocode api
+                url = 'https://maps.googleapis.com/maps/api/geocode/json?key={}&address={}&sensor=false'
+                r = requests.get(url.format(settings.GOOGLE_MAPS_API_KEY, search_string))
+                if r.status_code != 200:
+                    logger.warning('Received bad status code {} from geocode api request {}'.format(r.status_code, url))
+                r = json.loads(r.content)
+                if r['status'] != 'OK':
+                    logger.warning('Received bad status {} from geocode api request: {}'.format(r['status'], url))
+                latitude = r['results'][0]['geometry']['location']['lat']
+                longitude = r['results'][0]['geometry']['location']['lng']
+                get_nearest = 10
+            else:
+                latitude = float(lat_val)
+                longitude = float(long_val)
+                if geo_width is not None:
+                    geo_width = float(geo_width)
+                    if geo_width < 0:
+                        get_nearest = abs(int(geo_width))
+                elif geo_width_km is not None:
+                    geo_width_km = float(geo_width_km)
+                    if geo_width_km < 0:
+                        get_nearest = abs(int(geo_width_km))
+            point = Point(x=longitude, y=latitude, srid=4326)
         except:
             pass
         else:
-            d = geo_width_km if is_km else geo_width
-            get_nearest = d < 0
             if get_nearest:
-                num_meetings = abs(int(d))
                 qs = meeting_qs.annotate(distance=Distance('point', point))
                 qs = qs.order_by('distance')
                 qs = qs.values_list('id')
-                meeting_ids = [m[0] for m in qs[:num_meetings]]
+                meeting_ids = [m[0] for m in qs[:get_nearest]]
                 meeting_qs = meeting_qs.filter(id__in=meeting_ids)
             else:
-                d = D(km=d) if is_km else D(mi=d)
+                d = geo_width if geo_width is not None else geo_width_km
+                d = D(mi=d) if geo_width is not None else D(km=d)
                 meeting_qs = meeting_qs.filter(point__distance_lte=(point, d))
             if sort_results_by_distance:
                 meeting_qs = meeting_qs.annotate(distance=Distance('point', point))
