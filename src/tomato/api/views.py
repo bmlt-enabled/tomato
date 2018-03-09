@@ -71,12 +71,12 @@ meeting_field_map = OrderedDict([
     ('comments', 'meetinginfo.comments'),
     ('train_lines', 'meetinginfo.train_lines'),
     ('bus_lines', 'meetinginfo.bus_lines'),
-    ('contact_phone_2', 'meetinginfo.contact_phone_2'),
-    ('contact_email_2', 'meetinginfo.contact_email_2'),
-    ('contact_name_2', 'meetinginfo.contact_name_2'),
-    ('contact_phone_1', 'meetinginfo.contact_phone_1'),
-    ('contact_email_1', 'meetinginfo.contact_email_1'),
-    ('contact_name_1', 'meetinginfo.contact_name_1'),
+    ('contact_phone_2', ''),
+    ('contact_email_2', ''),
+    ('contact_name_2', ''),
+    ('contact_phone_1', ''),
+    ('contact_email_1', ''),
+    ('contact_name_1', ''),
     ('published', 'published'),
 ])
 

@@ -392,10 +392,6 @@ class Meeting(models.Model):
                 'formats': Format.objects.filter(root_server=root_server, key_string__in=formats),
                 'meetinginfo': {
                     'email': bmlt_meeting.get('email_contact', None),
-                    'contact_name_1': bmlt_meeting.get('contact_name_1', None),
-                    'contact_name_2': bmlt_meeting.get('contact_name_2', None),
-                    'contact_phone_1': bmlt_meeting.get('contact_phone_1', None),
-                    'contact_phone_2': bmlt_meeting.get('contact_phone_2', None),
                     'location_text': bmlt_meeting.get('location_text', None),
                     'location_info': bmlt_meeting.get('location_info', None),
                     'location_street': bmlt_meeting.get('location_street', None),
@@ -423,12 +419,6 @@ class MeetingInfo(models.Model):
     id = models.BigAutoField(primary_key=True)
     meeting = models.OneToOneField(Meeting, on_delete=models.CASCADE)
     email = models.EmailField(null=True)
-    contact_name_1 = models.CharField(max_length=255, null=True)
-    contact_name_2 = models.CharField(max_length=255, null=True)
-    contact_email_1 = models.EmailField(null=True)
-    contact_email_2 = models.EmailField(null=True)
-    contact_phone_1 = models.CharField(max_length=255, null=True)
-    contact_phone_2 = models.CharField(max_length=255, null=True)
     location_text = models.CharField(max_length=255, null=True)
     location_info = models.CharField(max_length=255, null=True)
     location_street = models.CharField(max_length=255, null=True)
