@@ -4,6 +4,7 @@ import io
 from django.test import TransactionTestCase
 from django.urls import reverse
 from xml.etree import ElementTree as ET
+from .models import Format
 from .views import meeting_field_map
 
 
@@ -100,7 +101,7 @@ class GetSearchResultsTests(TransactionTestCase):
         self.assertFalse('meetings' in response)
         self.assertTrue(len(response['formats']), 12)
 
-    def test_get_search_results_weekdays_single(self):
+    def test_get_search_results_weekdays_include_single(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults&weekdays=2'
         response = self.client.get(url)
@@ -110,7 +111,7 @@ class GetSearchResultsTests(TransactionTestCase):
         for meeting in response:
             self.assertEqual(meeting['weekday_tinyint'], '2')
 
-    def test_get_search_results_weekdays_multiple(self):
+    def test_get_search_results_weekdays_include_multiple(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults&weekdays[]=1&weekdays[]=2'
         response = self.client.get(url)
@@ -129,7 +130,7 @@ class GetSearchResultsTests(TransactionTestCase):
         self.assertTrue(found_one)
         self.assertTrue(found_two)
 
-    def test_get_search_results_weekdays_none_found(self):
+    def test_get_search_results_weekdays_include_none_found(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults&weekdays=7'
         response = self.client.get(url)
@@ -137,7 +138,28 @@ class GetSearchResultsTests(TransactionTestCase):
         response = json.loads(response.content)
         self.assertTrue(len(response) == 0)
 
-    def test_get_search_results_services_single(self):
+    def test_get_search_results_weekdays_exclude_single(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&weekdays=-2'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 1)
+        for meeting in response:
+            self.assertNotEqual(meeting['weekday_tinyint'], '2')
+
+    def test_get_search_results_weekdays_exclude_multiple(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&weekdays[]=-1&weekdays[]=-2'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 1)
+        for meeting in response:
+            self.assertNotEqual(meeting['weekday_tinyint'], '1')
+            self.assertNotEqual(meeting['weekday_tinyint'], '2')
+
+    def test_get_search_results_services_include_single(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults&services=5'
         response = self.client.get(url)
@@ -147,7 +169,7 @@ class GetSearchResultsTests(TransactionTestCase):
         for meeting in response:
             self.assertEqual(meeting['service_body_bigint'], '5')
 
-    def test_get_search_results_services_multiple(self):
+    def test_get_search_results_services_include_multiple(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults&services[]=5&services[]=4'
         response = self.client.get(url)
@@ -166,10 +188,87 @@ class GetSearchResultsTests(TransactionTestCase):
         self.assertTrue(found_four)
         self.assertTrue(found_five)
 
-    def test_get_search_results_services_none_found(self):
+    def test_get_search_results_services_include_none_found(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults&services=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(response.content)
         self.assertTrue(len(response) == 0)
+
+    def test_get_search_results_services_exclude_single(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&services=-5'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            self.assertNotEqual(meeting['service_body_bigint'], '5')
+
+    def test_get_search_results_services_exclude_multiple(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&services[]=-5&services[]=-4'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            self.assertNotEqual(meeting['service_body_bigint'], '4')
+            self.assertNotEqual(meeting['service_body_bigint'], '5')
+
+    def test_get_search_results_formats_include_single(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&formats=29'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        f = Format.objects.get(id=29)
+        for meeting in response:
+            self.assertIn(f.key_string, meeting['formats'])
+
+    def test_get_search_results_formats_include_multiple(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&formats[]=9&formats[]=12'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        f_nine = Format.objects.get(id=9)
+        f_twelve = Format.objects.get(id=12)
+        for meeting in response:
+            self.assertIn(f_nine.key_string, meeting['formats'])
+            self.assertIn(f_twelve.key_string, meeting['formats'])
+
+    def test_get_search_results_formats_include_none_found(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&formats=1'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) == 0)
+
+    def test_get_search_results_formats_exclude_single(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&formats=-29&root_server_ids=1'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        f = Format.objects.get(id=29)
+        for meeting in response:
+            self.assertNotIn(f.key_string, meeting['formats'])
+
+    def test_get_search_results_formats_exclude_multiple(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&formats[]=-9&formats[]=-12&root_server_ids=1'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        f_nine = Format.objects.get(id=9)
+        f_twelve = Format.objects.get(id=12)
+        for meeting in response:
+            self.assertNotIn(f_nine.key_string, meeting['formats'])
+            self.assertNotIn(f_twelve.key_string, meeting['formats'])
