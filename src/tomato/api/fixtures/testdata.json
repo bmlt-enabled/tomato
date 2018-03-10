@@ -1,0 +1,1737 @@
+[
+  {
+    "model": "api.rootserver",
+    "pk": 1,
+    "fields": {
+      "url": "https://na-hawaii.org/bmltmain/"
+    }
+  },
+  {
+    "model": "api.rootserver",
+    "pk": 2,
+    "fields": {
+      "url": "https://grscnabmlt.tk/main_server/"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 1,
+    "fields": {
+      "source_id": 1,
+      "root_server": 1,
+      "parent": null,
+      "name": "HRSCNA",
+      "type": "RS",
+      "description": "Hawaii Regional Webservant",
+      "url": "na-hawaii.org",
+      "world_id": "RG281"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 2,
+    "fields": {
+      "source_id": 2,
+      "root_server": 1,
+      "parent": 1,
+      "name": "East Hawaii Area",
+      "type": "AS",
+      "description": "East Hawaii Area",
+      "url": "",
+      "world_id": "AR28102"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 3,
+    "fields": {
+      "source_id": 3,
+      "root_server": 1,
+      "parent": 1,
+      "name": "Kauai Area",
+      "type": "AS",
+      "description": "Kauai Area",
+      "url": "",
+      "world_id": "AR28103"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 4,
+    "fields": {
+      "source_id": 4,
+      "root_server": 1,
+      "parent": 1,
+      "name": "Maui Area",
+      "type": "AS",
+      "description": "Maui Area",
+      "url": "",
+      "world_id": "AR28104"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 5,
+    "fields": {
+      "source_id": 5,
+      "root_server": 1,
+      "parent": 1,
+      "name": "Oahu Area",
+      "type": "AS",
+      "description": "Oahu Area",
+      "url": "",
+      "world_id": "AR28105"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 6,
+    "fields": {
+      "source_id": 6,
+      "root_server": 1,
+      "parent": 1,
+      "name": "West Hawaii Area",
+      "type": "AS",
+      "description": "West Hawaii Area",
+      "url": "",
+      "world_id": "AR28107"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 7,
+    "fields": {
+      "source_id": 7,
+      "root_server": 1,
+      "parent": null,
+      "name": "Guam Area",
+      "type": "AS",
+      "description": "Guam Area",
+      "url": "",
+      "world_id": "AR28108"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 8,
+    "fields": {
+      "source_id": 8,
+      "root_server": 1,
+      "parent": 4,
+      "name": "Molokai",
+      "type": "MA",
+      "description": "Service body created so BMLT will display only Molokai meetings.",
+      "url": "na-hawaii.org",
+      "world_id": null
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 9,
+    "fields": {
+      "source_id": 1,
+      "root_server": 2,
+      "parent": null,
+      "name": "Georgia Region",
+      "type": "RS",
+      "description": "Georgia Regional Service Committee of Narcotics Anonymous",
+      "url": "www.grscna.com",
+      "world_id": "RG234"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 10,
+    "fields": {
+      "source_id": 2,
+      "root_server": 2,
+      "parent": 28,
+      "name": "Central Savannah River Area",
+      "type": "AS",
+      "description": "Central Savannah River Area",
+      "url": "csra.grscna.com",
+      "world_id": "AR23403"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 11,
+    "fields": {
+      "source_id": 3,
+      "root_server": 2,
+      "parent": 28,
+      "name": "Chattahoochee/Flint River Area",
+      "type": "AS",
+      "description": "Chattahoochee Flint River Area",
+      "url": "www.cfrana.com",
+      "world_id": "AR23402"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 12,
+    "fields": {
+      "source_id": 4,
+      "root_server": 2,
+      "parent": 29,
+      "name": "Coastal Area",
+      "type": "AS",
+      "description": "Coastal Area",
+      "url": "www.grscna.com",
+      "world_id": "AR23401"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 13,
+    "fields": {
+      "source_id": 5,
+      "root_server": 2,
+      "parent": 26,
+      "name": "East End Area",
+      "type": "AS",
+      "description": "East End Area",
+      "url": "www.eascna.org",
+      "world_id": "AR23405"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 14,
+    "fields": {
+      "source_id": 6,
+      "root_server": 2,
+      "parent": 27,
+      "name": "Extreme Northern Area",
+      "type": "AS",
+      "description": "Extreme Northern Area",
+      "url": "www.naena.org",
+      "world_id": "AR23406"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 15,
+    "fields": {
+      "source_id": 7,
+      "root_server": 2,
+      "parent": 26,
+      "name": "Marietta Area",
+      "type": "AS",
+      "description": "Marietta Area",
+      "url": "mariettana.org",
+      "world_id": "AR23404"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 16,
+    "fields": {
+      "source_id": 8,
+      "root_server": 2,
+      "parent": 26,
+      "name": "Midtown Atlanta Area",
+      "type": "AS",
+      "description": "Midtown Atlanta Area",
+      "url": "midtownatlantana.com",
+      "world_id": "AR23407"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 17,
+    "fields": {
+      "source_id": 9,
+      "root_server": 2,
+      "parent": 26,
+      "name": "North Atlanta Area",
+      "type": "AS",
+      "description": "North Atlanta Area",
+      "url": "www.northatlantana.org",
+      "world_id": "AR23416"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 18,
+    "fields": {
+      "source_id": 10,
+      "root_server": 2,
+      "parent": 27,
+      "name": "Northeast Georgia Area",
+      "type": "AS",
+      "description": "Northeast Georgia Area",
+      "url": "www.negana.org",
+      "world_id": "AR23410"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 19,
+    "fields": {
+      "source_id": 11,
+      "root_server": 2,
+      "parent": 28,
+      "name": "Piedmont Area",
+      "type": "AS",
+      "description": "Piedmont Georgia Area",
+      "url": "https://sites.google.com/site/pascna/",
+      "world_id": "AR23422"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 20,
+    "fields": {
+      "source_id": 12,
+      "root_server": 2,
+      "parent": 29,
+      "name": "Savannah Low Country Area",
+      "type": "AS",
+      "description": "Savannah Low Country Area",
+      "url": "slca.grscna.com",
+      "world_id": "AR23424"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 21,
+    "fields": {
+      "source_id": 13,
+      "root_server": 2,
+      "parent": 26,
+      "name": "South Atlanta Area",
+      "type": "AS",
+      "description": "South Atlanta Area",
+      "url": "http://www.nasouthatl.com/",
+      "world_id": "AR23425"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 22,
+    "fields": {
+      "source_id": 14,
+      "root_server": 2,
+      "parent": 29,
+      "name": "South Central Georgia Area",
+      "type": "AS",
+      "description": "South Central Georgia Area",
+      "url": "http://southcentral.grscna.com/",
+      "world_id": "AR23408"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 23,
+    "fields": {
+      "source_id": 15,
+      "root_server": 2,
+      "parent": 29,
+      "name": "South Georgia Area",
+      "type": "AS",
+      "description": "South Georgia Area",
+      "url": "www.grscna.com",
+      "world_id": "AR23428"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 24,
+    "fields": {
+      "source_id": 16,
+      "root_server": 2,
+      "parent": 26,
+      "name": "West End Area",
+      "type": "AS",
+      "description": "West End Area",
+      "url": "http://www.westend.grscna.com/",
+      "world_id": "AR23431"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 25,
+    "fields": {
+      "source_id": 17,
+      "root_server": 2,
+      "parent": 29,
+      "name": "Greater Savannah Area",
+      "type": "AS",
+      "description": "Greater Savannah Area of Narcotics Anonymous",
+      "url": "http://gsana.grscna.com",
+      "world_id": "G00330139"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 26,
+    "fields": {
+      "source_id": 18,
+      "root_server": 2,
+      "parent": 9,
+      "name": "Metro Atlanta Sub-Region",
+      "type": "MA",
+      "description": "Metro Atlanta Sub-Region",
+      "url": "metro.grscna.com",
+      "world_id": "ME00330001"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 27,
+    "fields": {
+      "source_id": 19,
+      "root_server": 2,
+      "parent": 9,
+      "name": "North Georgia Sub-Region",
+      "type": "MA",
+      "description": "North Georgia Sub-Region",
+      "url": "north.grscna.com",
+      "world_id": "ME00330002"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 28,
+    "fields": {
+      "source_id": 20,
+      "root_server": 2,
+      "parent": 9,
+      "name": "Middle Georgia Sub-Region",
+      "type": "MA",
+      "description": "Middle Georgia Sub-Region",
+      "url": "middle.grscna.com",
+      "world_id": "ME00330003"
+    }
+  },
+  {
+    "model": "api.servicebody",
+    "pk": 29,
+    "fields": {
+      "source_id": 21,
+      "root_server": 2,
+      "parent": 9,
+      "name": "South Georgia Sub-Region",
+      "type": "MA",
+      "description": "South Georgia Sub-Region",
+      "url": "south.grscna.com",
+      "world_id": "ME00330004"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 1,
+    "fields": {
+      "source_id": 3,
+      "root_server": 1,
+      "key_string": "BT",
+      "name": "Basic Text",
+      "description": "This meeting is focused on discussion of the Basic Text of Narcotics Anonymous.",
+      "language": "en",
+      "world_id": "BT"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 2,
+    "fields": {
+      "source_id": 4,
+      "root_server": 1,
+      "key_string": "C",
+      "name": "Closed",
+      "description": "This meeting is closed to non-addicts. You should attend only if you believe that you may have a problem with substance abuse.",
+      "language": "en",
+      "world_id": "CLOSED"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 3,
+    "fields": {
+      "source_id": 6,
+      "root_server": 1,
+      "key_string": "CL",
+      "name": "Candlelight",
+      "description": "This meeting is held by candlelight.",
+      "language": "en",
+      "world_id": "CAN"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 4,
+    "fields": {
+      "source_id": 7,
+      "root_server": 1,
+      "key_string": "CS",
+      "name": "Children under Supervision",
+      "description": "Well-behaved, supervised children are welcome.",
+      "language": "en",
+      "world_id": null
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 5,
+    "fields": {
+      "source_id": 8,
+      "root_server": 1,
+      "key_string": "D",
+      "name": "Discussion",
+      "description": "This meeting invites participation by all attendees.",
+      "language": "en",
+      "world_id": "DISC"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 6,
+    "fields": {
+      "source_id": 10,
+      "root_server": 1,
+      "key_string": "GL",
+      "name": "Gay/Lesbian/Transgender",
+      "description": "This meeting is focused on the needs of gay, lesbian and transgender members of NA.",
+      "language": "en",
+      "world_id": "GL"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 7,
+    "fields": {
+      "source_id": 12,
+      "root_server": 1,
+      "key_string": "IP",
+      "name": "Informational Pamphlet",
+      "description": "This meeting is focused on discussion of one or more Informational Pamphlets.",
+      "language": "en",
+      "world_id": "IP"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 8,
+    "fields": {
+      "source_id": 13,
+      "root_server": 1,
+      "key_string": "IW",
+      "name": "It Works -How and Why",
+      "description": "This meeting is focused on discussion of the It Works -How and Why text.",
+      "language": "en",
+      "world_id": "IW"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 9,
+    "fields": {
+      "source_id": 14,
+      "root_server": 1,
+      "key_string": "JT",
+      "name": "Just for Today",
+      "description": "This meeting is focused on discussion of the Just For Today text.",
+      "language": "en",
+      "world_id": "JFT"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 10,
+    "fields": {
+      "source_id": 15,
+      "root_server": 1,
+      "key_string": "M",
+      "name": "Men",
+      "description": "This meeting is meant to be attended by men only.",
+      "language": "en",
+      "world_id": "M"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 11,
+    "fields": {
+      "source_id": 16,
+      "root_server": 1,
+      "key_string": "NC",
+      "name": "No Children",
+      "description": "Please do not bring children to this meeting.",
+      "language": "en",
+      "world_id": null
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 12,
+    "fields": {
+      "source_id": 17,
+      "root_server": 1,
+      "key_string": "O",
+      "name": "Open",
+      "description": "This meeting is open to addicts and non-addicts alike. All are welcome.",
+      "language": "en",
+      "world_id": "OPEN"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 13,
+    "fields": {
+      "source_id": 19,
+      "root_server": 1,
+      "key_string": "RF",
+      "name": "Rotating Format",
+      "description": "This meeting has a format that changes for each meeting.",
+      "language": "en",
+      "world_id": "VAR"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 14,
+    "fields": {
+      "source_id": 22,
+      "root_server": 1,
+      "key_string": "SD",
+      "name": "Speaker/Discussion",
+      "description": "This meeting is lead by a speaker, then opened for participation by attendees.",
+      "language": "en",
+      "world_id": "SPK"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 15,
+    "fields": {
+      "source_id": 23,
+      "root_server": 1,
+      "key_string": "SG",
+      "name": "Step Working Guide",
+      "description": "This meeting is focused on discussion of the Step Working Guide text.",
+      "language": "en",
+      "world_id": "SWG"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 16,
+    "fields": {
+      "source_id": 27,
+      "root_server": 1,
+      "key_string": "St",
+      "name": "Step",
+      "description": "This meeting is focused on discussion of the Twelve Steps of NA.",
+      "language": "en",
+      "world_id": "STEP"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 17,
+    "fields": {
+      "source_id": 29,
+      "root_server": 1,
+      "key_string": "To",
+      "name": "Topic",
+      "description": "This meeting is based upon a topic chosen by a speaker or by group conscience.",
+      "language": "en",
+      "world_id": "TOP"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 18,
+    "fields": {
+      "source_id": 30,
+      "root_server": 1,
+      "key_string": "Tr",
+      "name": "Tradition",
+      "description": "This meeting is focused on discussion of the Twelve Traditions of NA.",
+      "language": "en",
+      "world_id": "TRAD"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 19,
+    "fields": {
+      "source_id": 32,
+      "root_server": 1,
+      "key_string": "W",
+      "name": "Women",
+      "description": "This meeting is meant to be attended by women only.",
+      "language": "en",
+      "world_id": "W"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 20,
+    "fields": {
+      "source_id": 33,
+      "root_server": 1,
+      "key_string": "WC",
+      "name": "Wheelchair",
+      "description": "This meeting is wheelchair accessible.",
+      "language": "en",
+      "world_id": "WCHR"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 21,
+    "fields": {
+      "source_id": 34,
+      "root_server": 1,
+      "key_string": "YP",
+      "name": "Young People",
+      "description": "This meeting is focused on the needs of younger members of NA.",
+      "language": "en",
+      "world_id": "Y"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 22,
+    "fields": {
+      "source_id": 37,
+      "root_server": 1,
+      "key_string": "NS",
+      "name": "No Smoking",
+      "description": "Smoking is not allowed at this meeting.",
+      "language": "en",
+      "world_id": null
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 23,
+    "fields": {
+      "source_id": 41,
+      "root_server": 1,
+      "key_string": "ME",
+      "name": "Meditation",
+      "description": "This meeting encourages its participants to engage in quiet meditation.",
+      "language": "en",
+      "world_id": "MED"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 24,
+    "fields": {
+      "source_id": 44,
+      "root_server": 1,
+      "key_string": "CW",
+      "name": "Children Welcome",
+      "description": "Children are welcome at this meeting.",
+      "language": "en",
+      "world_id": "CW"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 25,
+    "fields": {
+      "source_id": 51,
+      "root_server": 1,
+      "key_string": "LC",
+      "name": "Living Clean",
+      "description": "This is a discussion of the NA book Living Clean -The Journey Continues.",
+      "language": "en",
+      "world_id": "LC"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 26,
+    "fields": {
+      "source_id": 52,
+      "root_server": 1,
+      "key_string": "LS",
+      "name": "Literature Study",
+      "description": "This meetings studies NA literature by group's choice.",
+      "language": "en",
+      "world_id": "LIT"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 27,
+    "fields": {
+      "source_id": 53,
+      "root_server": 1,
+      "key_string": "SM",
+      "name": "Stick Meeting",
+      "description": "A sticks are given to members with a recovery topic for the member to share on.",
+      "language": "en",
+      "world_id": null
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 28,
+    "fields": {
+      "source_id": 54,
+      "root_server": 1,
+      "key_string": "L",
+      "name": "Literature Available",
+      "description": "",
+      "language": "en",
+      "world_id": null
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 29,
+    "fields": {
+      "source_id": 55,
+      "root_server": 1,
+      "key_string": "K/M",
+      "name": "Key Tag/Medallion",
+      "description": "Key tags and Medallion available.",
+      "language": "en",
+      "world_id": null
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 30,
+    "fields": {
+      "source_id": 56,
+      "root_server": 1,
+      "key_string": "LD",
+      "name": "Literature Discussion",
+      "description": "Literature is discussed by group choice.",
+      "language": "en",
+      "world_id": "LIT"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 31,
+    "fields": {
+      "source_id": 57,
+      "root_server": 1,
+      "key_string": "SS",
+      "name": "Step Study",
+      "description": "Group studies 12 Steps of NA.",
+      "language": "en",
+      "world_id": "LIT"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 32,
+    "fields": {
+      "source_id": 58,
+      "root_server": 1,
+      "key_string": "S",
+      "name": "Speaker",
+      "description": "",
+      "language": "en",
+      "world_id": "SPK"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 33,
+    "fields": {
+      "source_id": 1,
+      "root_server": 2,
+      "key_string": "B",
+      "name": "Beginners",
+      "description": "This meeting is focused on the needs of new members of NA.",
+      "language": "en",
+      "world_id": "BEG"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 34,
+    "fields": {
+      "source_id": 3,
+      "root_server": 2,
+      "key_string": "BT",
+      "name": "Basic Text",
+      "description": "This meeting is focused on discussion of the Basic Text of Narcotics Anonymous.",
+      "language": "en",
+      "world_id": "BT"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 35,
+    "fields": {
+      "source_id": 4,
+      "root_server": 2,
+      "key_string": "C",
+      "name": "Closed",
+      "description": "This meeting is closed to non-addicts. You should attend only if you believe that you may have a problem with substance abuse.",
+      "language": "en",
+      "world_id": "CLOSED"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 36,
+    "fields": {
+      "source_id": 6,
+      "root_server": 2,
+      "key_string": "CL",
+      "name": "Candlelight",
+      "description": "This meeting is held by candlelight.",
+      "language": "en",
+      "world_id": "CAN"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 37,
+    "fields": {
+      "source_id": 8,
+      "root_server": 2,
+      "key_string": "D",
+      "name": "Discussion",
+      "description": "This meeting invites participation by all attendees.",
+      "language": "en",
+      "world_id": "DISC"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 38,
+    "fields": {
+      "source_id": 10,
+      "root_server": 2,
+      "key_string": "GL",
+      "name": "Gay/Lesbian/Transgender",
+      "description": "This meeting is focused on the needs of gay, lesbian and transgender members of NA.",
+      "language": "en",
+      "world_id": "GL"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 39,
+    "fields": {
+      "source_id": 11,
+      "root_server": 2,
+      "key_string": "IL",
+      "name": "Illness",
+      "description": "This meeting is focused on the needs of NA members with chronic illness.",
+      "language": "en",
+      "world_id": "CLOSED"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 40,
+    "fields": {
+      "source_id": 12,
+      "root_server": 2,
+      "key_string": "IP",
+      "name": "Informational Pamphlet",
+      "description": "This meeting is focused on discussion of one or more Informational Pamphlets.",
+      "language": "en",
+      "world_id": "IP"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 41,
+    "fields": {
+      "source_id": 13,
+      "root_server": 2,
+      "key_string": "IW",
+      "name": "It Works -How and Why",
+      "description": "This meeting is focused on discussion of the It Works -How and Why text.",
+      "language": "en",
+      "world_id": "IW"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 42,
+    "fields": {
+      "source_id": 14,
+      "root_server": 2,
+      "key_string": "JT",
+      "name": "Just for Today",
+      "description": "This meeting is focused on discussion of the Just For Today text.",
+      "language": "en",
+      "world_id": "JFT"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 43,
+    "fields": {
+      "source_id": 15,
+      "root_server": 2,
+      "key_string": "M",
+      "name": "Men",
+      "description": "This meeting is meant to be attended by men only.",
+      "language": "en",
+      "world_id": "M"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 44,
+    "fields": {
+      "source_id": 16,
+      "root_server": 2,
+      "key_string": "NC",
+      "name": "No Children",
+      "description": "Please do not bring children to this meeting.",
+      "language": "en",
+      "world_id": "RA"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 45,
+    "fields": {
+      "source_id": 17,
+      "root_server": 2,
+      "key_string": "O",
+      "name": "Open",
+      "description": "This meeting is open to addicts and non-addicts alike. All are welcome.",
+      "language": "en",
+      "world_id": "OPEN"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 46,
+    "fields": {
+      "source_id": 18,
+      "root_server": 2,
+      "key_string": "Pi",
+      "name": "Pick",
+      "description": "This meeting has a format that consists of each person who shares picking the next person.",
+      "language": "en",
+      "world_id": "DISC"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 47,
+    "fields": {
+      "source_id": 19,
+      "root_server": 2,
+      "key_string": "RF",
+      "name": "Rotating Format",
+      "description": "This meeting has a format that changes for each meeting.",
+      "language": "en",
+      "world_id": "VAR"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 48,
+    "fields": {
+      "source_id": 22,
+      "root_server": 2,
+      "key_string": "SD",
+      "name": "Speaker/Discussion",
+      "description": "This meeting is lead by a speaker, then opened for participation by attendees.",
+      "language": "en",
+      "world_id": "SPK"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 49,
+    "fields": {
+      "source_id": 26,
+      "root_server": 2,
+      "key_string": "So",
+      "name": "Speaker Only",
+      "description": "This meeting is a speaker-only meeting. Other attendees do not participate in the discussion.",
+      "language": "en",
+      "world_id": "SPK"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 50,
+    "fields": {
+      "source_id": 27,
+      "root_server": 2,
+      "key_string": "St",
+      "name": "Step",
+      "description": "This meeting is focused on discussion of the Twelve Steps of NA.",
+      "language": "en",
+      "world_id": "STEP"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 51,
+    "fields": {
+      "source_id": 29,
+      "root_server": 2,
+      "key_string": "To",
+      "name": "Topic",
+      "description": "This meeting is based upon a topic chosen by a speaker or by group conscience.",
+      "language": "en",
+      "world_id": "TOP"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 52,
+    "fields": {
+      "source_id": 30,
+      "root_server": 2,
+      "key_string": "Tr",
+      "name": "Tradition",
+      "description": "This meeting is focused on discussion of the Twelve Traditions of NA.",
+      "language": "en",
+      "world_id": "TRAD"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 53,
+    "fields": {
+      "source_id": 32,
+      "root_server": 2,
+      "key_string": "W",
+      "name": "Women",
+      "description": "This meeting is meant to be attended by women only.",
+      "language": "en",
+      "world_id": "W"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 54,
+    "fields": {
+      "source_id": 33,
+      "root_server": 2,
+      "key_string": "WC",
+      "name": "Wheelchair",
+      "description": "This meeting is wheelchair accessible.",
+      "language": "en",
+      "world_id": "WCHR"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 55,
+    "fields": {
+      "source_id": 35,
+      "root_server": 2,
+      "key_string": "OE",
+      "name": "Open-Ended",
+      "description": "No fixed duration. The meeting continues until everyone present has had a chance to share.",
+      "language": "en",
+      "world_id": "OPEN"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 56,
+    "fields": {
+      "source_id": 36,
+      "root_server": 2,
+      "key_string": "BK",
+      "name": "Book Study",
+      "description": "Approved N.A. Books",
+      "language": "en",
+      "world_id": "LIT"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 57,
+    "fields": {
+      "source_id": 37,
+      "root_server": 2,
+      "key_string": "NS",
+      "name": "No Smoking",
+      "description": "Smoking is not allowed at this meeting.",
+      "language": "en",
+      "world_id": null
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 58,
+    "fields": {
+      "source_id": 39,
+      "root_server": 2,
+      "key_string": "FD",
+      "name": "Five and Dime",
+      "description": "Discussion of the Fifth Step and the Tenth Step",
+      "language": "en",
+      "world_id": "STEP"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 59,
+    "fields": {
+      "source_id": 41,
+      "root_server": 2,
+      "key_string": "ME",
+      "name": "Meditation",
+      "description": "This meeting encourages its participants to engage in quiet meditation.",
+      "language": "en",
+      "world_id": "MED"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 60,
+    "fields": {
+      "source_id": 43,
+      "root_server": 2,
+      "key_string": "QA",
+      "name": "Question and Answer",
+      "description": "Attendees may ask questions and expect answers from Group members.",
+      "language": "en",
+      "world_id": "QA"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 61,
+    "fields": {
+      "source_id": 45,
+      "root_server": 2,
+      "key_string": "CP",
+      "name": "Concepts",
+      "description": "This meeting is focused on discussion of the twelve concepts of NA.",
+      "language": "en",
+      "world_id": "CPT"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 62,
+    "fields": {
+      "source_id": 47,
+      "root_server": 2,
+      "key_string": "ENG",
+      "name": "English speaking",
+      "description": "This Meeting can be attended by speakers of English.",
+      "language": "en",
+      "world_id": "OPEN"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 63,
+    "fields": {
+      "source_id": 51,
+      "root_server": 2,
+      "key_string": "LC",
+      "name": "Living Clean",
+      "description": "This is a discussion of the NA book Living Clean -The Journey Continues.",
+      "language": "en",
+      "world_id": "LC"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 64,
+    "fields": {
+      "source_id": 53,
+      "root_server": 2,
+      "key_string": "1st",
+      "name": "First Step",
+      "description": "First Step",
+      "language": "en",
+      "world_id": "BEG"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 65,
+    "fields": {
+      "source_id": 54,
+      "root_server": 2,
+      "key_string": "CD",
+      "name": "Closed Discussion",
+      "description": "Closed Discussion",
+      "language": "en",
+      "world_id": "CLOSED"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 66,
+    "fields": {
+      "source_id": 55,
+      "root_server": 2,
+      "key_string": "CS",
+      "name": "Closed Speaker",
+      "description": "Closed Speaker",
+      "language": "en",
+      "world_id": "CLOSED"
+    }
+  },
+  {
+    "model": "api.format",
+    "pk": 67,
+    "fields": {
+      "source_id": 56,
+      "root_server": 2,
+      "key_string": "Sm",
+      "name": "Smoking Permitted",
+      "description": "Smoking Permitted.",
+      "language": "en",
+      "world_id": "SMOK"
+    }
+  },
+  {
+    "model": "api.meeting",
+    "pk": 1,
+    "fields": {
+      "source_id": 1,
+      "root_server": 1,
+      "service_body": 5,
+      "name": "Waimanalo Mixed Plate",
+      "weekday": 1,
+      "start_time": "08:00:00",
+      "duration": "01:00:00",
+      "language": "en",
+      "latitude": "21.331902060000",
+      "longitude": "-157.693923710000",
+      "point": "SRID=4326;POINT (-157.69392371 21.33190206)",
+      "published": true,
+      "formats": [
+        9,
+        12,
+        20
+      ]
+    }
+  },
+  {
+    "model": "api.meeting",
+    "pk": 2,
+    "fields": {
+      "source_id": 39,
+      "root_server": 1,
+      "service_body": 4,
+      "name": "Hoomaikai",
+      "weekday": 1,
+      "start_time": "08:00:00",
+      "duration": "01:00:00",
+      "language": "en",
+      "latitude": "20.874987900000",
+      "longitude": "-156.498759000000",
+      "point": "SRID=4326;POINT (-156.498759 20.8749879)",
+      "published": true,
+      "formats": [
+        5,
+        12,
+        28
+      ]
+    }
+  },
+  {
+    "model": "api.meeting",
+    "pk": 3,
+    "fields": {
+      "source_id": 2,
+      "root_server": 1,
+      "service_body": 5,
+      "name": "Beachcombers Spiritual Progress Group",
+      "weekday": 1,
+      "start_time": "09:30:00",
+      "duration": "01:00:00",
+      "language": "en",
+      "latitude": "21.397577000000",
+      "longitude": "-157.727096000000",
+      "point": "SRID=4326;POINT (-157.727096 21.397577)",
+      "published": true,
+      "formats": [
+        9,
+        12,
+        20
+      ]
+    }
+  },
+  {
+    "model": "api.meeting",
+    "pk": 4,
+    "fields": {
+      "source_id": 142,
+      "root_server": 1,
+      "service_body": 4,
+      "name": "Baldwin Beach Meeting",
+      "weekday": 1,
+      "start_time": "10:00:00",
+      "duration": "01:00:00",
+      "language": "en",
+      "latitude": "20.913942230000",
+      "longitude": "-156.393506000000",
+      "point": "SRID=4326;POINT (-156.393506 20.91394223)",
+      "published": true,
+      "formats": [
+        2,
+        28,
+        29,
+        30
+      ]
+    }
+  },
+  {
+    "model": "api.meeting",
+    "pk": 5,
+    "fields": {
+      "source_id": 148,
+      "root_server": 1,
+      "service_body": 5,
+      "name": "Downtown Ohana",
+      "weekday": 1,
+      "start_time": "16:15:00",
+      "duration": "01:00:00",
+      "language": "en",
+      "latitude": "21.268714300000",
+      "longitude": "-157.821477690000",
+      "point": "SRID=4326;POINT (-157.82147769 21.2687143)",
+      "published": true,
+      "formats": [
+        9,
+        12,
+        20
+      ]
+    }
+  },
+  {
+    "model": "api.meeting",
+    "pk": 119,
+    "fields": {
+      "source_id": 702,
+      "root_server": 2,
+      "service_body": 17,
+      "name": "Sunday Morning Spiritual Group",
+      "weekday": 1,
+      "start_time": "10:00:00",
+      "duration": "01:00:00",
+      "language": "en",
+      "latitude": "33.866670000000",
+      "longitude": "-84.308368000000",
+      "point": "SRID=4326;POINT (-84.308368 33.86667)",
+      "published": true,
+      "formats": []
+    }
+  },
+  {
+    "model": "api.meeting",
+    "pk": 120,
+    "fields": {
+      "source_id": 766,
+      "root_server": 2,
+      "service_body": 19,
+      "name": "Brighter Outlooks Group",
+      "weekday": 1,
+      "start_time": "10:00:00",
+      "duration": "01:00:00",
+      "language": "en",
+      "latitude": "32.841252000000",
+      "longitude": "-83.630174000000",
+      "point": "SRID=4326;POINT (-83.630174 32.841252)",
+      "published": true,
+      "formats": [
+        37,
+        45
+      ]
+    }
+  },
+  {
+    "model": "api.meeting",
+    "pk": 121,
+    "fields": {
+      "source_id": 623,
+      "root_server": 2,
+      "service_body": 15,
+      "name": "Just For Sunday Group",
+      "weekday": 1,
+      "start_time": "10:30:00",
+      "duration": "01:00:00",
+      "language": "en",
+      "latitude": "33.856670100000",
+      "longitude": "-84.512305000000",
+      "point": "SRID=4326;POINT (-84.512305 33.8566701)",
+      "published": true,
+      "formats": [
+        37,
+        45
+      ]
+    }
+  },
+  {
+    "model": "api.meeting",
+    "pk": 122,
+    "fields": {
+      "source_id": 660,
+      "root_server": 2,
+      "service_body": 16,
+      "name": "Killer Parrot II Group",
+      "weekday": 1,
+      "start_time": "11:30:00",
+      "duration": "01:30:00",
+      "language": "en",
+      "latitude": "33.716084000000",
+      "longitude": "-84.346815000000",
+      "point": "SRID=4326;POINT (-84.34681500000001 33.716084)",
+      "published": true,
+      "formats": [
+        37,
+        45,
+        54
+      ]
+    }
+  },
+  {
+    "model": "api.meeting",
+    "pk": 123,
+    "fields": {
+      "source_id": 576,
+      "root_server": 2,
+      "service_body": 24,
+      "name": "Time Out Group",
+      "weekday": 1,
+      "start_time": "12:00:00",
+      "duration": "01:30:00",
+      "language": "en",
+      "latitude": "33.775806000000",
+      "longitude": "-84.449230000000",
+      "point": "SRID=4326;POINT (-84.44923 33.775806)",
+      "published": true,
+      "formats": [
+        54,
+        62
+      ]
+    }
+  },
+  {
+    "model": "api.meetinginfo",
+    "pk": 1,
+    "fields": {
+      "meeting": 1,
+      "email": "",
+      "location_text": "Waimanalo Beach Park",
+      "location_info": "Picnic tables on hill",
+      "location_street": "41 Kalanianaole Highway",
+      "location_city_subsection": "",
+      "location_neighborhood": "Waimanalo",
+      "location_municipality": "Waimanalo",
+      "location_sub_province": "",
+      "location_province": "HI",
+      "location_postal_code_1": "96795",
+      "location_nation": "USA",
+      "train_lines": "",
+      "bus_lines": "Bus Lines#@-@#57 89",
+      "world_id": "G00093699",
+      "comments": ""
+    }
+  },
+  {
+    "model": "api.meetinginfo",
+    "pk": 2,
+    "fields": {
+      "meeting": 2,
+      "email": "",
+      "location_text": "KHAO Resource Center",
+      "location_info": "",
+      "location_street": "670 Waiale Road",
+      "location_city_subsection": "",
+      "location_neighborhood": "",
+      "location_municipality": "Wailuku",
+      "location_sub_province": "",
+      "location_province": "HI",
+      "location_postal_code_1": "96793",
+      "location_nation": "USA",
+      "train_lines": "",
+      "bus_lines": "",
+      "world_id": "G00294719",
+      "comments": ""
+    }
+  },
+  {
+    "model": "api.meetinginfo",
+    "pk": 3,
+    "fields": {
+      "meeting": 3,
+      "email": "",
+      "location_text": "Kailua Beach Park",
+      "location_info": "Behind pavilion, under the ironwood trees",
+      "location_street": "526 Kawailoa Road",
+      "location_city_subsection": "",
+      "location_neighborhood": "",
+      "location_municipality": "Kailua",
+      "location_sub_province": "",
+      "location_province": "HI",
+      "location_postal_code_1": "96734",
+      "location_nation": "USA",
+      "train_lines": "",
+      "bus_lines": "Bus Lines#@-@#57 / 85",
+      "world_id": "G00011860",
+      "comments": ""
+    }
+  },
+  {
+    "model": "api.meetinginfo",
+    "pk": 4,
+    "fields": {
+      "meeting": 4,
+      "email": "",
+      "location_text": "Baldwin Beach Park",
+      "location_info": "Under the kiawe trees on the beach west of the Lifeguard Station",
+      "location_street": "",
+      "location_city_subsection": "",
+      "location_neighborhood": "",
+      "location_municipality": "Paia",
+      "location_sub_province": "",
+      "location_province": "HI",
+      "location_postal_code_1": "96779",
+      "location_nation": "USA",
+      "train_lines": "",
+      "bus_lines": "",
+      "world_id": "G00331566",
+      "comments": ""
+    }
+  },
+  {
+    "model": "api.meetinginfo",
+    "pk": 5,
+    "fields": {
+      "meeting": 5,
+      "email": "",
+      "location_text": "Kapiolani Park",
+      "location_info": "By bandstand and ponds",
+      "location_street": "Kalakaua Ave",
+      "location_city_subsection": "",
+      "location_neighborhood": "",
+      "location_municipality": "Honolulu",
+      "location_sub_province": "",
+      "location_province": "HI",
+      "location_postal_code_1": "96815",
+      "location_nation": "USA",
+      "train_lines": "",
+      "bus_lines": "",
+      "world_id": "G00052334",
+      "comments": "If rain, meet at Gazebo behind Queen Kapiolani statue"
+    }
+  },
+  {
+    "model": "api.meetinginfo",
+    "pk": 119,
+    "fields": {
+      "meeting": 119,
+      "email": "",
+      "location_text": "Atlanta Biscayne Room",
+      "location_info": "",
+      "location_street": "3659 Clairmont Rd.",
+      "location_city_subsection": "",
+      "location_neighborhood": "",
+      "location_municipality": "Chamblee",
+      "location_sub_province": "Dekalb",
+      "location_province": "GA",
+      "location_postal_code_1": "30341",
+      "location_nation": "USA",
+      "train_lines": "",
+      "bus_lines": "",
+      "world_id": "G00306867",
+      "comments": ""
+    }
+  },
+  {
+    "model": "api.meetinginfo",
+    "pk": 120,
+    "fields": {
+      "meeting": 120,
+      "email": "",
+      "location_text": "",
+      "location_info": "",
+      "location_street": "808 Walnut St",
+      "location_city_subsection": "",
+      "location_neighborhood": "",
+      "location_municipality": "Macon",
+      "location_sub_province": "",
+      "location_province": "GA",
+      "location_postal_code_1": "31202",
+      "location_nation": "",
+      "train_lines": "",
+      "bus_lines": "",
+      "world_id": "G00330122",
+      "comments": ""
+    }
+  },
+  {
+    "model": "api.meetinginfo",
+    "pk": 121,
+    "fields": {
+      "meeting": 121,
+      "email": "",
+      "location_text": "Ridgeview Institute",
+      "location_info": "Pro-North Auditorium",
+      "location_street": "3995 South Cobb Drive",
+      "location_city_subsection": "",
+      "location_neighborhood": "",
+      "location_municipality": "Smyrna",
+      "location_sub_province": "Cobb",
+      "location_province": "GA",
+      "location_postal_code_1": "30080",
+      "location_nation": "USA",
+      "train_lines": "",
+      "bus_lines": "",
+      "world_id": "G00090322",
+      "comments": ""
+    }
+  },
+  {
+    "model": "api.meetinginfo",
+    "pk": 122,
+    "fields": {
+      "meeting": 122,
+      "email": "",
+      "location_text": "Highland Club",
+      "location_info": "",
+      "location_street": "1264 Custer Ave., SE",
+      "location_city_subsection": "",
+      "location_neighborhood": "",
+      "location_municipality": "Atlanta",
+      "location_sub_province": "Fulton",
+      "location_province": "GA",
+      "location_postal_code_1": "30316",
+      "location_nation": "USA",
+      "train_lines": "",
+      "bus_lines": "",
+      "world_id": "G00052099",
+      "comments": ""
+    }
+  },
+  {
+    "model": "api.meetinginfo",
+    "pk": 123,
+    "fields": {
+      "meeting": 123,
+      "email": "",
+      "location_text": "Main Street Clubhouse",
+      "location_info": "",
+      "location_street": "1976 Donald L Hollowell Pkwy",
+      "location_city_subsection": "",
+      "location_neighborhood": "",
+      "location_municipality": "Atlanta",
+      "location_sub_province": "",
+      "location_province": "GA",
+      "location_postal_code_1": "30318",
+      "location_nation": "USA",
+      "train_lines": "",
+      "bus_lines": "",
+      "world_id": "G00330084",
+      "comments": ""
+    }
+  }
+]
