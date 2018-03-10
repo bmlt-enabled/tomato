@@ -1,11 +1,13 @@
 import csv
 import json
 import io
+import urllib.parse
+from django.db import models
 from django.test import TransactionTestCase
 from django.urls import reverse
 from xml.etree import ElementTree as ET
-from .models import Format
-from .views import meeting_field_map
+from .models import Format, Meeting, MeetingInfo
+from .views import meeting_field_map, model_get_value, valid_meeting_search_keys
 
 
 class GetSearchResultsTests(TransactionTestCase):
@@ -272,3 +274,41 @@ class GetSearchResultsTests(TransactionTestCase):
         for meeting in response:
             self.assertNotIn(f_nine.key_string, meeting['formats'])
             self.assertNotIn(f_twelve.key_string, meeting['formats'])
+
+    def test_get_search_results_meeting_key(self):
+        def get_field(field_name):
+            if field_name.startswith('meetinginfo'):
+                field_name = field_name.split('.')[-1]
+                for field in MeetingInfo._meta.fields:
+                    if field.attname == field_name:
+                        return field
+            else:
+                for field in Meeting._meta.fields:
+                    if field.attname == field_name:
+                        return field
+            return None
+
+        for meeting_key in valid_meeting_search_keys:
+            if meeting_key == 'formats':
+                continue  # This one's broken... and I'm not sure if I'm going to fix it
+            if meeting_key == 'duration_time':
+                # Need to see what format BMLT expects duration fields to come in as for this query
+                # Interestingly, this test passes as is when using postgres, but fails using spatialite
+                continue
+            model_field = meeting_field_map.get(meeting_key)[0]
+            qs = Meeting.objects.exclude(**{model_field.replace('.', '__'): None})
+            actual_field = get_field(model_field)
+            t = type(actual_field)
+            if t in (models.CharField, models.TextField):
+                qs = qs.exclude(**{model_field.replace('.', '__'): ''})
+            meeting = qs[0]
+            value = model_get_value(meeting, model_field)
+            url = reverse('semantic-query', kwargs={'format': 'json'})
+            url += '?switcher=GetSearchResults&'.format(meeting_key, value)
+            url += urllib.parse.urlencode({'meeting_key': meeting_key, 'meeting_key_value': value})
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            response = json.loads(response.content)
+            self.assertTrue(len(response) > 0)
+            for meeting in response:
+                self.assertTrue(meeting[meeting_key] == value)
