@@ -128,3 +128,48 @@ class GetSearchResultsTests(TransactionTestCase):
                 self.fail('Unexpected weekday found')
         self.assertTrue(found_one)
         self.assertTrue(found_two)
+
+    def test_get_search_results_weekdays_none_found(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&weekdays=7'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) == 0)
+
+    def test_get_search_results_services_single(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&services=5'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            self.assertEqual(meeting['service_body_bigint'], '5')
+
+    def test_get_search_results_services_multiple(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&services[]=5&services[]=4'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        found_four = False
+        found_five = False
+        for meeting in response:
+            if meeting['service_body_bigint'] == '4':
+                found_four = True
+            elif meeting['service_body_bigint'] == '5':
+                found_five = True
+            else:
+                self.fail('Unexpected service body found')
+        self.assertTrue(found_four)
+        self.assertTrue(found_five)
+
+    def test_get_search_results_services_none_found(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&services=1'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) == 0)
