@@ -99,3 +99,32 @@ class GetSearchResultsTests(TransactionTestCase):
         self.assertTrue('formats' in response)
         self.assertFalse('meetings' in response)
         self.assertTrue(len(response['formats']), 12)
+
+    def test_get_search_results_weekdays_single(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&weekdays=2'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 1)
+        for meeting in response:
+            self.assertEqual(meeting['weekday_tinyint'], '2')
+
+    def test_get_search_results_weekdays_multiple(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&weekdays[]=1&weekdays[]=2'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 1)
+        found_one = False
+        found_two = False
+        for meeting in response:
+            if meeting['weekday_tinyint'] == '1':
+                found_one = True
+            elif meeting['weekday_tinyint'] == '2':
+                found_two = True
+            else:
+                self.fail('Unexpected weekday found')
+        self.assertTrue(found_one)
+        self.assertTrue(found_two)
