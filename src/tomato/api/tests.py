@@ -275,6 +275,59 @@ class GetSearchResultsTests(TransactionTestCase):
             self.assertNotIn(f_nine.key_string, meeting['formats'])
             self.assertNotIn(f_twelve.key_string, meeting['formats'])
 
+    def test_get_search_results_root_server_ids_include_single(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&root_server_ids=1'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            self.assertEqual(meeting['root_server_id'], '1')
+
+    def test_get_search_results_root_server_ids_include_multiple(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        found_one = False
+        found_two = False
+        for meeting in response:
+            if meeting['root_server_id'] == '1':
+                found_one = True
+            elif meeting['root_server_id'] == '2':
+                found_two = True
+        self.assertTrue(found_one)
+        self.assertTrue(found_two)
+
+    def test_get_search_results_root_server_ids_include_found_none(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&root_server_ids=3'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) == 0)
+
+    def test_get_search_results_root_server_ids_exclude_single(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&root_server_ids=-2'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            self.assertEqual(meeting['root_server_id'], '1')
+
+    def test_get_search_results_root_server_ids_exclude_multiple(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&root_server_ids[]=-1&root_server_ids[]=-2'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) == 0)
+
     def test_get_search_results_meeting_key(self):
         def get_field(field_name):
             if field_name.startswith('meetinginfo'):
