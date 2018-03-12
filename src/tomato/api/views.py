@@ -5,6 +5,7 @@ import io
 import json
 import logging
 import requests
+import textwrap
 from collections import OrderedDict
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
@@ -12,6 +13,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.contrib.postgres.aggregates.general import ArrayAgg
 from django.db import models
+from django.db.models.expressions import Case, When, Value
 from django.http import response
 from xml.etree import ElementTree as ET
 from .models import Format, Meeting, ServiceBody
@@ -26,9 +28,13 @@ def model_has_distance(model):
     return hasattr(model, 'distance')
 
 
+server_info_field_map = OrderedDict([
+    ('google_api_key', ('google_api_key',),),
+])
+
 service_bodies_field_map = OrderedDict([
     ('id',             ('id',),),
-    ('parent_id',      ('parent_id',),),
+    ('parent_id',      ('calculated_parent_id',),),
     ('name',           ('name',),),
     ('description',    ('description',),),
     ('type',           ('type',),),
@@ -235,7 +241,7 @@ def models_to_csv(models, field_map, fieldnames=None):
                 fieldnames.append(k)
     stream = io.StringIO()
     try:
-        writer = csv.DictWriter(stream, fieldnames=fieldnames, quoting=csv.QUOTE_ALL)
+        writer = csv.DictWriter(stream, fieldnames=fieldnames, quoting=csv.QUOTE_ALL, lineterminator='\n')
         writer.writeheader()
         for m in models:
             model_to_csv(writer, m, field_map)
@@ -477,6 +483,14 @@ def get_service_bodies(request):
     body_qs = ServiceBody.objects.all()
     if root_server_id:
         body_qs = body_qs.filter(root_server_id=root_server_id)
+    # BMLT returns top-level parents as having parent_id 0
+    body_qs = body_qs.annotate(
+        calculated_parent_id=Case(
+            When(parent=None, then=Value(0)),
+            default='parent_id',
+            output_field=models.BigIntegerField()
+        )
+    )
     return body_qs
 
 
@@ -486,7 +500,7 @@ def semantic_query(request, format='json'):
         return response.HttpResponseBadRequest()
     if not switcher:
         return response.HttpResponseBadRequest()
-    if switcher not in ('GetSearchResults', 'GetFormats', 'GetServiceBodies', 'GetFieldKeys', 'GetFieldValues'):
+    if switcher not in ('GetSearchResults', 'GetFormats', 'GetServiceBodies', 'GetFieldKeys', 'GetFieldValues', 'GetServerInfo'):
         return response.HttpResponseBadRequest()
 
     ret = None
@@ -543,6 +557,12 @@ def semantic_query(request, format='json'):
                 xml_node_name = 'fields'
             else:
                 return response.HttpResponseBadRequest()
+        elif switcher == 'GetServerInfo':
+            models = [{
+                'google_api_key': settings.GOOGLE_MAPS_API_KEY,
+            }]
+            field_map = server_info_field_map
+            xml_node_name = 'serverInfo'
 
         if format == 'json':
             ret = models_to_json(models, field_map)
@@ -552,3 +572,14 @@ def semantic_query(request, format='json'):
             ret = models_to_xml(models, field_map, xml_node_name)
 
     return response.HttpResponse(ret, content_type=content_type)
+
+
+def server_info_xml(request):
+    ret = textwrap.dedent("""
+    <bmltInfo>
+        <serverVersion>
+            <readableString>5.0.0</readableString>
+        </serverVersion>
+    </bmltInfo>
+    """)
+    return response.HttpResponse(ret, content_type='application/xml')
