@@ -160,11 +160,8 @@ class ServiceBody(models.Model):
             try:
                 bmlt_body = ServiceBody.validate_bmlt_object(root_server, bmlt_body)
             except ImportException as e:
-                ImportProblem.objects.create(
-                    root_server=root_server,
-                    message=str(e),
-                    data=str(e.bmlt_object)
-                )
+                logger.warning('Error parsing service body: {}'.format(str(e)))
+                ImportProblem.objects.create(root_server=root_server, message=str(e), data=str(e.bmlt_object))
                 continue
 
             body = ServiceBody.objects.get_or_create(root_server=root_server, source_id=bmlt_body['source_id'])[0]
@@ -235,11 +232,8 @@ class Format(models.Model):
             try:
                 bmlt_format = Format.validate_bmlt_object(root_server, bmlt_format)
             except ImportException as e:
-                ImportProblem.objects.create(
-                    root_server=root_server,
-                    message=str(e),
-                    data=str(e.bmlt_object)
-                )
+                logger.warning('Error parsing format: {}'.format(str(e)))
+                ImportProblem.objects.create(root_server=root_server, message=str(e), data=str(e.bmlt_object))
                 continue
 
             format = Format.objects.get_or_create(root_server=root_server, source_id=bmlt_format['source_id'])[0]
