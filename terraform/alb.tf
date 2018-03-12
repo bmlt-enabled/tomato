@@ -4,8 +4,8 @@ resource "aws_security_group" "ecs_http_load_balancers" {
 
   ingress {
     protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
+    from_port   = 443
+    to_port     = 443
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -14,9 +14,7 @@ resource "aws_security_group" "ecs_http_load_balancers" {
     to_port   = 0
     protocol  = "-1"
 
-    cidr_blocks = [
-      "0.0.0.0/0",
-    ]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
@@ -38,10 +36,11 @@ resource "aws_alb_target_group" "tomato" {
   }
 }
 
-resource "aws_alb_listener" "tomato" {
+resource "aws_alb_listener" "tomato_https" {
   load_balancer_arn = "${aws_alb.tomato.id}"
-  port              = 80
-  protocol          = "HTTP"
+  port              = 443
+  protocol          = "HTTPS"
+  certificate_arn   = "${var.certificate_arn}"
 
   default_action {
     target_group_arn = "${aws_alb_target_group.tomato.id}"

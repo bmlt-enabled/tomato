@@ -261,7 +261,7 @@ resource "aws_ecs_service" "webapp" {
 
   depends_on = [
     "aws_iam_role_policy.tomato_lb",
-    "aws_alb_listener.tomato",
+    "aws_alb_listener.tomato_https",
   ]
 }
 

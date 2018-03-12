@@ -35,14 +35,6 @@ https://docs.djangoproject.com/en/2.0/ref/settings/#std:setting-SECRET_KEY
 | SECRET_KEY | Secret key used for Django crypto things |
 | GOOGLE_MAPS_API_KEY | Google Maps API Key |
 
-## Deploying with terraform
-A terraform configuration is included in this repository. The configuration deploys both the Web Application and the Daemon to a small ECS Cluster in your AWS account. Some familiarity with AWS and Terraform is assumed, but there are a few things you'll need to put into place for the configuration to work.
-
-1. Put your AWS credentials in a profile named "personal". See https://docs.aws.amazon.com/cli/latest/userguide/cli-multiple-profiles.html for information on named profiles.
-2. Make sure you have a private key at ~/.ssh/id_rsa. Terraform uses this file as a data source to create a public key used for accessing the ECS instances.
-3. Create an ECR repository named "tomato". See https://aws.amazon.com/ecr/getting-started/ for more information.
-4. Build the docker image, and push it to the "tomato" repository.
-
 ## Local cluster (beta)
 
 *No data is being populated yet*
