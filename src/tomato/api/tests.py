@@ -3,14 +3,14 @@ import json
 import io
 import urllib.parse
 from django.db import models
-from django.test import TransactionTestCase
+from django.test import TestCase
 from django.urls import reverse
 from xml.etree import ElementTree as ET
 from .models import Format, Meeting, MeetingInfo
-from .views import meeting_field_map, model_get_value, valid_meeting_search_keys
+from .views import meeting_field_map, model_get_value, service_bodies_field_map, valid_meeting_search_keys
 
 
-class GetSearchResultsTests(TransactionTestCase):
+class GetSearchResultsTests(TestCase):
     fixtures = ['testdata']
 
     def test_get_search_results_json(self):
@@ -24,6 +24,11 @@ class GetSearchResultsTests(TransactionTestCase):
         meeting = response[0]
         for key in meeting.keys():
             self.assertIn(key, meeting_field_map.keys())
+        for key in meeting_field_map.keys():
+            value = meeting_field_map[key]
+            if len(value) > 1 and callable(value[1]):
+                continue
+            self.assertIn(key, meeting.keys())
 
     def test_get_search_results_xml(self):
         url = reverse('semantic-query', kwargs={'format': 'xml'})
@@ -365,3 +370,70 @@ class GetSearchResultsTests(TransactionTestCase):
             self.assertTrue(len(response) > 0)
             for meeting in response:
                 self.assertTrue(meeting[meeting_key] == value)
+
+
+class GetServiceBodiesTests(TestCase):
+    fixtures = ['testdata']
+
+    def test_get_service_bodies_json(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetServiceBodies'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+        response = json.loads(response.content)
+        self.assertEqual(len(response), 29)
+        body = response[0]
+        for key in body.keys():
+            self.assertIn(key, service_bodies_field_map.keys())
+        for key in service_bodies_field_map.keys():
+            self.assertIn(key, body.keys())
+
+    def test_get_service_bodies_xml(self):
+        url = reverse('semantic-query', kwargs={'format': 'xml'})
+        url += '?switcher=GetServiceBodies'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/xml')
+        response = ET.fromstring(response.content)
+        self.assertEqual(len(response.findall('./row')), 29)
+
+    def test_get_service_bodies_csv(self):
+        url = reverse('semantic-query', kwargs={'format': 'csv'})
+        url += '?switcher=GetServiceBodies'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'text/csv')
+        s = io.StringIO(response.content.decode(response.charset))
+        try:
+            reader = csv.DictReader(s)
+            for field_name in reader.fieldnames:
+                self.assertIn(field_name, service_bodies_field_map.keys())
+            num_rows = 0
+            for row in reader:
+                num_rows += 1
+            self.assertEqual(num_rows, 29)
+        finally:
+            s.close()
+
+    def test_service_bodies_parent_is_0(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetServiceBodies'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        found_zero = False
+        for body in response:
+            self.assertTrue(body['parent_id'] is not None)
+            if body['parent_id'] == '0':
+                found_zero = True
+        self.assertTrue(found_zero)
+
+    def test_service_bodies_root_server_id(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetServiceBodies&root_server_id=1'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        for body in response:
+            self.assertEqual(body['root_server_id'], '1')
