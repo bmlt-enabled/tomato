@@ -29,7 +29,11 @@ def model_has_distance(model):
 
 
 server_info_field_map = OrderedDict([
-    ('google_api_key', ('google_api_key',),),
+    ('langs',           ('langs',),),
+    ('centerLongitude', ('centerLongitude',),),
+    ('centerLatitude',  ('centerLatitude',),),
+    ('centerZoom',      ('centerZoom',),),
+    ('google_api_key',  ('google_api_key',),),
 ])
 
 service_bodies_field_map = OrderedDict([
@@ -494,13 +498,23 @@ def get_service_bodies(request):
     return body_qs
 
 
+valid_switcher_params = (
+    'GetSearchResults',
+    'GetFormats',
+    'GetServiceBodies',
+    'GetFieldKeys',
+    'GetFieldValues',
+    'GetServerInfo'
+)
+
+
 def semantic_query(request, format='json'):
     switcher = request.GET.get('switcher')
     if format not in ('csv', 'json', 'xml'):
         return response.HttpResponseBadRequest()
     if not switcher:
         return response.HttpResponseBadRequest()
-    if switcher not in ('GetSearchResults', 'GetFormats', 'GetServiceBodies', 'GetFieldKeys', 'GetFieldValues', 'GetServerInfo'):
+    if switcher not in valid_switcher_params:
         return response.HttpResponseBadRequest()
 
     ret = None
@@ -559,6 +573,10 @@ def semantic_query(request, format='json'):
                 return response.HttpResponseBadRequest()
         elif switcher == 'GetServerInfo':
             models = [{
+                'langs': 'en',
+                'centerLongitude': -118.563659,
+                'centerLatitude': 34.235918,
+                'centerZoom': 6,
                 'google_api_key': settings.GOOGLE_MAPS_API_KEY,
             }]
             field_map = server_info_field_map
