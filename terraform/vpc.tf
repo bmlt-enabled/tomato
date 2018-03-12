@@ -2,6 +2,11 @@ resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
   enable_dns_support   = true
+
+  tags {
+    application = "tomato"
+    environment = "production"
+  }
 }
 
 resource "aws_subnet" "public_a" {
@@ -9,6 +14,11 @@ resource "aws_subnet" "public_a" {
   cidr_block              = "${cidrsubnet(aws_vpc.main.cidr_block, 8, 0)}"
   map_public_ip_on_launch = true
   availability_zone       = "us-east-1a"
+
+  tags {
+    application = "tomato"
+    environment = "production"
+  }
 }
 
 resource "aws_subnet" "public_b" {
@@ -16,14 +26,29 @@ resource "aws_subnet" "public_b" {
   cidr_block              = "${cidrsubnet(aws_vpc.main.cidr_block, 8, 1)}"
   map_public_ip_on_launch = true
   availability_zone       = "us-east-1b"
+
+  tags {
+    application = "tomato"
+    environment = "production"
+  }
 }
 
 resource "aws_internet_gateway" "main" {
   vpc_id = "${aws_vpc.main.id}"
+
+  tags {
+    application = "tomato"
+    environment = "production"
+  }
 }
 
 resource "aws_route_table" "public" {
   vpc_id = "${aws_vpc.main.id}"
+
+  tags {
+    application = "tomato"
+    environment = "production"
+  }
 }
 
 resource "aws_route_table_association" "public_a" {

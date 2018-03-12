@@ -72,6 +72,19 @@ resource "aws_autoscaling_group" "cluster" {
   max_size             = 2
   desired_capacity     = 2
   launch_configuration = "${aws_launch_configuration.cluster.name}"
+
+  tags = [
+    {
+      key                 = "application"
+      value               = "tomato"
+      propagate_at_launch = true
+    },
+    {
+      key                 = "environment"
+      value               = "production"
+      propagate_at_launch = true
+    },
+  ]
 }
 
 resource "aws_security_group" "cluster" {

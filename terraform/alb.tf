@@ -22,6 +22,11 @@ resource "aws_alb" "tomato" {
   name            = "tomato"
   subnets         = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
   security_groups = ["${aws_security_group.ecs_http_load_balancers.id}"]
+
+  tags {
+    application = "tomato"
+    environment = "production"
+  }
 }
 
 resource "aws_alb_target_group" "tomato" {

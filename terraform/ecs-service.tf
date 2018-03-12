@@ -96,6 +96,11 @@ resource "aws_db_instance" "tomato" {
   db_subnet_group_name   = "${aws_db_subnet_group.tomato.name}"
 
   skip_final_snapshot = true
+
+  tags {
+    application = "tomato"
+    environment = "production"
+  }
 }
 
 resource "aws_ecs_task_definition" "webapp" {
@@ -144,6 +149,14 @@ resource "aws_ecs_task_definition" "webapp" {
       {
         "name": "RDS_PORT",
         "value": "${aws_db_instance.tomato.port}"
+      },
+      {
+        "name": "GOOGLE_MAPS_API_KEY",
+        "value": "AIzaSyD4BPAvDHL4CiRcFORdoUCpqwVuVz1F9r8"
+      },
+      {
+        "name": "SECRET_KEY",
+        "value": "${var.secret_key}"
       }
     ],
     "links": [],
@@ -213,10 +226,6 @@ resource "aws_ecs_task_definition" "daemon" {
       {
         "name": "RDS_PORT",
         "value": "${aws_db_instance.tomato.port}"
-      },
-      {
-        "name": "GOOGLE_MAPS_API_KEY",
-        "value": "AIzaSyD4BPAvDHL4CiRcFORdoUCpqwVuVz1F9r8"
       }
     ],
     "links": [],
