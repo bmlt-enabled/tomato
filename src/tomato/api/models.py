@@ -139,7 +139,7 @@ class ServiceBody(models.Model):
     root_server = models.ForeignKey(RootServer, on_delete=models.CASCADE)
     parent = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
-    type = models.CharField(max_length=2, choices=SERVICE_BODY_TYPE_CHOICES)
+    type = models.CharField(max_length=2, choices=SERVICE_BODY_TYPE_CHOICES, null=True)
     description = models.TextField(null=True)
     url = models.URLField(null=True)
     world_id = models.CharField(max_length=255, null=True)
@@ -196,7 +196,7 @@ class ServiceBody(models.Model):
             'source_id': get_int(bmlt, 'id'),
             'parent_id': get_int(bmlt, 'parent_id'),
             'name': get_required_str(bmlt, 'name'),
-            'type': get_required_str(bmlt, 'type'),
+            'type': bmlt.get('type', None),
             'description': bmlt.get('description', None),
             'url': bmlt.get('url', None),
             'world_id': bmlt.get('world_id', None),
