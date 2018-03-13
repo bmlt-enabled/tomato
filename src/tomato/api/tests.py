@@ -90,14 +90,6 @@ class GetSearchResultsTests(TestCase):
             else:
                 self.fail('Format {} not found with a meeting'.format(format))
 
-    def test_get_search_results_formats_only_with_formats_not_specified(self):
-        url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&get_formats_only=1'
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
-        self.assertTrue(isinstance(response, list))
-
     def test_get_search_results_with_formats_formats_only(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults&get_used_formats=1&get_formats_only=1'

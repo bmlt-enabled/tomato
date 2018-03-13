@@ -314,55 +314,55 @@ def extract_specific_keys_param(GET, key='data_field_key'):
     return data_field_keys
 
 
-def get_search_results(request):
-    weekdays = request.GET.get('weekdays')
-    weekdays = request.GET.getlist('weekdays[]', []) if weekdays is None else [weekdays]
+def get_search_results(params):
+    weekdays = params.get('weekdays')
+    weekdays = params.getlist('weekdays[]', []) if weekdays is None else [weekdays]
     weekdays = [int(w) for w in weekdays]
     weekdays_include = [w for w in weekdays if w > 0]
     weekdays_exclude = [abs(w) for w in weekdays if w < 0]
 
-    services = request.GET.get('services')
-    services = request.GET.getlist('services[]', []) if services is None else [services]
+    services = params.get('services')
+    services = params.getlist('services[]', []) if services is None else [services]
     services = [int(s) for s in services]
     services_include = [s for s in services if s > 0]
     services_exclude = [abs(s) for s in services if s < 0]
 
-    formats = request.GET.get('formats')
-    formats = request.GET.getlist('formats[]', []) if formats is None else [formats]
+    formats = params.get('formats')
+    formats = params.getlist('formats[]', []) if formats is None else [formats]
     formats = [int(f) for f in formats]
     formats_include = [f for f in formats if f > 0]
     formats_exclude = [abs(f) for f in formats if f < 0]
 
-    root_server_ids = request.GET.get('root_server_ids')
-    root_server_ids = request.GET.getlist('root_server_ids[]', []) if root_server_ids is None else [root_server_ids]
+    root_server_ids = params.get('root_server_ids')
+    root_server_ids = params.getlist('root_server_ids[]', []) if root_server_ids is None else [root_server_ids]
     root_server_ids = [int(rs) for rs in root_server_ids]
     root_server_ids_include = [rs for rs in root_server_ids if rs > 0]
     root_server_ids_exclude = [abs(rs) for rs in root_server_ids if rs < 0]
 
-    meeting_key = request.GET.get('meeting_key')
-    meeting_key_value = request.GET.get('meeting_key_value')
+    meeting_key = params.get('meeting_key')
+    meeting_key_value = params.get('meeting_key_value')
 
-    data_field_keys = extract_specific_keys_param(request.GET)
+    data_field_keys = extract_specific_keys_param(params)
 
-    starts_after = parse_time_params(request.GET.get('StartsAfterH'), request.GET.get('StartsAfterM'))
-    starts_before = parse_time_params(request.GET.get('StartsBeforeH'), request.GET.get('StartsBeforeM'))
-    ends_before = parse_time_params(request.GET.get('EndsBeforeH'), request.GET.get('EndsBeforeM'))
-    min_duration = parse_timedelta_params(request.GET.get('MinDurationH'), request.GET.get('MinDurationM'))
-    max_duration = parse_timedelta_params(request.GET.get('MaxDurationH'), request.GET.get('MaxDurationM'))
+    starts_after = parse_time_params(params.get('StartsAfterH'), params.get('StartsAfterM'))
+    starts_before = parse_time_params(params.get('StartsBeforeH'), params.get('StartsBeforeM'))
+    ends_before = parse_time_params(params.get('EndsBeforeH'), params.get('EndsBeforeM'))
+    min_duration = parse_timedelta_params(params.get('MinDurationH'), params.get('MinDurationM'))
+    max_duration = parse_timedelta_params(params.get('MaxDurationH'), params.get('MaxDurationM'))
 
-    long_val = request.GET.get('long_val')
-    lat_val = request.GET.get('lat_val')
-    geo_width = request.GET.get('geo_width')
-    geo_width_km = request.GET.get('geo_width_km')
-    sort_results_by_distance = request.GET.get('sort_results_by_distance', None) == '1'
+    long_val = params.get('long_val')
+    lat_val = params.get('lat_val')
+    geo_width = params.get('geo_width')
+    geo_width_km = params.get('geo_width_km')
+    sort_results_by_distance = params.get('sort_results_by_distance', None) == '1'
 
-    search_string = request.GET.get('SearchString')
-    search_string_is_address = request.GET.get('StringSearchIsAnAddress', None) == '1'
-    search_string_radius = request.GET.get('SearchStringRadius')
-    search_string_all = request.GET.get('SearchStringAll')
-    search_string_exact = request.GET.get('SearchStringExact')
+    search_string = params.get('SearchString')
+    search_string_is_address = params.get('StringSearchIsAnAddress', None) == '1'
+    search_string_radius = params.get('SearchStringRadius')
+    search_string_all = params.get('SearchStringAll')
+    search_string_exact = params.get('SearchStringExact')
 
-    sort_keys = extract_specific_keys_param(request.GET, 'sort_keys')
+    sort_keys = extract_specific_keys_param(params, 'sort_keys')
 
     meeting_qs = Meeting.objects.all()
     meeting_qs = meeting_qs.prefetch_related('meetinginfo', 'service_body', 'formats')
@@ -473,9 +473,9 @@ def get_search_results(request):
     return meeting_qs
 
 
-def get_field_values(request):
-    root_server_id = request.GET.get('root_server_id')
-    meeting_key = request.GET.get('meeting_key')
+def get_field_values(params):
+    root_server_id = params.get('root_server_id')
+    meeting_key = params.get('meeting_key')
     meeting_qs = Meeting.objects.all()
     if root_server_id:
         meeting_qs = Meeting.objects.filter(root_server_id=root_server_id)
@@ -504,16 +504,16 @@ def get_field_values(request):
     return meeting_qs
 
 
-def get_formats(request):
-    root_server_id = request.GET.get('root_server_id')
+def get_formats(params):
+    root_server_id = params.get('root_server_id')
     format_qs = Format.objects.all()
     if root_server_id:
         format_qs = format_qs.filter(root_server_id=root_server_id)
     return format_qs
 
 
-def get_service_bodies(request):
-    root_server_id = request.GET.get('root_server_id')
+def get_service_bodies(params):
+    root_server_id = params.get('root_server_id')
     body_qs = ServiceBody.objects.all()
     if root_server_id:
         body_qs = body_qs.filter(root_server_id=root_server_id)
@@ -556,13 +556,13 @@ def semantic_query(request, format='json'):
         content_type = 'application/xml'
 
     if switcher == 'GetSearchResults':
-        meetings = get_search_results(request)
+        meetings = get_search_results(request.GET)
         data_field_keys = extract_specific_keys_param(request.GET)
         if format == 'json':
             kwargs = {}
             if data_field_keys:
                 kwargs['return_attrs'] = data_field_keys
-            if 'get_used_formats' in request.GET:
+            if 'get_used_formats' in request.GET or 'get_formats_only' in request.GET:
                 formats = Format.objects.filter(id__in=meetings.values('formats'))
                 formats = [model_to_json(f, format_field_map) for f in formats]
                 if 'get_formats_only' in request.GET:
@@ -582,11 +582,11 @@ def semantic_query(request, format='json'):
             ret = models_to_xml(meetings, meeting_field_map, 'meetings')
     else:
         if switcher == 'GetFormats':
-            models = get_formats(request)
+            models = get_formats(request.GET)
             field_map = format_field_map
             xml_node_name = 'formats'
         elif switcher == 'GetServiceBodies':
-            models = get_service_bodies(request)
+            models = get_service_bodies(request.GET)
             field_map = service_bodies_field_map
             xml_node_name = 'serviceBodies'
         elif switcher == 'GetFieldKeys':
@@ -596,7 +596,7 @@ def semantic_query(request, format='json'):
         elif switcher == 'GetFieldValues':
             meeting_key = request.GET.get('meeting_key')
             if meeting_key in field_keys:
-                models = get_field_values(request)
+                models = get_field_values(request.GET)
                 field_map = {meeting_key: (meeting_field_map.get(meeting_key)[0],), 'ids': ('ids',)}
                 xml_node_name = 'fields'
             else:
@@ -626,7 +626,13 @@ def semantic_query(request, format='json'):
     return response.HttpResponse(ret, content_type=content_type)
 
 
-def get_langs(request, format='json'):
+def get_service_bodies_php(request):
+    models = get_service_bodies(request.GET)
+    ret = models_to_xml(models, service_bodies_field_map, 'serviceBodies')
+    return response.HttpResponse(ret, content_type='application/xml')
+
+
+def get_langs_php(request, format='json'):
     if format == 'json':
         content_type = 'application/json'
         ret = json.dumps({
