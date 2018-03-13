@@ -67,7 +67,7 @@ resource "aws_iam_instance_profile" "cluster" {
 
 resource "aws_autoscaling_group" "cluster" {
   name                 = "${aws_ecs_cluster.main.name}"
-  vpc_zone_identifier  = ["${aws_subnet.public_a.id}"]
+  vpc_zone_identifier  = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
   min_size             = 2
   max_size             = 2
   desired_capacity     = 2
@@ -113,7 +113,7 @@ resource "aws_security_group" "cluster" {
 resource "aws_launch_configuration" "cluster" {
   security_groups             = ["${aws_security_group.cluster.id}"]
   key_name                    = "${aws_key_pair.main.key_name}"
-  image_id                    = "ami-a7a242da"
+  image_id                    = "ami-cad827b7"
   instance_type               = "t2.micro"
   iam_instance_profile        = "${aws_iam_instance_profile.cluster.name}"
   associate_public_ip_address = false
