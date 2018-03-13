@@ -13,6 +13,7 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.contrib.postgres.aggregates.general import ArrayAgg
 from django.db import models
+from django.db.models import F, Window
 from django.db.models.expressions import Case, When, Value
 from django.http import response
 from xml.etree import ElementTree as ET
@@ -97,7 +98,7 @@ meeting_field_map = OrderedDict([
     ('published',                ('published',),),
 ])
 
-valid_meeting_search_keys_with_descriptions = OrderedDict([
+field_keys_with_descriptions = OrderedDict([
     ('id_bigint', 'ID'),
     ('worldid_mixed', 'World ID'),
     ('service_body_bigint', 'Service Body ID'),
@@ -125,7 +126,18 @@ valid_meeting_search_keys_with_descriptions = OrderedDict([
     ('root_server_id', 'Root Server ID'),
 ])
 
-valid_meeting_search_keys = valid_meeting_search_keys_with_descriptions.keys()
+field_keys = field_keys_with_descriptions.keys()
+
+keys_not_searchable = [
+    'id_bigint',
+    'service_body_bigint',
+    'weekday_tinyint',
+    'formats',
+    'longitude',
+    'latitude',
+]
+
+valid_meeting_search_keys = [f for f in field_keys if f not in keys_not_searchable]
 
 
 def model_get_attr(model, attr):
@@ -294,7 +306,7 @@ def parse_timedelta_params(hour, minute):
 def extract_specific_keys_param(GET, key='data_field_key'):
     data_field_keys = GET.get(key)
     if data_field_keys:
-        data_field_keys = [k for k in data_field_keys.split(',') if k in valid_meeting_search_keys]
+        data_field_keys = [k for k in data_field_keys.split(',') if k in field_keys]
     return data_field_keys
 
 
@@ -463,14 +475,28 @@ def get_field_values(request):
     meeting_qs = Meeting.objects.all()
     if root_server_id:
         meeting_qs = Meeting.objects.filter(root_server_id=root_server_id)
-    if meeting_key in valid_meeting_search_keys:
+    if meeting_key in field_keys:
         model_field = meeting_field_map.get(meeting_key)[0]
         if isinstance(model_field, tuple):
-            model_field = model_field[0]
-        if model_field:
-            model_field = model_field.replace('.', '__')
-            meeting_qs = meeting_qs.values(model_field)
-            meeting_qs = meeting_qs.annotate(ids=ArrayAgg('id'))
+            # This means we have a m2m field. At the time of this writing, the only
+            # m2m field we have is formats. In this case, we want to get the distinct
+            # list of format_ids for all meetings, and then get all meetings that have
+            # the same formats in the "ids" Array
+            id_field = '__'.join(model_field[0].split('.')[0:-1]) + '__id'
+            meeting_qs = meeting_qs.annotate(**{model_field[1]: ArrayAgg(id_field)})
+            meeting_qs = meeting_qs.annotate(
+                ids=Window(
+                    expression=ArrayAgg('id'),
+                    partition_by=[F(model_field[1])]
+                )
+            )
+            meeting_qs = meeting_qs.values(model_field[1], 'ids')
+            meeting_qs = meeting_qs.distinct()
+        else:
+            if model_field:
+                model_field = model_field.replace('.', '__')
+                meeting_qs = meeting_qs.values(model_field)
+                meeting_qs = meeting_qs.annotate(ids=ArrayAgg('id'))
     return meeting_qs
 
 
@@ -560,12 +586,12 @@ def semantic_query(request, format='json'):
             field_map = service_bodies_field_map
             xml_node_name = 'serviceBodies'
         elif switcher == 'GetFieldKeys':
-            models = [{'key': k, 'description': d} for k, d in valid_meeting_search_keys_with_descriptions.items()]
+            models = [{'key': k, 'description': d} for k, d in field_keys_with_descriptions.items()]
             field_map = {'key': ('key',), 'description': ('description',)}
             xml_node_name = 'fields'
         elif switcher == 'GetFieldValues':
             meeting_key = request.GET.get('meeting_key')
-            if meeting_key in valid_meeting_search_keys:
+            if meeting_key in field_keys:
                 models = get_field_values(request)
                 field_map = {meeting_key: (meeting_field_map.get(meeting_key)[0],), 'ids': ('ids',)}
                 xml_node_name = 'fields'

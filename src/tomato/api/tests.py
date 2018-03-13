@@ -347,8 +347,6 @@ class GetSearchResultsTests(TestCase):
             return None
 
         for meeting_key in valid_meeting_search_keys:
-            if meeting_key == 'formats':
-                continue  # This one's broken... and I'm not sure if I'm going to fix it
             if meeting_key == 'duration_time':
                 # Need to see what format BMLT expects duration fields to come in as for this query
                 # Interestingly, this test passes as is when using postgres, but fails using spatialite
@@ -362,7 +360,7 @@ class GetSearchResultsTests(TestCase):
             meeting = qs[0]
             value = model_get_value(meeting, model_field)
             url = reverse('semantic-query', kwargs={'format': 'json'})
-            url += '?switcher=GetSearchResults&'.format(meeting_key, value)
+            url += '?switcher=GetSearchResults&'
             url += urllib.parse.urlencode({'meeting_key': meeting_key, 'meeting_key_value': value})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
