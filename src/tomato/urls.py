@@ -8,8 +8,9 @@ from .api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    url(r'main_server/client_interface/(?P<format>json|xml)/GetLangs.php$', views.get_langs, name='get-langs'),
     url(r'main_server/client_interface/(?P<format>json|csv|xml)/', views.semantic_query, name='semantic-query'),
-    url(r'main_server/client_interface/serverInfo.xml', views.server_info_xml, name='server-info-xml'),
+    url(r'main_server/client_interface/serverInfo.xml$', views.server_info_xml, name='server-info-xml'),
     url(r'^%s/(?P<path>.*)$' % re.escape(settings.STATIC_URL.strip('/')),
         serve, kwargs={'insecure':True}),
 ]

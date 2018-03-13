@@ -626,6 +626,29 @@ def semantic_query(request, format='json'):
     return response.HttpResponse(ret, content_type=content_type)
 
 
+def get_langs(request, format='json'):
+    if format == 'json':
+        content_type = 'application/json'
+        ret = json.dumps({
+            "languages": [
+                {
+                    "key": "en",
+                    "name": "English",
+                    "default": True
+                }
+            ]
+        })
+    else:
+        content_type = 'application/xml'
+        ret = textwrap.dedent("""
+            <languages>
+                <language key="en" default="1">English</language>
+            </languages>
+        """)
+
+    return response.HttpResponse(ret, content_type=content_type)
+
+
 def server_info_xml(request):
     ret = textwrap.dedent("""
     <bmltInfo>
