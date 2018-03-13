@@ -359,6 +359,7 @@ def get_search_results(params):
 
     search_string = params.get('SearchString')
     search_string_is_address = params.get('StringSearchIsAnAddress', None) == '1'
+    search_string_radius = params.get('SearchStringRadius')
     search_string_all = params.get('SearchStringAll', None) == '1'
     search_string_exact = params.get('SearchStringExact')
 
@@ -441,6 +442,11 @@ def get_search_results(params):
         try:
             get_nearest = False
             if search_string and search_string_is_address:
+                get_nearest = 10
+                if search_string_radius:
+                    search_string_radius = int(search_string_radius)
+                    if search_string_radius < 0:
+                        get_nearest = abs(search_string_radius)
                 # Translate address to lat/long using geocode api
                 url = 'https://maps.googleapis.com/maps/api/geocode/json?key={}&address={}&sensor=false'
                 r = requests.get(url.format(settings.GOOGLE_MAPS_API_KEY, search_string))
@@ -451,7 +457,6 @@ def get_search_results(params):
                     logger.warning('Received bad status {} from geocode api request: {}'.format(r['status'], url))
                 latitude = r['results'][0]['geometry']['location']['lat']
                 longitude = r['results'][0]['geometry']['location']['lng']
-                get_nearest = 10
             else:
                 latitude = float(lat_val)
                 longitude = float(long_val)
