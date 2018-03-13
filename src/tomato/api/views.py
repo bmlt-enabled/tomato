@@ -30,14 +30,15 @@ def model_has_distance(model):
 
 
 server_info_field_map = OrderedDict([
-    ('version',         ('version',),),
-    ('versionInt',      ('versionInt',),),
-    ('langs',           ('langs',),),
-    ('centerLongitude', ('centerLongitude',),),
-    ('centerLatitude',  ('centerLatitude',),),
-    ('centerZoom',      ('centerZoom',),),
-    ('available_keys',  ('available_keys',),),
-    ('google_api_key',  ('google_api_key',),),
+    ('version',          ('version',),),
+    ('versionInt',       ('versionInt',),),
+    ('langs',            ('langs',),),
+    ('centerLongitude',  ('centerLongitude',),),
+    ('centerLatitude',   ('centerLatitude',),),
+    ('centerZoom',       ('centerZoom',),),
+    ('available_keys',   ('available_keys',),),
+    ('changesPerMeeting',('changesPerMeeting',),),
+    ('google_api_key',   ('google_api_key',),),
 ])
 
 service_bodies_field_map = OrderedDict([
@@ -609,6 +610,7 @@ def semantic_query(request, format='json'):
                 'centerLatitude': 34.235918,
                 'centerZoom': 6,
                 'available_keys': ','.join(field_keys),
+                'changesPerMeeting': '0',
                 'google_api_key': settings.GOOGLE_MAPS_API_KEY,
             }]
             field_map = server_info_field_map
