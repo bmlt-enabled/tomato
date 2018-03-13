@@ -12,9 +12,10 @@ from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.contrib.postgres.aggregates.general import ArrayAgg
-from django.contrib.postgres.search import SearchVector
+from django.contrib.postgres.search import SearchQuery, SearchVector
 from django.db import models
 from django.db.models import F, Window
+from django.db.models.functions import Concat
 from django.db.models.expressions import Case, When, Value
 from django.http import response
 from xml.etree import ElementTree as ET
@@ -361,7 +362,7 @@ def get_search_results(params):
     search_string_is_address = params.get('StringSearchIsAnAddress', None) == '1'
     search_string_radius = params.get('SearchStringRadius')
     search_string_all = params.get('SearchStringAll', None) == '1'
-    search_string_exact = params.get('SearchStringExact')
+    search_string_exact = params.get('SearchStringExact', None) == '1'
 
     sort_keys = extract_specific_keys_param(params, 'sort_keys')
 
@@ -421,23 +422,37 @@ def get_search_results(params):
                 values.append(model_field)
         meeting_qs = meeting_qs.values(*values)
     if search_string and not search_string_is_address:
-        if search_string_all:
-            vector = SearchVector(
-                'name',
-                'meetinginfo__location_text',
-                'meetinginfo__location_info',
-                'meetinginfo__location_street',
-                'meetinginfo__location_city_subsection',
-                'meetinginfo__location_neighborhood',
-                'meetinginfo__location_municipality',
-                'meetinginfo__location_sub_province',
-                'meetinginfo__location_province',
-                'meetinginfo__location_postal_code_1',
-                'meetinginfo__location_nation',
-                'meetinginfo__comments',
-            )
+        vector_fields = (
+            'name',
+            'meetinginfo__location_text',
+            'meetinginfo__location_info',
+            'meetinginfo__location_street',
+            'meetinginfo__location_city_subsection',
+            'meetinginfo__location_neighborhood',
+            'meetinginfo__location_municipality',
+            'meetinginfo__location_sub_province',
+            'meetinginfo__location_province',
+            'meetinginfo__location_postal_code_1',
+            'meetinginfo__location_nation',
+            'meetinginfo__comments',
+        )
+        if search_string_exact:
+            meeting_qs = meeting_qs.annotate(fields=Concat(*vector_fields, output_field=models.TextField()))
+            meeting_qs = meeting_qs.filter(fields__icontains=search_string)
+        else:
+            vector = SearchVector(*vector_fields)
             meeting_qs = meeting_qs.annotate(search=vector)
-            meeting_qs = meeting_qs.filter(search=search_string)
+            if search_string_all:
+                meeting_qs = meeting_qs.filter(search=search_string)
+            else:
+                query = None
+                for word in search_string.split():
+                    if len(word) < 3 or word.lower() == 'the':
+                        continue
+                    q = SearchQuery(word)
+                    query = q if not query else query | q
+                if query:
+                    meeting_qs = meeting_qs.filter(search=query)
     if (long_val and lat_val and (geo_width or geo_width_km)) or (search_string and search_string_is_address):
         try:
             get_nearest = False
