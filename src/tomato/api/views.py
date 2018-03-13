@@ -30,10 +30,13 @@ def model_has_distance(model):
 
 
 server_info_field_map = OrderedDict([
+    ('version',         ('version',),),
+    ('versionInt',      ('versionInt',),),
     ('langs',           ('langs',),),
     ('centerLongitude', ('centerLongitude',),),
     ('centerLatitude',  ('centerLatitude',),),
     ('centerZoom',      ('centerZoom',),),
+    ('available_keys',  ('available_keys',),),
     ('google_api_key',  ('google_api_key',),),
 ])
 
@@ -599,10 +602,13 @@ def semantic_query(request, format='json'):
                 return response.HttpResponseBadRequest()
         elif switcher == 'GetServerInfo':
             models = [{
+                'version': '5.0.0',
+                'versionInt': '5000000',
                 'langs': 'en',
                 'centerLongitude': -118.563659,
                 'centerLatitude': 34.235918,
                 'centerZoom': 6,
+                'available_keys': ','.join(field_keys),
                 'google_api_key': settings.GOOGLE_MAPS_API_KEY,
             }]
             field_map = server_info_field_map
