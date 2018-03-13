@@ -52,3 +52,8 @@ resource "aws_alb_listener" "tomato_https" {
     type             = "forward"
   }
 }
+
+resource "aws_alb_listener_certificate" "tomato_bmlt_cert" {
+  listener_arn    = "${aws_alb_listener.tomato_https.arn}"
+  certificate_arn = "${var.additional_certificate_arn}"
+}

@@ -8,9 +8,4 @@ resource "aws_route53_record" "tomato" {
   type    = "CNAME"
   ttl     = "300"
   records = ["${aws_alb.tomato.dns_name}"]
-
-  tags {
-    application = "tomato"
-    environment = "production"
-  }
 }
