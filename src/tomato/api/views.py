@@ -272,14 +272,16 @@ def models_to_csv(models, field_map, fieldnames=None):
         stream.close()
 
 
-def models_to_xml(models, field_map, root_element_name):
+def models_to_xml(models, field_map, root_element_name, convert_to_string=True):
     root = ET.Element(root_element_name)
     i = 0
     for m in models:
         row = model_to_xml(root, m, field_map)
         row.set('sequence_index', str(i))
         i += 1
-    return ET.tostring(root)
+    if convert_to_string:
+        return ET.tostring(root)
+    return root
 
 
 def parse_time_params(hour, minute):
@@ -596,28 +598,32 @@ def semantic_query(request, format='json'):
     if switcher == 'GetSearchResults':
         meetings = get_search_results(request.GET)
         data_field_keys = extract_specific_keys_param(request.GET)
-        if format == 'json':
-            kwargs = {}
-            if data_field_keys:
-                kwargs['return_attrs'] = data_field_keys
+        if format in ('json', 'xml'):
             if 'get_used_formats' in request.GET or 'get_formats_only' in request.GET:
                 formats = Format.objects.filter(id__in=meetings.values('formats'))
-                formats = [model_to_json(f, format_field_map) for f in formats]
-                if 'get_formats_only' in request.GET:
-                    ret = {'formats': formats}
+            if format == 'json':
+                if 'get_used_formats' in request.GET or 'get_formats_only' in request.GET:
+                    formats = [model_to_json(f, format_field_map) for f in formats]
+                    if 'get_formats_only' in request.GET:
+                        ret = json.dumps({'formats': formats})
+                    else:
+                        meetings = [model_to_json(m, meeting_field_map, return_attrs=data_field_keys) for m in meetings]
+                        ret = json.dumps({'meetings': meetings, 'formats': formats})
                 else:
-                    meetings = [model_to_json(m, meeting_field_map, **kwargs) for m in meetings]
-                    ret = {'meetings': meetings, 'formats': formats}
-                if getattr(settings, 'DEBUG', False):
-                    ret = json.dumps(ret, indent=2)
-                else:
-                    ret = json.dumps(ret, separators=(',', ':'))
+                    ret = models_to_json(meetings, meeting_field_map, return_attrs=data_field_keys)
             else:
-                ret = models_to_json(meetings, meeting_field_map, return_attrs=data_field_keys)
+                if 'get_used_formats' in request.GET or 'get_formats_only' in request.GET:
+                    formats = models_to_xml(formats, format_field_map, 'formats', convert_to_string=False)
+                    if 'get_formats_only' in request.GET:
+                        ret = ET.tostring(formats)
+                    else:
+                        meetings = models_to_xml(meetings, meeting_field_map, 'meetings', convert_to_string=False)
+                        meetings.append(formats)
+                        ret = ET.tostring(meetings)
+                else:
+                    ret = models_to_xml(meetings, meeting_field_map, 'meetings')
         elif format == 'csv':
             ret = models_to_csv(meetings, meeting_field_map, data_field_keys)
-        elif format == 'xml':
-            ret = models_to_xml(meetings, meeting_field_map, 'meetings')
     else:
         if switcher == 'GetFormats':
             models = get_formats(request.GET)
