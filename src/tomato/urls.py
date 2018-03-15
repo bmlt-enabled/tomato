@@ -37,5 +37,12 @@ urlpatterns = [
         views.server_info_xml,
         name='server-info-xml'),
 
+    url(r'_/sandwich/client_interface/xsd/(?P<schema_name>GetSearchResults|GetFormats)\.php$',
+        views.xsd,
+        name='xsd-sandwich'),
+    url(r'main_server[/]+client_interface/xsd/(?P<schema_name>GetSearchResults|GetFormats)\.php$',
+        views.xsd,
+        name='xsd'),
+
     url(r'^%s/(?P<path>.*)$' % re.escape(settings.STATIC_URL.strip('/')), serve, kwargs={'insecure': True}),
 ]

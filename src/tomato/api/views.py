@@ -18,6 +18,9 @@ from django.db.models import F, Window
 from django.db.models.functions import Concat
 from django.db.models.expressions import Case, When, Value
 from django.http import response
+from django.template.loader import render_to_string
+from django.urls import reverse
+from urllib.parse import urljoin
 from xml.etree import ElementTree as ET
 from .models import Format, Meeting, ServiceBody
 
@@ -67,7 +70,6 @@ format_field_map = OrderedDict([
 
 meeting_field_map = OrderedDict([
     ('id_bigint',                ('id',),),
-    ('root_server_id',           ('root_server_id',),),
     ('worldid_mixed',            ('meetinginfo.world_id',),),
     ('shared_group_id_bigint',   ('',),),
     ('service_body_bigint',      ('service_body.id',),),
@@ -102,6 +104,7 @@ meeting_field_map = OrderedDict([
     ('contact_email_1',          ('',),),
     ('contact_name_1',           ('',),),
     ('published',                ('published',),),
+    ('root_server_id',           ('root_server_id',),),
 ])
 
 field_keys_with_descriptions = OrderedDict([
@@ -612,16 +615,24 @@ def semantic_query(request, format='json'):
                 else:
                     ret = models_to_json(meetings, meeting_field_map, return_attrs=data_field_keys)
             else:
+                base_url = '{}://{}'.format(request.scheme, request.get_host())
+                schema_url = urljoin(base_url, reverse('xsd', kwargs={'schema_name': switcher}))
                 if 'get_used_formats' in request.GET or 'get_formats_only' in request.GET:
                     formats = models_to_xml(formats, format_field_map, 'formats', convert_to_string=False)
                     if 'get_formats_only' in request.GET:
-                        ret = ET.tostring(formats)
+                        schema_url = urljoin(base_url, reverse('xsd', kwargs={'schema_name': 'GetFormats'}))
+                        ret = formats
                     else:
                         meetings = models_to_xml(meetings, meeting_field_map, 'meetings', convert_to_string=False)
                         meetings.append(formats)
-                        ret = ET.tostring(meetings)
+                        ret = meetings
                 else:
-                    ret = models_to_xml(meetings, meeting_field_map, 'meetings')
+                    ret = models_to_xml(meetings, meeting_field_map, 'meetings', convert_to_string=False)
+
+                ret.attrib['xmlns'] = base_url
+                ret.attrib['xmlns:xsi'] = 'http://www.w3.org/2001/XMLSchema-instance'
+                ret.attrib['xsi:schemaLocation'] =  '{} {}'.format(base_url, schema_url)
+                ret = ET.tostring(ret)
         elif format == 'csv':
             ret = models_to_csv(meetings, meeting_field_map, data_field_keys)
     else:
@@ -708,3 +719,12 @@ def server_info_xml(request):
     </bmltInfo>
     """)
     return response.HttpResponse(ret, content_type='application/xml')
+
+
+def xsd(request, schema_name):
+    ret = render_to_string(
+        schema_name + '.xsd',
+        request=request,
+        context={'url': '{}://{}'.format(request.scheme, request.get_host())}
+    )
+    return response.HttpResponse(ret, content_type='text/xml')

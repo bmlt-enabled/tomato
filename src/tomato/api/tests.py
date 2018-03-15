@@ -5,6 +5,7 @@ import urllib.parse
 from django.db import models
 from django.test import TestCase
 from django.urls import reverse
+from urllib.parse import urljoin
 from xml.etree import ElementTree as ET
 from .models import Format, Meeting, MeetingInfo
 from .views import meeting_field_map, model_get_value, service_bodies_field_map, valid_meeting_search_keys
@@ -37,7 +38,7 @@ class GetSearchResultsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/xml')
         response = ET.fromstring(response.content)
-        self.assertEqual(len(response.findall('./row')), 10)
+        self.assertEqual(len(response.findall('./{http://testserver}row')), 10)
 
     def test_get_search_results_csv(self):
         url = reverse('semantic-query', kwargs={'format': 'csv'})
