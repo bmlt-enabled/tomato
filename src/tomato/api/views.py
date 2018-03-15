@@ -492,38 +492,44 @@ def get_search_results(params):
     if (long_val and lat_val and (geo_width or geo_width_km)) or (search_string and search_string_is_address):
         # Get latitude and longitude values, either directly from the request
         # or from the an address
-        get_nearest = False
-        if search_string and search_string_is_address:
-            get_nearest = 10
-            if search_string_radius:
-                search_string_radius = int(search_string_radius)
-                if search_string_radius < 0:
-                    get_nearest = abs(search_string_radius)
-            latitude, longitude = address_to_coordinates(search_string)
+        try:
+            get_nearest = False
+            if search_string and search_string_is_address:
+                get_nearest = 10
+                if search_string_radius:
+                    search_string_radius = int(search_string_radius)
+                    if search_string_radius < 0:
+                        get_nearest = abs(search_string_radius)
+                latitude, longitude = address_to_coordinates(search_string)
+            else:
+                latitude = float(lat_val)
+                longitude = float(long_val)
+                if geo_width is not None:
+                    geo_width = float(geo_width)
+                    if geo_width < 0:
+                        get_nearest = abs(int(geo_width))
+                elif geo_width_km is not None:
+                    geo_width_km = float(geo_width_km)
+                    if geo_width_km < 0:
+                        get_nearest = abs(int(geo_width_km))
+            point = Point(x=longitude, y=latitude, srid=4326)
+        except Exception as e:
+            if isinstance(e, ValueError) or isinstance(e, GeocodeAPIException):
+                meeting_qs = meeting_qs.filter(pk=-1)
+            else:
+                raise
         else:
-            latitude = float(lat_val)
-            longitude = float(long_val)
-            if geo_width is not None:
-                geo_width = float(geo_width)
-                if geo_width < 0:
-                    get_nearest = abs(int(geo_width))
-            elif geo_width_km is not None:
-                geo_width_km = float(geo_width_km)
-                if geo_width_km < 0:
-                    get_nearest = abs(int(geo_width_km))
-        point = Point(x=longitude, y=latitude, srid=4326)
-
-        meeting_qs = meeting_qs.annotate(distance=Distance('point', point))
-        if get_nearest:
-            qs = meeting_qs.order_by('distance').values_list('id')
-            meeting_ids = [m[0] for m in qs[:get_nearest]]
-            meeting_qs = meeting_qs.filter(id__in=meeting_ids)
-        else:
-            d = geo_width if geo_width is not None else geo_width_km
-            d = D(mi=d) if geo_width is not None else D(km=d)
-            meeting_qs = meeting_qs.filter(point__distance_lte=(point, d))
-        if sort_results_by_distance:
-            meeting_qs = meeting_qs.order_by('distance')
+            meeting_qs = meeting_qs.annotate(distance=Distance('point', point))
+            if get_nearest:
+                qs = meeting_qs.order_by('distance').values_list('id')
+                meeting_ids = [m[0] for m in qs[:get_nearest]]
+                meeting_qs = meeting_qs.filter(id__in=meeting_ids)
+            else:
+                d = geo_width if geo_width is not None else geo_width_km
+                d = D(mi=d) if geo_width is not None else D(km=d)
+                meeting_qs = meeting_qs.filter(point__distance_lte=(point, d))
+            if sort_results_by_distance:
+                meeting_qs = meeting_qs.order_by('distance')
     if sort_keys and not sort_results_by_distance:
         values = []
         for key in sort_keys:

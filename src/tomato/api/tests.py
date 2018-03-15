@@ -364,29 +364,6 @@ class GetSearchResultsTests(TestCase):
             for meeting in response:
                 self.assertTrue(meeting[meeting_key] == value)
 
-    def test_search_results_geocode_api_exception_from_status_code(self):
-        def get_response(url):
-            r = Response()
-            r.status_code = 404
-            return r
-        with patch('requests.get', get_response):
-            url = reverse('semantic-query', kwargs={'format': 'json'})
-            url += '?switcher=GetSearchResults&SearchString=Johnson%20Ferry%20Rd&StringSearchIsAnAddress=1'
-            with self.assertRaises(GeocodeAPIException):
-                self.client.get(url)
-
-    def test_search_results_geocode_api_exception_from_bad_status_message(self):
-        def get_response(url):
-            r = Response()
-            r.status_code = 200
-            r._content = '{"status": "NOTOK"}'
-            return r
-        with patch('requests.get', get_response):
-            url = reverse('semantic-query', kwargs={'format': 'json'})
-            url += '?switcher=GetSearchResults&SearchString=Johnson%20Ferry%20Rd&StringSearchIsAnAddress=1'
-            with self.assertRaises(GeocodeAPIException):
-                self.client.get(url)
-
 
 class GetServiceBodiesTests(TestCase):
     fixtures = ['testdata']
