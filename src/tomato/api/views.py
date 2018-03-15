@@ -28,6 +28,10 @@ from .models import Format, Meeting, ServiceBody
 logger = logging.getLogger('django')
 
 
+class GeocodeAPIException(Exception):
+    pass
+
+
 def model_has_distance(model):
     if isinstance(model, dict):
         return 'distance' in model
@@ -330,6 +334,24 @@ def get_xml_schema_url(base_url, schema_name):
     return urljoin(base_url, reverse('xsd', kwargs={'schema_name': schema_name}))
 
 
+def address_to_coordinates(address):
+    # Translate address to lat/long using geocode api
+    url = 'https://maps.googleapis.com/maps/api/geocode/json?key={}&address={}&sensor=false'
+    r = requests.get(url.format(settings.GOOGLE_MAPS_API_KEY, address))
+    if r.status_code != 200:
+        message = 'Received bad status code {} from geocode api request {}'.format(r.status_code, url)
+        logger.error(message)
+        raise GeocodeAPIException(message)
+    r = json.loads(r.content)
+    if r['status'] != 'OK':
+        message = 'Received bad status {} from geocode api request: {}'.format(r['status'], url)
+        logger.error(message)
+        raise GeocodeAPIException(message)
+    latitude = r['results'][0]['geometry']['location']['lat']
+    longitude = r['results'][0]['geometry']['location']['lng']
+    return latitude, longitude
+
+
 def get_search_results(params):
     weekdays = params.get('weekdays')
     weekdays = params.getlist('weekdays[]', []) if weekdays is None else [weekdays]
@@ -468,50 +490,40 @@ def get_search_results(params):
                 if query:
                     meeting_qs = meeting_qs.filter(search=query)
     if (long_val and lat_val and (geo_width or geo_width_km)) or (search_string and search_string_is_address):
-        try:
-            get_nearest = False
-            if search_string and search_string_is_address:
-                get_nearest = 10
-                if search_string_radius:
-                    search_string_radius = int(search_string_radius)
-                    if search_string_radius < 0:
-                        get_nearest = abs(search_string_radius)
-                # Translate address to lat/long using geocode api
-                url = 'https://maps.googleapis.com/maps/api/geocode/json?key={}&address={}&sensor=false'
-                r = requests.get(url.format(settings.GOOGLE_MAPS_API_KEY, search_string))
-                if r.status_code != 200:
-                    logger.warning('Received bad status code {} from geocode api request {}'.format(r.status_code, url))
-                r = json.loads(r.content)
-                if r['status'] != 'OK':
-                    logger.warning('Received bad status {} from geocode api request: {}'.format(r['status'], url))
-                latitude = r['results'][0]['geometry']['location']['lat']
-                longitude = r['results'][0]['geometry']['location']['lng']
-            else:
-                latitude = float(lat_val)
-                longitude = float(long_val)
-                if geo_width is not None:
-                    geo_width = float(geo_width)
-                    if geo_width < 0:
-                        get_nearest = abs(int(geo_width))
-                elif geo_width_km is not None:
-                    geo_width_km = float(geo_width_km)
-                    if geo_width_km < 0:
-                        get_nearest = abs(int(geo_width_km))
-            point = Point(x=longitude, y=latitude, srid=4326)
-        except:
-            pass
+        # Get latitude and longitude values, either directly from the request
+        # or from the an address
+        get_nearest = False
+        if search_string and search_string_is_address:
+            get_nearest = 10
+            if search_string_radius:
+                search_string_radius = int(search_string_radius)
+                if search_string_radius < 0:
+                    get_nearest = abs(search_string_radius)
+            latitude, longitude = address_to_coordinates(search_string)
         else:
-            meeting_qs = meeting_qs.annotate(distance=Distance('point', point))
-            if get_nearest:
-                qs = meeting_qs.order_by('distance').values_list('id')
-                meeting_ids = [m[0] for m in qs[:get_nearest]]
-                meeting_qs = meeting_qs.filter(id__in=meeting_ids)
-            else:
-                d = geo_width if geo_width is not None else geo_width_km
-                d = D(mi=d) if geo_width is not None else D(km=d)
-                meeting_qs = meeting_qs.filter(point__distance_lte=(point, d))
-            if sort_results_by_distance:
-                meeting_qs = meeting_qs.order_by('distance')
+            latitude = float(lat_val)
+            longitude = float(long_val)
+            if geo_width is not None:
+                geo_width = float(geo_width)
+                if geo_width < 0:
+                    get_nearest = abs(int(geo_width))
+            elif geo_width_km is not None:
+                geo_width_km = float(geo_width_km)
+                if geo_width_km < 0:
+                    get_nearest = abs(int(geo_width_km))
+        point = Point(x=longitude, y=latitude, srid=4326)
+
+        meeting_qs = meeting_qs.annotate(distance=Distance('point', point))
+        if get_nearest:
+            qs = meeting_qs.order_by('distance').values_list('id')
+            meeting_ids = [m[0] for m in qs[:get_nearest]]
+            meeting_qs = meeting_qs.filter(id__in=meeting_ids)
+        else:
+            d = geo_width if geo_width is not None else geo_width_km
+            d = D(mi=d) if geo_width is not None else D(km=d)
+            meeting_qs = meeting_qs.filter(point__distance_lte=(point, d))
+        if sort_results_by_distance:
+            meeting_qs = meeting_qs.order_by('distance')
     if sort_keys and not sort_results_by_distance:
         values = []
         for key in sort_keys:

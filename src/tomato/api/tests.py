@@ -5,10 +5,12 @@ import urllib.parse
 from django.db import models
 from django.test import TestCase
 from django.urls import reverse
-from urllib.parse import urljoin
+from mock import patch
+from requests.models import Response
 from xml.etree import ElementTree as ET
 from .models import Format, Meeting, MeetingInfo
-from .views import meeting_field_map, model_get_value, service_bodies_field_map, valid_meeting_search_keys
+from .views import (meeting_field_map, model_get_value, service_bodies_field_map, valid_meeting_search_keys,
+                    GeocodeAPIException)
 
 
 class GetSearchResultsTests(TestCase):
@@ -361,6 +363,29 @@ class GetSearchResultsTests(TestCase):
             self.assertTrue(len(response) > 0)
             for meeting in response:
                 self.assertTrue(meeting[meeting_key] == value)
+
+    def test_search_results_geocode_api_exception_from_status_code(self):
+        def get_response(url):
+            r = Response()
+            r.status_code = 404
+            return r
+        with patch('requests.get', get_response):
+            url = reverse('semantic-query', kwargs={'format': 'json'})
+            url += '?switcher=GetSearchResults&SearchString=Johnson%20Ferry%20Rd&StringSearchIsAnAddress=1'
+            with self.assertRaises(GeocodeAPIException):
+                self.client.get(url)
+
+    def test_search_results_geocode_api_exception_from_bad_status_message(self):
+        def get_response(url):
+            r = Response()
+            r.status_code = 200
+            r._content = '{"status": "NOTOK"}'
+            return r
+        with patch('requests.get', get_response):
+            url = reverse('semantic-query', kwargs={'format': 'json'})
+            url += '?switcher=GetSearchResults&SearchString=Johnson%20Ferry%20Rd&StringSearchIsAnAddress=1'
+            with self.assertRaises(GeocodeAPIException):
+                self.client.get(url)
 
 
 class GetServiceBodiesTests(TestCase):

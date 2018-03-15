@@ -171,7 +171,9 @@ LOGGING = {
 
 STATIC_URL = '/static/'
 
-GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
-
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
+
+TEST_RUNNER = 'tomato.test_runner.DisableLogsTestRunner'
