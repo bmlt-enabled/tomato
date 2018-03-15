@@ -275,13 +275,18 @@ def models_to_csv(models, field_map, fieldnames=None):
         stream.close()
 
 
-def models_to_xml(models, field_map, root_element_name, convert_to_string=True):
+def models_to_xml(models, field_map, root_element_name, xmlns=None, schema_name=None, convert_to_string=True):
     root = ET.Element(root_element_name)
     i = 0
     for m in models:
         row = model_to_xml(root, m, field_map)
         row.set('sequence_index', str(i))
         i += 1
+    if xmlns and schema_name:
+        root.attrib['xmlns'] = xmlns
+        root.attrib['xmlns:xsi'] = 'http://www.w3.org/2001/XMLSchema-instance'
+        schema_url = get_xml_schema_url(xmlns, schema_name)
+        root.attrib['xsi:schemaLocation'] = '{} {}'.format(xmlns, schema_url)
     if convert_to_string:
         return ET.tostring(root)
     return root
@@ -319,6 +324,10 @@ def extract_specific_keys_param(GET, key='data_field_key'):
     if data_field_keys:
         data_field_keys = [k for k in data_field_keys.split(',') if k in field_keys]
     return data_field_keys
+
+
+def get_xml_schema_url(base_url, schema_name):
+    return urljoin(base_url, reverse('xsd', kwargs={'schema_name': schema_name}))
 
 
 def get_search_results(params):
@@ -615,12 +624,12 @@ def semantic_query(request, format='json'):
                 else:
                     ret = models_to_json(meetings, meeting_field_map, return_attrs=data_field_keys)
             else:
-                base_url = '{}://{}'.format(request.scheme, request.get_host())
-                schema_url = urljoin(base_url, reverse('xsd', kwargs={'schema_name': switcher}))
+                xmlns = '{}://{}'.format(request.scheme, request.get_host())
+                schema_url = get_xml_schema_url(xmlns, switcher)
                 if 'get_used_formats' in request.GET or 'get_formats_only' in request.GET:
                     formats = models_to_xml(formats, format_field_map, 'formats', convert_to_string=False)
                     if 'get_formats_only' in request.GET:
-                        schema_url = urljoin(base_url, reverse('xsd', kwargs={'schema_name': 'GetFormats'}))
+                        schema_url = get_xml_schema_url(xmlns, 'GetFormats')
                         ret = formats
                     else:
                         meetings = models_to_xml(meetings, meeting_field_map, 'meetings', convert_to_string=False)
@@ -629,17 +638,19 @@ def semantic_query(request, format='json'):
                 else:
                     ret = models_to_xml(meetings, meeting_field_map, 'meetings', convert_to_string=False)
 
-                ret.attrib['xmlns'] = base_url
+                ret.attrib['xmlns'] = xmlns
                 ret.attrib['xmlns:xsi'] = 'http://www.w3.org/2001/XMLSchema-instance'
-                ret.attrib['xsi:schemaLocation'] =  '{} {}'.format(base_url, schema_url)
+                ret.attrib['xsi:schemaLocation'] =  '{} {}'.format(xmlns, schema_url)
                 ret = ET.tostring(ret)
         elif format == 'csv':
             ret = models_to_csv(meetings, meeting_field_map, data_field_keys)
     else:
+        xml_schema_name = None
         if switcher == 'GetFormats':
             models = get_formats(request.GET)
             field_map = format_field_map
             xml_node_name = 'formats'
+            xml_schema_name = switcher
         elif switcher == 'GetServiceBodies':
             models = get_service_bodies(request.GET)
             field_map = service_bodies_field_map
@@ -676,7 +687,8 @@ def semantic_query(request, format='json'):
         elif format == 'csv':
             ret = models_to_csv(models, field_map)
         elif format == 'xml':
-            ret = models_to_xml(models, field_map, xml_node_name)
+            xmlns = '{}://{}'.format(request.scheme, request.get_host())
+            ret = models_to_xml(models, field_map, xml_node_name, xmlns=xmlns, schema_name=xml_schema_name)
 
     return response.HttpResponse(ret, content_type=content_type)
 
