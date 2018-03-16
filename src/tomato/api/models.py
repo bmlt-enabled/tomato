@@ -112,7 +112,7 @@ class RootServer(models.Model):
     last_successful_import = models.DateTimeField(null=True)
 
     def __str__(self):
-        return '({}:{})'.format(self.id, self.url)
+        return '({}:{}:{})'.format(self.id, self.url, self.last_successful_import)
 
 
 class ImportProblem(models.Model):
