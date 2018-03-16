@@ -109,6 +109,7 @@ def get_timedelta(d, key):
 class RootServer(models.Model):
     id = models.BigAutoField(primary_key=True)
     url = models.URLField()
+    last_successful_import = models.DateTimeField(null=True)
 
     def __str__(self):
         return '({}:{})'.format(self.id, self.url)

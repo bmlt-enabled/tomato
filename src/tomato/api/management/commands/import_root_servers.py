@@ -5,6 +5,7 @@ import requests.exceptions
 import time
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
 from urllib.parse import urljoin
 from ...models import Format, ImportProblem, Meeting, RootServer, ServiceBody
 
@@ -44,6 +45,8 @@ class Command(BaseCommand):
                             self.update_formats(root)
                             logger.info('importing meetings')
                             self.update_meetings(root)
+                            root.last_successful_import = timezone.now()
+                            root.save()
                     except Exception as e:
                         logger.error('Error updating root server: {}'.format(str(e)))
             logger.info('sleeping')
