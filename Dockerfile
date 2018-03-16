@@ -11,7 +11,8 @@ RUN apk add --no-cache \
 RUN apk add --no-cache \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
     gdal \
-    geos-dev
+    geos-dev \
+    libspatialite
 
 RUN mkdir /code
 WORKDIR /code
@@ -21,6 +22,7 @@ ADD requirements.txt /code
 
 RUN pip3 install uwsgi==2.0.15
 RUN pip3 install -r requirements.txt
+RUN DJANGO_SETTINGS_MODULE=tomato.settings.test python3 manage.py test
 
 EXPOSE 8080
 

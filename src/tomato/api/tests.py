@@ -343,8 +343,8 @@ class GetSearchResultsTests(TestCase):
 
         for meeting_key in valid_meeting_search_keys:
             if meeting_key == 'duration_time':
-                # Need to see what format BMLT expects duration fields to come in as for this query
-                # Interestingly, this test passes as is when using postgres, but fails using spatialite
+                # This works for postgis, but not for spatialite, the database we use
+                # for running tests.
                 continue
             model_field = meeting_field_map.get(meeting_key)[0]
             qs = Meeting.objects.exclude(**{model_field.replace('.', '__'): None})
