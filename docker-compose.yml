@@ -1,9 +1,19 @@
 version: '2'
 services:
-  tomato:
+  tomato-web:
     build: .
     ports:
       - "8080:8080"
+    command:
+      /bin/sh -c "python3 manage.py initialize && python3 manage.py import_root_servers"
+    environment:
+      RDS_HOST: postgis
+    links:
+      - postgis
+  tomato-daemon:
+    build: .
+    command:
+      /bin/sh -c "python3 manage.py initialize && uwsgi --master --http 0.0.0.0:8000 --module tomato.wsgi --processes 32"
     environment:
       RDS_HOST: postgis
     links:
