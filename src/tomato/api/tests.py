@@ -657,6 +657,62 @@ class GetSearchResultsTests(TestCase):
             prev_miles = miles
             prev_km = km
 
+    def test_get_search_results_sort_keys(self):
+        for sort_key in field_keys:
+            if sort_key == 'formats':
+                continue  # not sure how this behaves... don't care
+            url = reverse('semantic-query', kwargs={'format': 'json'})
+            url += '?switcher=GetSearchResults&'
+            url += urllib.parse.urlencode({'sort_keys': sort_key})
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            response = json.loads(response.content)
+            self.assertTrue(len(response) > 0)
+            prev_sort_value = None
+            for meeting in response:
+                sort_value = meeting.get(sort_key)
+                try:
+                    sort_value = float(sort_value)
+                except ValueError:
+                    pcs = sort_value.split(':')
+                    if len(pcs) == 3 and len(pcs[0]) == 2 and len(pcs[1]) == 2:
+                        try:
+                            sort_value = parse_timedelta_params(pcs[0], pcs[1])
+                        except ValueError:
+                            self.fail('Invalid time')
+                if prev_sort_value:
+                    self.assertTrue(sort_value >= prev_sort_value)
+                prev_sort_value = sort_value
+
+        for i in range(len(field_keys)):
+            if i >= len(field_keys) - 1:
+                continue
+            sort_keys = [field_keys[i], field_keys[i + 1]]
+            if 'formats' in sort_keys:
+                continue
+            url = reverse('semantic-query', kwargs={'format': 'json'})
+            url += '?switcher=GetSearchResults&'
+            url += urllib.parse.urlencode({'sort_keys': ','.join(sort_keys)})
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            response = json.loads(response.content)
+            self.assertTrue(len(response) > 0)
+            prev_sort_value = None
+            for meeting in response:
+                sort_value = meeting.get(sort_keys[0])
+                try:
+                    sort_value = float(sort_value)
+                except ValueError:
+                    pcs = sort_value.split(':')
+                    if len(pcs) == 3 and len(pcs[0]) == 2 and len(pcs[1]) == 2:
+                        try:
+                            sort_value = parse_timedelta_params(pcs[0], pcs[1])
+                        except ValueError:
+                            self.fail('Invalid time')
+                if prev_sort_value:
+                    self.assertTrue(sort_value >= prev_sort_value)
+                prev_sort_value = sort_value
+
 
 class GetServiceBodiesTests(TestCase):
     fixtures = ['testdata']
