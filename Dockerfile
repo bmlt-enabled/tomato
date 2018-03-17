@@ -22,9 +22,9 @@ ADD requirements.txt /code
 RUN pip3 install uwsgi==2.0.15
 RUN pip3 install -r requirements.txt
 
-EXPOSE 8080
+EXPOSE 8000
 
 CMD [ "uwsgi", "--master", \
-    "--http", "0.0.0.0:8080", \
+    "--http", "0.0.0.0:8000", \
     "--module", "tomato.wsgi", \
     "--processes", "32" ]

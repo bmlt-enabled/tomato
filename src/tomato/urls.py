@@ -8,6 +8,7 @@ from .api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    url('ping', views.ping),
     url(r'main_server[/]+client_interface/xml/GetServiceBodies.php$', views.get_service_bodies_php, name='get-service-bodies-php'),
     url(r'main_server[/]+client_interface/(?P<format>json|xml)/GetLangs.php$', views.get_langs_php, name='get-langs-php'),
     url(r'main_server[/]+client_interface/(?P<format>json|csv|xml)/', views.semantic_query, name='semantic-query'),
