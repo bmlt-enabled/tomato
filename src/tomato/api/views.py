@@ -758,3 +758,7 @@ def xsd(request, schema_name):
         context={'url': '{}://{}'.format(request.scheme, request.get_host())}
     )
     return response.HttpResponse(ret, content_type='text/xml')
+
+
+def ping(request):
+    return response.HttpResponse("pong", content_type='text/plain')

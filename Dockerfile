@@ -25,9 +25,9 @@ RUN pip3 install uwsgi==2.0.15
 RUN pip3 install -r requirements.txt
 RUN DJANGO_SETTINGS_MODULE=tomato.settings.test python3 manage.py test
 
-EXPOSE 8080
+EXPOSE 8000
 
 CMD [ "uwsgi", "--master", \
-    "--http", "0.0.0.0:8080", \
+    "--http", "0.0.0.0:8000", \
     "--module", "tomato.wsgi", \
     "--processes", "32" ]

@@ -45,4 +45,4 @@ To test using docker run the following.
 docker-compose up
 ```
 
-From there you can issue queries to the instance at `http://localhost:8080`, or use the bundled semantic workshop container at `http://localhost:8081/index.php`.  From there you can reference the tomato server as the root `http://tomato:8080/main_server`.
+From there you can issue queries to the instance at `http://localhost:8000/main_server`, or use the bundled semantic workshop container at `http://localhost:8001/index.php`.
