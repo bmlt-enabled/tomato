@@ -68,9 +68,9 @@ resource "aws_iam_instance_profile" "cluster" {
 resource "aws_autoscaling_group" "cluster" {
   name                 = "${aws_ecs_cluster.main.name}"
   vpc_zone_identifier  = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
-  min_size             = 2
-  max_size             = 2
-  desired_capacity     = 2
+  min_size             = 3
+  max_size             = 3
+  desired_capacity     = 3
   launch_configuration = "${aws_launch_configuration.cluster.name}"
 
   tags = [
