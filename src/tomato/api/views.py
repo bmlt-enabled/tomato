@@ -690,6 +690,7 @@ def semantic_query(request, format='json'):
                 'version': '5.0.0',
                 'versionInt': '5000000',
                 'langs': 'en',
+                'nativeLang': 'en',
                 'centerLongitude': -118.563659,
                 'centerLatitude': 34.235918,
                 'centerZoom': 6,
