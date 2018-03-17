@@ -557,6 +557,66 @@ class GetSearchResultsTests(TestCase):
             duration = parse_timedelta_params(duration[0], duration[1])
             self.assertTrue(duration <= datetime.timedelta(hours=1, minutes=30))
 
+    # geo_width positive
+    def test_get_search_results_geo_width_positive_found_one(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&lat_val=21.3391774&long_val=-157.7036977&geo_width=1'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) == 1)
+
+    def test_get_search_results_geo_width_positive_found_several(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&lat_val=21.33190206&long_val=-157.69392371&geo_width=100'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 1)
+
+    # geo_width_km positive
+    def test_get_search_results_geo_width_positive_found_none(self):
+        # This would return a meeting for miles, but not for km
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&lat_val=21.3391774&long_val=-157.7036977&geo_width_km=1'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) == 0)
+
+    def test_get_search_results_geo_width_km_positive_found_one(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&lat_val=21.3363692&long_val=-157.701509&geo_width_km=1'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) == 1)
+
+    def test_get_search_results_geo_width_km_positive_found_several(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&lat_val=21.33190206&long_val=-157.69392371&geo_width_km=100'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 1)
+
+    # geo_width and geo_width_km negative
+    def test_get_search_results_geo_width_negative(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&lat_val=21.3391774&long_val=-157.7036977&geo_width=-5'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) == 5)
+
+    def test_get_search_results_geo_width_km_negative(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&lat_val=21.3391774&long_val=-157.7036977&geo_width=-6'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) == 6)
+
 
 class GetServiceBodiesTests(TestCase):
     fixtures = ['testdata']
