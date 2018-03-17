@@ -82,7 +82,7 @@ resource "aws_db_instance" "tomato" {
   identifier        = "tomato"
   allocated_storage = 100
   engine            = "postgres"
-  engine_version    = "9.5.4"
+  engine_version    = "9.5.10"
   instance_class    = "db.t2.small"
 
   name     = "tomato"

@@ -36,8 +36,8 @@ resource "aws_alb_target_group" "tomato" {
   vpc_id   = "${aws_vpc.main.id}"
 
   health_check {
-    path    = "/admin/"
-    matcher = "302"
+    path    = "/ping/"
+    matcher = "200"
   }
 }
 
