@@ -335,7 +335,7 @@ class Meeting(models.Model):
                         dirty = True
 
                 if meeting.longitude and meeting.latitude:
-                    point = Point(float(meeting.longitude), float(meeting.latitude))
+                    point = Point(float(meeting.longitude), float(meeting.latitude), srid=4326)
                     if meeting.point != point:
                         meeting.point = point
                         dirty = True

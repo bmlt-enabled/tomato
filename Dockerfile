@@ -12,6 +12,7 @@ RUN apk add --no-cache \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
     gdal \
     geos-dev \
+    proj4-dev \
     libspatialite
 
 RUN mkdir /code
