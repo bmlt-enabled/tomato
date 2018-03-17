@@ -680,6 +680,8 @@ class GetSearchResultsTests(TestCase):
                             sort_value = parse_timedelta_params(pcs[0], pcs[1])
                         except ValueError:
                             self.fail('Invalid time')
+                    elif not is_spatialite:
+                        sort_value = sort_value.lower()
                 if prev_sort_value:
                     self.assertTrue(sort_value >= prev_sort_value)
                 prev_sort_value = sort_value
@@ -709,6 +711,8 @@ class GetSearchResultsTests(TestCase):
                             sort_value = parse_timedelta_params(pcs[0], pcs[1])
                         except ValueError:
                             self.fail('Invalid time')
+                    elif not is_spatialite:
+                        sort_value = sort_value.lower()
                 if prev_sort_value:
                     self.assertTrue(sort_value >= prev_sort_value)
                 prev_sort_value = sort_value
