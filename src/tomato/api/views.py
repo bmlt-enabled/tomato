@@ -42,6 +42,7 @@ server_info_field_map = OrderedDict([
     ('version',          ('version',),),
     ('versionInt',       ('versionInt',),),
     ('langs',            ('langs',),),
+    ('nativeLang',       ('nativeLang',),),
     ('centerLongitude',  ('centerLongitude',),),
     ('centerLatitude',   ('centerLatitude',),),
     ('centerZoom',       ('centerZoom',),),
