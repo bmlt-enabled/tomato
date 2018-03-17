@@ -139,7 +139,7 @@ field_keys_with_descriptions = OrderedDict([
     ('root_server_id', 'Root Server ID'),
 ])
 
-field_keys = field_keys_with_descriptions.keys()
+field_keys = list(field_keys_with_descriptions.keys())
 
 keys_not_searchable = [
     'id_bigint',

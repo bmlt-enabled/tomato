@@ -2,20 +2,22 @@ import csv
 import json
 import io
 import urllib.parse
+from django.conf import settings
 from django.db import models
 from django.test import TestCase
 from django.urls import reverse
-from mock import patch
-from requests.models import Response
 from xml.etree import ElementTree as ET
 from .models import Format, Meeting, MeetingInfo
-from .views import (meeting_field_map, model_get_value, service_bodies_field_map, valid_meeting_search_keys,
-                    GeocodeAPIException)
+from .views import field_keys, meeting_field_map, model_get_value, service_bodies_field_map, valid_meeting_search_keys
+
+
+is_spatialite = 'spatialite' in settings.DATABASES['default']['ENGINE']
 
 
 class GetSearchResultsTests(TestCase):
     fixtures = ['testdata']
 
+    # json/xml/csv
     def test_get_search_results_json(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults'
@@ -60,6 +62,7 @@ class GetSearchResultsTests(TestCase):
         finally:
             s.close()
 
+    # formats filters
     def test_get_search_results_with_formats(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults&get_used_formats=1'
@@ -103,6 +106,7 @@ class GetSearchResultsTests(TestCase):
         self.assertFalse('meetings' in response)
         self.assertTrue(len(response['formats']), 12)
 
+    # weekdays filters
     def test_get_search_results_weekdays_include_single(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults&weekdays=2'
@@ -161,6 +165,7 @@ class GetSearchResultsTests(TestCase):
             self.assertNotEqual(meeting['weekday_tinyint'], '1')
             self.assertNotEqual(meeting['weekday_tinyint'], '2')
 
+    # services filters
     def test_get_search_results_services_include_single(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults&services=5'
@@ -219,6 +224,7 @@ class GetSearchResultsTests(TestCase):
             self.assertNotEqual(meeting['service_body_bigint'], '4')
             self.assertNotEqual(meeting['service_body_bigint'], '5')
 
+    # formats filters
     def test_get_search_results_formats_include_single(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults&formats=29'
@@ -275,6 +281,7 @@ class GetSearchResultsTests(TestCase):
             self.assertNotIn(f_nine.key_string, meeting['formats'])
             self.assertNotIn(f_twelve.key_string, meeting['formats'])
 
+    # root_server_ids filters
     def test_get_search_results_root_server_ids_include_single(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults&root_server_ids=1'
@@ -328,6 +335,7 @@ class GetSearchResultsTests(TestCase):
         response = json.loads(response.content)
         self.assertTrue(len(response) == 0)
 
+    # meeting_key + meeting_key_value
     def test_get_search_results_meeting_key(self):
         def get_field(field_name):
             if field_name.startswith('meetinginfo'):
@@ -342,9 +350,7 @@ class GetSearchResultsTests(TestCase):
             return None
 
         for meeting_key in valid_meeting_search_keys:
-            if meeting_key == 'duration_time':
-                # This works for postgis, but not for spatialite, the database we use
-                # for running tests.
+            if is_spatialite and meeting_key == 'duration_time':
                 continue
             model_field = meeting_field_map.get(meeting_key)[0]
             qs = Meeting.objects.exclude(**{model_field.replace('.', '__'): None})
@@ -363,6 +369,42 @@ class GetSearchResultsTests(TestCase):
             self.assertTrue(len(response) > 0)
             for meeting in response:
                 self.assertTrue(meeting[meeting_key] == value)
+
+    # data_field_keys
+    def test_get_search_results_data_field_keys(self):
+        for data_field_key in field_keys:
+            if is_spatialite and data_field_key == 'formats':
+                continue
+            url = reverse('semantic-query', kwargs={'format': 'json'})
+            url += '?switcher=GetSearchResults&'
+            url += urllib.parse.urlencode({'data_field_key': data_field_key})
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            response = json.loads(response.content)
+            self.assertTrue(len(response) > 0)
+            for meeting in response:
+                returned_keys = list(meeting.keys())
+                self.assertEqual(len(returned_keys), 1)
+                self.assertEqual(returned_keys[0], data_field_key)
+
+        for i in range(len(field_keys)):
+            if i >= len(field_keys) - 1:
+                continue
+            data_field_keys = [field_keys[i], field_keys[i + 1]]
+            if is_spatialite and 'formats' in data_field_keys:
+                continue
+            url = reverse('semantic-query', kwargs={'format': 'json'})
+            url += '?switcher=GetSearchResults&'
+            url += urllib.parse.urlencode({'data_field_key': ','.join(data_field_keys)})
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            response = json.loads(response.content)
+            self.assertTrue(len(response) > 0)
+            for meeting in response:
+                returned_keys = list(meeting.keys())
+                self.assertEqual(len(returned_keys), 2)
+                self.assertEqual(returned_keys[0], data_field_keys[0])
+                self.assertEqual(returned_keys[1], data_field_keys[1])
 
 
 class GetServiceBodiesTests(TestCase):
