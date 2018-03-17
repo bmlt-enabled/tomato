@@ -1,4 +1,5 @@
 import csv
+import datetime
 import json
 import io
 import urllib.parse
@@ -8,7 +9,8 @@ from django.test import TestCase
 from django.urls import reverse
 from xml.etree import ElementTree as ET
 from .models import Format, Meeting, MeetingInfo
-from .views import field_keys, meeting_field_map, model_get_value, service_bodies_field_map, valid_meeting_search_keys
+from .views import (field_keys, meeting_field_map, model_get_value, parse_time_params,
+                    parse_timedelta_params, service_bodies_field_map, valid_meeting_search_keys)
 
 
 is_spatialite = 'spatialite' in settings.DATABASES['default']['ENGINE']
@@ -405,6 +407,97 @@ class GetSearchResultsTests(TestCase):
                 self.assertEqual(len(returned_keys), 2)
                 self.assertEqual(returned_keys[0], data_field_keys[0])
                 self.assertEqual(returned_keys[1], data_field_keys[1])
+
+    # starts after
+    def test_get_search_results_starts_after_hour(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&StartsAfterH=12'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            start_time = meeting.get('start_time')
+            hour = start_time.split(':')[0]
+            self.assertTrue(int(hour) > 12)
+
+    def test_get_search_results_starts_after_hour_and_minute(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&StartsAfterH=10&StartsAfterM=30'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            start_time = meeting.get('start_time')
+            hour = start_time.split(':')[0]
+            minute = start_time.split(':')[1]
+            self.assertTrue(int(hour) > 9)
+            if int(hour) == 10:
+                self.assertTrue(int(minute) > 30)
+
+    # starts before
+    def test_get_search_results_starts_before_hour(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&StartsBeforeH=12'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            start_time = meeting.get('start_time')
+            hour = start_time.split(':')[0]
+            self.assertTrue(int(hour) < 12)
+
+    def test_get_search_results_starts_before_hour_and_minute(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&StartsBeforeH=10&StartsBeforeM=30'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            start_time = meeting.get('start_time')
+            hour = start_time.split(':')[0]
+            minute = start_time.split(':')[1]
+            self.assertTrue(int(hour) < 11)
+            if int(hour) == 10:
+                self.assertTrue(int(minute) < 30)
+
+    # ends before
+    def test_get_search_results_ends_before_hour(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&EndsBeforeH=12'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            start_time = meeting.get('start_time').split(':')
+            start_time = parse_time_params(start_time[0], start_time[1])
+            duration = meeting.get('duration_time').split(':')
+            duration = parse_timedelta_params(duration[0], duration[1])
+            end_time = datetime.datetime.combine(datetime.datetime.today(), start_time) + duration
+            end_time = end_time.time()
+            self.assertTrue(end_time.hour < 12)
+
+    def test_get_search_results_ends_before_hour_and_minute(self):
+        if is_spatialite:
+            return
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&EndsBeforeH=10&EndsBeforeM=30'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            start_time = meeting.get('start_time').split(':')
+            start_time = parse_time_params(start_time[0], start_time[1])
+            duration = meeting.get('duration_time').split(':')
+            duration = parse_timedelta_params(duration[0], duration[1])
+            end_time = datetime.datetime.combine(datetime.datetime.today(), start_time) + duration
+            end_time = end_time.time()
+            self.assertTrue(end_time.hour < 12)
 
 
 class GetServiceBodiesTests(TestCase):
