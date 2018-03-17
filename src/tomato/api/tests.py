@@ -499,6 +499,64 @@ class GetSearchResultsTests(TestCase):
             end_time = end_time.time()
             self.assertTrue(end_time.hour < 12)
 
+    # min duration
+    def test_get_search_results_min_duration_hour(self):
+        if is_spatialite:
+            return
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&MinDurationH=2'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            duration = meeting.get('duration_time').split(':')
+            duration = parse_timedelta_params(duration[0], duration[1])
+            self.assertTrue(duration >= datetime.timedelta(hours=2))
+
+    def test_get_search_results_min_duration_hour_and_minute(self):
+        if is_spatialite:
+            return
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&MinDurationH=1&MinDurationM=30'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            duration = meeting.get('duration_time').split(':')
+            duration = parse_timedelta_params(duration[0], duration[1])
+            self.assertTrue(duration >= datetime.timedelta(hours=1, minutes=30))
+
+    # max duration
+    def test_get_search_results_max_duration_hour(self):
+        if is_spatialite:
+            return
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&MaxDurationH=1'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            duration = meeting.get('duration_time').split(':')
+            duration = parse_timedelta_params(duration[0], duration[1])
+            self.assertTrue(duration <= datetime.timedelta(hours=1))
+
+    def test_get_search_results_max_duration_hour_and_minute(self):
+        if is_spatialite:
+            return
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&MaxDurationH=1&MaxDurationM=30'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(response.content)
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            duration = meeting.get('duration_time').split(':')
+            duration = parse_timedelta_params(duration[0], duration[1])
+            self.assertTrue(duration <= datetime.timedelta(hours=1, minutes=30))
+
 
 class GetServiceBodiesTests(TestCase):
     fixtures = ['testdata']
