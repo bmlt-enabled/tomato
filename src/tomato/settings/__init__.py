@@ -39,12 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
     'django.contrib.gis',
+    'corsheaders',
     'tomato.api',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -178,3 +180,5 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
 
 TEST_RUNNER = 'tomato.test_runner.DisableLogsTestRunner'
+
+CORS_ORIGIN_ALLOW_ALL = True
