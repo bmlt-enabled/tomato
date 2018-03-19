@@ -406,6 +406,8 @@ def get_search_results(params):
     meeting_qs = Meeting.objects.all()
     meeting_qs = meeting_qs.prefetch_related('meetinginfo', 'service_body', 'formats')
 
+    initial_query = meeting_qs.query
+
     if weekdays_include:
         meeting_qs = meeting_qs.filter(weekday__in=weekdays_include)
     if weekdays_exclude:
@@ -541,6 +543,12 @@ def get_search_results(params):
                 model_field = model_field.replace('.', '__')
                 values.append(model_field)
         meeting_qs = meeting_qs.order_by(*values)
+    if meeting_qs.query == initial_query:
+        # Allowing a query of every meeting causes the uwsgi process to die
+        # by using up all of its memory. Paging would be a better solution,
+        # or there may be some nice uwsgi settings we can use (compresson?),
+        # but until then just prevent it.
+        meeting_qs = meeting_qs.filter(pk=-1)
     return meeting_qs
 
 

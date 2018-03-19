@@ -22,12 +22,12 @@ class GetSearchResultsTests(TestCase):
     # json/xml/csv
     def test_get_search_results_json(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults'
+        url += '?switcher=GetSearchResults&root_server_ids=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/json')
         response = json.loads(response.content)
-        self.assertEqual(len(response), 10)
+        self.assertEqual(len(response), 5)
         meeting = response[0]
         for key in meeting.keys():
             self.assertIn(key, meeting_field_map.keys())
@@ -39,16 +39,16 @@ class GetSearchResultsTests(TestCase):
 
     def test_get_search_results_xml(self):
         url = reverse('semantic-query', kwargs={'format': 'xml'})
-        url += '?switcher=GetSearchResults'
+        url += '?switcher=GetSearchResults&root_server_ids=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/xml')
         response = ET.fromstring(response.content)
-        self.assertEqual(len(response.findall('./{http://testserver}row')), 10)
+        self.assertEqual(len(response.findall('./{http://testserver}row')), 5)
 
     def test_get_search_results_csv(self):
         url = reverse('semantic-query', kwargs={'format': 'csv'})
-        url += '?switcher=GetSearchResults'
+        url += '?switcher=GetSearchResults&root_server_ids=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'text/csv')
@@ -60,21 +60,21 @@ class GetSearchResultsTests(TestCase):
             num_rows = 0
             for row in reader:
                 num_rows += 1
-            self.assertEqual(num_rows, 10)
+            self.assertEqual(num_rows, 5)
         finally:
             s.close()
 
     # formats filters
     def test_get_search_results_with_formats(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&get_used_formats=1'
+        url += '?switcher=GetSearchResults&root_server_ids=1&get_used_formats=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(response.content)
         self.assertTrue(isinstance(response, dict))
         self.assertTrue('formats' in response)
         self.assertTrue('meetings' in response)
-        self.assertEqual(len(response['meetings']), 10)
+        self.assertEqual(len(response['meetings']), 5)
         for meeting in response['meetings']:
             for meeting_format in meeting['formats'].split(','):
                 if meeting_format == '':
@@ -100,13 +100,13 @@ class GetSearchResultsTests(TestCase):
 
     def test_get_search_results_with_formats_formats_only(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&get_used_formats=1&get_formats_only=1'
+        url += '?switcher=GetSearchResults&root_server_ids=1&get_used_formats=1&get_formats_only=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(response.content)
         self.assertTrue('formats' in response)
         self.assertFalse('meetings' in response)
-        self.assertTrue(len(response['formats']), 12)
+        self.assertTrue(len(response['formats']) == 8)
 
     # weekdays filters
     def test_get_search_results_weekdays_include_single(self):
