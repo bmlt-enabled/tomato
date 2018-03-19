@@ -8,7 +8,7 @@ class RootServerSerializer(serializers.ModelSerializer):
         lookup_field='pk',
         lookup_url_kwarg='pk',
     )
-    root_server_url = serializers.CharField(source='url')
+    root_server_url = serializers.URLField(source='url')
 
     class Meta:
         model = RootServer
@@ -30,6 +30,9 @@ class ServiceBodySerializer(serializers.ModelSerializer):
         lookup_field='pk',
         read_only=True
     )
+    service_body_url = serializers.URLField(source='url')
+
     class Meta:
         model = ServiceBody
-        fields = ('url', 'root_server', 'parent', 'source_id', 'name')
+        fields = ('url', 'root_server', 'parent', 'source_id', 'name', 'type',
+                  'description', 'service_body_url', 'world_id')
