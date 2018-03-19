@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'django.contrib.gis',
     'corsheaders',
+    'rest_framework',
     'tomato.api',
 ]
 
