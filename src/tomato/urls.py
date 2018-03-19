@@ -11,6 +11,8 @@ from .api import views, viewsets
 router = routers.DefaultRouter()
 router.register(r'rootservers', viewsets.RootServerViewSet)
 router.register(r'servicebodies', viewsets.ServiceBodyViewSet)
+router.register(r'formats', viewsets.FormatViewSet)
+router.register(r'meetings', viewsets.MeetingViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
