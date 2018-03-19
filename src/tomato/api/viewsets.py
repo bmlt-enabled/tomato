@@ -3,6 +3,12 @@ from rest_framework.pagination import PageNumberPagination
 from . import models, serializers
 
 
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 1000
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+
+
 class RootServerViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.RootServer.objects.all()
     serializer_class = serializers.RootServerSerializer
@@ -11,17 +17,13 @@ class RootServerViewSet(viewsets.ReadOnlyModelViewSet):
 class ServiceBodyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.ServiceBody.objects.all()
     serializer_class = serializers.ServiceBodySerializer
+    pagination_class = StandardResultsSetPagination
 
 
 class FormatViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Format.objects.all()
     serializer_class = serializers.FormatSerializer
-
-
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 1000
-    page_size_query_param = 'page_size'
-    max_page_size = 1000
+    pagination_class = StandardResultsSetPagination
 
 
 class MeetingViewSet(viewsets.ReadOnlyModelViewSet):
