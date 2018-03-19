@@ -9,7 +9,8 @@ from django.test import TestCase
 from django.urls import reverse
 from xml.etree import ElementTree as ET
 from .models import Format, Meeting, MeetingInfo
-from .views import (field_keys, meeting_field_map, model_get_value, parse_time_params,
+from .semantic import model_get_value
+from .views import (field_keys, meeting_field_map, parse_time_params,
                     parse_timedelta_params, service_bodies_field_map, valid_meeting_search_keys)
 
 
@@ -26,7 +27,7 @@ class GetSearchResultsTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/json')
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertEqual(len(response), 5)
         meeting = response[0]
         for key in meeting.keys():
@@ -43,7 +44,7 @@ class GetSearchResultsTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/xml')
-        response = ET.fromstring(response.content)
+        response = ET.fromstring(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertEqual(len(response.findall('./{http://testserver}row')), 5)
 
     def test_get_search_results_csv(self):
@@ -52,7 +53,7 @@ class GetSearchResultsTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'text/csv')
-        s = io.StringIO(response.content.decode(response.charset))
+        s = io.StringIO(''.join([b.decode('utf-8') for b in response.streaming_content]))
         try:
             reader = csv.DictReader(s)
             for field_name in reader.fieldnames:
@@ -70,7 +71,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&root_server_ids=1&get_used_formats=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(isinstance(response, dict))
         self.assertTrue('formats' in response)
         self.assertTrue('meetings' in response)
@@ -103,7 +104,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&root_server_ids=1&get_used_formats=1&get_formats_only=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue('formats' in response)
         self.assertFalse('meetings' in response)
         self.assertTrue(len(response['formats']) == 8)
@@ -114,7 +115,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&weekdays=2'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 1)
         for meeting in response:
             self.assertEqual(meeting['weekday_tinyint'], '2')
@@ -124,7 +125,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&weekdays[]=1&weekdays[]=2'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 1)
         found_one = False
         found_two = False
@@ -143,7 +144,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&weekdays=7'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) == 0)
 
     def test_get_search_results_weekdays_exclude_single(self):
@@ -151,7 +152,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&weekdays=-2'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 1)
         for meeting in response:
             self.assertNotEqual(meeting['weekday_tinyint'], '2')
@@ -161,7 +162,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&weekdays[]=-1&weekdays[]=-2'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 1)
         for meeting in response:
             self.assertNotEqual(meeting['weekday_tinyint'], '1')
@@ -173,7 +174,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&services=5'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             self.assertEqual(meeting['service_body_bigint'], '5')
@@ -183,7 +184,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&services[]=5&services[]=4'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         found_four = False
         found_five = False
@@ -202,7 +203,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&services=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) == 0)
 
     def test_get_search_results_services_exclude_single(self):
@@ -210,7 +211,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&services=-5'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             self.assertNotEqual(meeting['service_body_bigint'], '5')
@@ -220,7 +221,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&services[]=-5&services[]=-4'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             self.assertNotEqual(meeting['service_body_bigint'], '4')
@@ -232,7 +233,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&formats=29'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         f = Format.objects.get(id=29)
         for meeting in response:
@@ -243,7 +244,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&formats[]=9&formats[]=12'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         f_nine = Format.objects.get(id=9)
         f_twelve = Format.objects.get(id=12)
@@ -256,7 +257,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&formats=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) == 0)
 
     def test_get_search_results_formats_exclude_single(self):
@@ -264,7 +265,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&formats=-29&root_server_ids=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         f = Format.objects.get(id=29)
         for meeting in response:
@@ -275,7 +276,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&formats[]=-9&formats[]=-12&root_server_ids=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         f_nine = Format.objects.get(id=9)
         f_twelve = Format.objects.get(id=12)
@@ -289,7 +290,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&root_server_ids=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             self.assertEqual(meeting['root_server_id'], '1')
@@ -299,7 +300,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         found_one = False
         found_two = False
@@ -316,7 +317,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&root_server_ids=3'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) == 0)
 
     def test_get_search_results_root_server_ids_exclude_single(self):
@@ -324,7 +325,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&root_server_ids=-2'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             self.assertEqual(meeting['root_server_id'], '1')
@@ -334,7 +335,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&root_server_ids[]=-1&root_server_ids[]=-2'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) == 0)
 
     # meeting_key + meeting_key_value
@@ -367,7 +368,7 @@ class GetSearchResultsTests(TestCase):
             url += urllib.parse.urlencode({'meeting_key': meeting_key, 'meeting_key_value': value})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
-            response = json.loads(response.content)
+            response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
             self.assertTrue(len(response) > 0)
             for meeting in response:
                 self.assertTrue(meeting[meeting_key] == value)
@@ -382,7 +383,7 @@ class GetSearchResultsTests(TestCase):
             url += urllib.parse.urlencode({'data_field_key': data_field_key})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
-            response = json.loads(response.content)
+            response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
             self.assertTrue(len(response) > 0)
             for meeting in response:
                 returned_keys = list(meeting.keys())
@@ -400,7 +401,7 @@ class GetSearchResultsTests(TestCase):
             url += urllib.parse.urlencode({'data_field_key': ','.join(data_field_keys)})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
-            response = json.loads(response.content)
+            response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
             self.assertTrue(len(response) > 0)
             for meeting in response:
                 returned_keys = list(meeting.keys())
@@ -414,7 +415,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&StartsAfterH=12'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             start_time = meeting.get('start_time')
@@ -426,7 +427,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&StartsAfterH=10&StartsAfterM=30'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             start_time = meeting.get('start_time')
@@ -442,7 +443,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&StartsBeforeH=12'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             start_time = meeting.get('start_time')
@@ -454,7 +455,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&StartsBeforeH=10&StartsBeforeM=30'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             start_time = meeting.get('start_time')
@@ -470,7 +471,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&EndsBeforeH=12'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             start_time = meeting.get('start_time').split(':')
@@ -488,7 +489,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&EndsBeforeH=10&EndsBeforeM=30'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             start_time = meeting.get('start_time').split(':')
@@ -507,7 +508,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&MinDurationH=2'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             duration = meeting.get('duration_time').split(':')
@@ -521,7 +522,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&MinDurationH=1&MinDurationM=30'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             duration = meeting.get('duration_time').split(':')
@@ -536,7 +537,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&MaxDurationH=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             duration = meeting.get('duration_time').split(':')
@@ -550,7 +551,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&MaxDurationH=1&MaxDurationM=30'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 0)
         for meeting in response:
             duration = meeting.get('duration_time').split(':')
@@ -563,7 +564,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&lat_val=21.3391774&long_val=-157.7036977&geo_width=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) == 1)
 
     def test_get_search_results_geo_width_positive_found_several(self):
@@ -571,7 +572,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&lat_val=21.33190206&long_val=-157.69392371&geo_width=100'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 1)
 
     def test_get_search_results_geo_width_distance_included(self):
@@ -579,7 +580,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&lat_val=21.3391774&long_val=-157.7036977&geo_width=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) == 1)
         self.assertTrue('distance_in_km' in response[0])
         self.assertTrue('distance_in_miles' in response[0])
@@ -591,7 +592,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&lat_val=21.3391774&long_val=-157.7036977&geo_width_km=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) == 0)
 
     def test_get_search_results_geo_width_km_positive_found_one(self):
@@ -599,7 +600,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&lat_val=21.3363692&long_val=-157.701509&geo_width_km=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) == 1)
 
     def test_get_search_results_geo_width_km_positive_found_several(self):
@@ -607,7 +608,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&lat_val=21.33190206&long_val=-157.69392371&geo_width_km=100'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 1)
 
     def test_get_search_results_geo_width_km_distance_included(self):
@@ -615,7 +616,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&lat_val=21.3363692&long_val=-157.701509&geo_width_km=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) == 1)
         self.assertTrue('distance_in_km' in response[0])
         self.assertTrue('distance_in_miles' in response[0])
@@ -626,7 +627,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&lat_val=21.3391774&long_val=-157.7036977&geo_width=-5'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) == 5)
 
     def test_get_search_results_geo_width_km_negative(self):
@@ -634,7 +635,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&lat_val=21.3391774&long_val=-157.7036977&geo_width=-6'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) == 6)
 
     # sort results by distance
@@ -643,7 +644,7 @@ class GetSearchResultsTests(TestCase):
         url += '?switcher=GetSearchResults&lat_val=21.33190206&long_val=-157.69392371&geo_width_km=1000000000&sort_results_by_distance=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertTrue(len(response) > 1)
         prev_miles = None
         prev_km = None
@@ -666,7 +667,7 @@ class GetSearchResultsTests(TestCase):
             url += urllib.parse.urlencode({'sort_keys': sort_key})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
-            response = json.loads(response.content)
+            response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
             self.assertTrue(len(response) > 0)
             prev_sort_value = None
             for meeting in response:
@@ -697,7 +698,7 @@ class GetSearchResultsTests(TestCase):
             url += urllib.parse.urlencode({'sort_keys': ','.join(sort_keys)})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
-            response = json.loads(response.content)
+            response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
             self.assertTrue(len(response) > 0)
             prev_sort_value = None
             for meeting in response:
@@ -727,7 +728,7 @@ class GetServiceBodiesTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/json')
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertEqual(len(response), 29)
         body = response[0]
         for key in body.keys():
@@ -741,7 +742,7 @@ class GetServiceBodiesTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/xml')
-        response = ET.fromstring(response.content)
+        response = ET.fromstring(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertEqual(len(response.findall('./row')), 29)
 
     def test_get_service_bodies_csv(self):
@@ -750,7 +751,7 @@ class GetServiceBodiesTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'text/csv')
-        s = io.StringIO(response.content.decode(response.charset))
+        s = io.StringIO(''.join([b.decode('utf-8') for b in response.streaming_content]))
         try:
             reader = csv.DictReader(s)
             for field_name in reader.fieldnames:
@@ -767,7 +768,7 @@ class GetServiceBodiesTests(TestCase):
         url += '?switcher=GetServiceBodies'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         found_zero = False
         for body in response:
             self.assertTrue(body['parent_id'] is not None)
@@ -780,6 +781,6 @@ class GetServiceBodiesTests(TestCase):
         url += '?switcher=GetServiceBodies&root_server_id=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        response = json.loads(response.content)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         for body in response:
             self.assertEqual(body['root_server_id'], '1')
