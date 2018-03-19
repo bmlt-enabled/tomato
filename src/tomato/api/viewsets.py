@@ -1,8 +1,13 @@
 from rest_framework import viewsets
-from .models import RootServer
-from .serializers import RootServerSerializer
+from . import serializers
+from .models import RootServer, ServiceBody
 
 
 class RootServerViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = RootServer.objects.all()
-    serializer_class = RootServerSerializer
+    serializer_class = serializers.RootServerSerializer
+
+
+class ServiceBodyViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = ServiceBody.objects.all()
+    serializer_class = serializers.ServiceBodySerializer
