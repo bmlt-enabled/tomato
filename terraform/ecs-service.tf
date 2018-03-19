@@ -110,7 +110,7 @@ resource "aws_ecs_task_definition" "webapp" {
 [
   {
     "volumesFrom": [],
-    "memory": 768,
+    "memory": 993,
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -178,7 +178,7 @@ resource "aws_ecs_task_definition" "webapp" {
         "awslogs-stream-prefix": "webapp"
       }
     },
-    "cpu": 750,
+    "cpu": 1024,
     "privileged": null,
     "memoryReservation": null
   }
@@ -193,7 +193,7 @@ resource "aws_ecs_task_definition" "daemon" {
 [
   {
     "volumesFrom": [],
-    "memory": 768,
+    "memory": 993,
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -247,7 +247,7 @@ resource "aws_ecs_task_definition" "daemon" {
         "awslogs-stream-prefix": "daemon"
       }
     },
-    "cpu": 750,
+    "cpu": 1024,
     "privileged": null,
     "memoryReservation": null
   }
