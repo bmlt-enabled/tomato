@@ -13,7 +13,7 @@ services:
     ports:
       - "8000:8000"
     command:
-      /bin/sh -c "sleep 60 && python3 manage.py initialize && uwsgi --master --http 0.0.0.0:8000 --module tomato.wsgi --processes 32"
+      /bin/sh -c "sleep 60 && python3 manage.py initialize && uwsgi --master --http 0.0.0.0:8000 --module tomato.wsgi --processes 32 --max-requests 50"
     environment:
       RDS_HOST: postgis
     links:

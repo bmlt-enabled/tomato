@@ -30,4 +30,5 @@ EXPOSE 8000
 CMD [ "uwsgi", "--master", \
     "--http", "0.0.0.0:8000", \
     "--module", "tomato.wsgi", \
+    "--max-requests", "50", \
     "--processes", "32" ]
