@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.pagination import PageNumberPagination
 from . import models, serializers
 
 
@@ -17,6 +18,13 @@ class FormatViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.FormatSerializer
 
 
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 1000
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+
+
 class MeetingViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Meeting.objects.all()
+    queryset = models.Meeting.objects.all().order_by('pk')
     serializer_class = serializers.MeetingSerializer
+    pagination_class = StandardResultsSetPagination
