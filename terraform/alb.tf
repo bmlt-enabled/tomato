@@ -1,3 +1,12 @@
+#resource "aws_athena_database" "tomato_webapp_alb_logs" {
+#  name   = "tomato_webapp_alb_logs"
+#  bucket = "${aws_s3_bucket.tomato_webapp_alb_logs_athena.bucket}"
+#}
+#
+#resource "aws_s3_bucket" "tomato_webapp_alb_logs_athena" {
+#  bucket = "tomato-webapp-alb-logs-athena"
+#}
+
 resource "aws_s3_bucket" "tomato_webapp_alb_logs" {
   bucket = "tomato-webapp-alb-logs"
 }
@@ -11,15 +20,11 @@ resource "aws_s3_bucket_policy" "tomato_webapp_alb_logs" {
   "Statement": [
     {
       "Sid": "Stmt1521565353380",
-      "Action": [
-        "s3:PutObject"
-      ],
+      "Action": "s3:PutObject",
       "Effect": "Allow",
       "Resource": "${aws_s3_bucket.tomato_webapp_alb_logs.arn}/*",
       "Principal": {
-        "AWS": [
-          "127311923021"
-        ]
+        "AWS": "arn:aws:iam::127311923021:root"
       }
     }
   ]
