@@ -53,7 +53,7 @@ class Command(BaseCommand):
             time.sleep(3600 * 6)
 
     def request(self, url):
-        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'}
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0 +tomato'}
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
             raise Exception('Unexpected status code from root server')
