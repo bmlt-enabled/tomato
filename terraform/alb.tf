@@ -1,3 +1,32 @@
+resource "aws_s3_bucket" "tomato_webapp_alb_logs" {
+  bucket = "tomato-webapp-alb-logs"
+}
+
+resource "aws_s3_bucket_policy" "tomato_webapp_alb_logs" {
+  bucket = "${aws_s3_bucket.tomato_webapp_alb_logs.id}"
+  policy = <<EOF
+{
+  "Id": "Policy1521565569242",
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Stmt1521565353380",
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Effect": "Allow",
+      "Resource": "${aws_s3_bucket.tomato_webapp_alb_logs.arn}/*",
+      "Principal": {
+        "AWS": [
+          "127311923021"
+        ]
+      }
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_security_group" "ecs_http_load_balancers" {
   vpc_id = "${aws_vpc.main.id}"
   name   = "tomato-lb"
@@ -22,6 +51,11 @@ resource "aws_alb" "tomato" {
   name            = "tomato"
   subnets         = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
   security_groups = ["${aws_security_group.ecs_http_load_balancers.id}"]
+
+  access_logs {
+    bucket = "${aws_s3_bucket.tomato_webapp_alb_logs.bucket}"
+    enabled = true
+  }
 
   tags {
     application = "tomato"
