@@ -166,7 +166,7 @@ resource "aws_ecs_task_definition" "webapp" {
     "command": [
       "sh",
       "-c",
-      "python3 manage.py initialize && uwsgi --master --http 0.0.0.0:8000 --module tomato.wsgi --processes 32 --max-requests 50"
+      "python3 manage.py initialize && uwsgi --ini /code/uwsgi.ini"
     ],
     "user": null,
     "dockerLabels": null,
