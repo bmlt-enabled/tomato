@@ -1,11 +1,11 @@
-#resource "aws_athena_database" "tomato_webapp_alb_logs" {
-#  name   = "tomato_webapp_alb_logs"
-#  bucket = "${aws_s3_bucket.tomato_webapp_alb_logs_athena.bucket}"
-#}
-#
-#resource "aws_s3_bucket" "tomato_webapp_alb_logs_athena" {
-#  bucket = "tomato-webapp-alb-logs-athena"
-#}
+resource "aws_athena_database" "tomato_webapp_alb_logs" {
+  name   = "tomato_webapp_alb_logs"
+  bucket = "${aws_s3_bucket.tomato_webapp_alb_logs_athena.bucket}"
+}
+
+resource "aws_s3_bucket" "tomato_webapp_alb_logs_athena" {
+  bucket = "tomato-webapp-alb-logs-athena"
+}
 
 resource "aws_s3_bucket" "tomato_webapp_alb_logs" {
   bucket = "tomato-webapp-alb-logs"
