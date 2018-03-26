@@ -95,6 +95,11 @@ def address_to_coordinates(address):
 
 
 def get_search_results(params):
+    page_size = params.get('page_size')
+    page_size = abs(int(page_size)) if page_size is not None else page_size
+    page_num = params.get('page_num')
+    page_num = abs(int(page_num)) if page_num is not None else page_num
+
     weekdays = params.get('weekdays')
     weekdays = params.getlist('weekdays[]', []) if weekdays is None else [weekdays]
     weekdays = [int(w) for w in weekdays]
@@ -282,6 +287,10 @@ def get_search_results(params):
                 model_field = model_field.replace('.', '__')
                 values.append(model_field)
         meeting_qs = meeting_qs.order_by(*values)
+    if page_size is not None and page_num is not None:
+        offset = page_size * (page_num - 1)
+        limit = offset + page_size
+        meeting_qs = meeting_qs[offset:limit]
     return meeting_qs
 
 
