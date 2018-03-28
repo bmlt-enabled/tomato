@@ -1,7 +1,3 @@
-resource "aws_cloudwatch_log_group" "ecs" {
-  name = "tomato/ecs-agent"
-}
-
 resource "aws_ecs_cluster" "main" {
   name = "tomato"
 }
@@ -45,14 +41,15 @@ resource "aws_iam_role_policy" "allow_logging_policy" {
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "allowLoggingToCloudWatch",
       "Effect": "Allow",
       "Action": [
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:DescribeLogStreams"
       ],
       "Resource": [
-        "${aws_cloudwatch_log_group.ecs.arn}"
+        "arn:aws:logs:*:*:*"
       ]
     }
   ]
@@ -110,6 +107,17 @@ resource "aws_security_group" "cluster" {
   }
 }
 
+data "template_file" "user_data" {
+  template = "${file("${path.module}/templates/user_data.sh")}"
+
+  vars {
+    ecs_config        = "echo '' > /etc/ecs/ecs.config"
+    ecs_logging       = "[\"json-file\",\"awslogs\"]"
+    cluster_name      = "${aws_ecs_cluster.main.name}"
+    cloudwatch_prefix = "tomato"
+  }
+}
+
 resource "aws_launch_configuration" "cluster" {
   security_groups             = ["${aws_security_group.cluster.id}"]
   key_name                    = "${aws_key_pair.main.key_name}"
@@ -118,12 +126,7 @@ resource "aws_launch_configuration" "cluster" {
   iam_instance_profile        = "${aws_iam_instance_profile.cluster.name}"
   associate_public_ip_address = false
 
-  user_data = <<EOF
-#!/bin/bash
-echo ECS_CLUSTER=${aws_ecs_cluster.main.name} >> /etc/ecs/ecs.config
-echo ECS_LOGLEVEL=info >> /etc/ecs/ecs.config
-echo REGION=us-east-1 >> /etc/ecs/ecs.config
-EOF
+  user_data = "${data.template_file.user_data.rendered}"
 
   lifecycle {
     create_before_destroy = true
