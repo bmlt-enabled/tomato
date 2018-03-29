@@ -110,7 +110,7 @@ resource "aws_ecs_task_definition" "webapp" {
 [
   {
     "volumesFrom": [],
-    "memory": 993,
+    "memory": 768,
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -178,7 +178,7 @@ resource "aws_ecs_task_definition" "webapp" {
         "awslogs-stream-prefix": "webapp"
       }
     },
-    "cpu": 1024,
+    "cpu": 768,
     "privileged": null,
     "memoryReservation": null
   }
@@ -193,7 +193,7 @@ resource "aws_ecs_task_definition" "daemon" {
 [
   {
     "volumesFrom": [],
-    "memory": 993,
+    "memory": 768,
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -247,7 +247,7 @@ resource "aws_ecs_task_definition" "daemon" {
         "awslogs-stream-prefix": "daemon"
       }
     },
-    "cpu": 1024,
+    "cpu": 768,
     "privileged": null,
     "memoryReservation": null
   }
@@ -258,7 +258,7 @@ EOF
 resource "aws_ecs_service" "webapp" {
   name            = "webapp"
   cluster         = "${aws_ecs_cluster.main.id}"
-  desired_count   = 1
+  desired_count   = 2
   iam_role        = "${aws_iam_role.tomato_lb.name}"
   task_definition = "${aws_ecs_task_definition.webapp.arn}"
 
