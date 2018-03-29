@@ -3,6 +3,7 @@ import logging
 import requests
 import requests.exceptions
 import time
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
@@ -62,6 +63,9 @@ class Command(BaseCommand):
     def update_service_bodies(self, root):
         url = urljoin(root.url, 'client_interface/json/?switcher=GetServiceBodies')
         service_bodies = json.loads(self.request(url))
+        ignore_bodies = settings.IGNORE_SERVICE_BODIES.get(root.url)
+        if ignore_bodies:
+            service_bodies = [sb for sb in service_bodies if int(sb['id']) not in ignore_bodies]
         ServiceBody.import_from_bmlt_objects(root, service_bodies)
 
     def update_formats(self, root):
@@ -72,4 +76,7 @@ class Command(BaseCommand):
     def update_meetings(self, root):
         url = urljoin(root.url, 'client_interface/json/?switcher=GetSearchResults')
         meetings = json.loads(self.request(url))
+        ignore_bodies = settings.IGNORE_SERVICE_BODIES.get(root.url)
+        if ignore_bodies:
+            meetings = [m for m in meetings if int(m['service_body_bigint']) not in ignore_bodies]
         Meeting.import_from_bmlt_objects(root, meetings)

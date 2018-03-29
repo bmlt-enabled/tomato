@@ -183,3 +183,7 @@ GOOGLE_MAPS_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY', '')
 TEST_RUNNER = 'tomato.test_runner.DisableLogsTestRunner'
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+IGNORE_SERVICE_BODIES = {
+    'http://naflorida.org/bmlt_server/': [9, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 37, 39, 41]
+}
