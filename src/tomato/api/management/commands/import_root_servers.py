@@ -11,11 +11,13 @@ from urllib.parse import urljoin
 from ...models import Format, ImportProblem, Meeting, RootServer, ServiceBody
 
 
+logger = logging.getLogger('django')
+
+
 class Command(BaseCommand):
     help = 'Updates the meetings database from root servers'
 
     def handle(self, *args, **options):
-        logger = logging.getLogger('django')
         logger.info('starting daemon')
 
         while True:
@@ -65,7 +67,9 @@ class Command(BaseCommand):
         service_bodies = json.loads(self.request(url))
         ignore_bodies = settings.IGNORE_SERVICE_BODIES.get(root.url)
         if ignore_bodies:
+            prev_len = len(service_bodies)
             service_bodies = [sb for sb in service_bodies if int(sb['id']) not in ignore_bodies]
+            logger.info('ignored {} service bodies'.format(prev_len - len(service_bodies)))
         ServiceBody.import_from_bmlt_objects(root, service_bodies)
 
     def update_formats(self, root):
