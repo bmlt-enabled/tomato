@@ -121,7 +121,7 @@ data "template_file" "user_data" {
 resource "aws_launch_configuration" "cluster" {
   security_groups             = ["${aws_security_group.cluster.id}"]
   key_name                    = "${aws_key_pair.main.key_name}"
-  image_id                    = "ami-cad827b7"
+  image_id                    = "ami-cb17d8b6"
   instance_type               = "t2.micro"
   iam_instance_profile        = "${aws_iam_instance_profile.cluster.name}"
   associate_public_ip_address = false
