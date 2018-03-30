@@ -94,6 +94,15 @@ def address_to_coordinates(address):
     return latitude, longitude
 
 
+def get_child_service_bodies(parents):
+    ret = []
+    children = parents
+    while children:
+        children = [c.id for c in ServiceBody.objects.filter(parent__in=children) if c.id not in ret]
+        ret.extend(children)
+    return ret
+
+
 def get_search_results(params):
     page_size = params.get('page_size')
     page_size = abs(int(page_size)) if page_size is not None else page_size
@@ -111,6 +120,10 @@ def get_search_results(params):
     services = [int(s) for s in services]
     services_include = [s for s in services if s > 0]
     services_exclude = [abs(s) for s in services if s < 0]
+    recursive = params.get('recursive', None) == '1'
+    if recursive:
+        services_include.extend(get_child_service_bodies(services_include))
+        services_exclude.extend(get_child_service_bodies(services_exclude))
 
     formats = params.get('formats')
     formats = params.getlist('formats[]', []) if formats is None else [formats]
