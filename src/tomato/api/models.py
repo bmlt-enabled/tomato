@@ -384,7 +384,7 @@ class Meeting(models.Model):
                 'latitude': get_decimal(bmlt_meeting, 'latitude'),
                 'longitude': get_decimal(bmlt_meeting, 'longitude'),
                 'published': bmlt_meeting.get('published', '0') == '1',
-                'formats': Format.objects.filter(root_server=root_server, key_string__in=formats),
+                'formats': Format.objects.filter(root_server=root_server, key_string__in=formats).distinct('key_string'),
                 'meetinginfo': {
                     'email': bmlt_meeting.get('email_contact', None),
                     'location_text': bmlt_meeting.get('location_text', None),
