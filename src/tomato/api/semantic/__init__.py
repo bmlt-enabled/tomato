@@ -43,6 +43,7 @@ format_field_map = OrderedDict([
     ('id',                 ('id',),),
     ('root_server_id',     ('root_server_id',),),
     ('world_id',           ('world_id',),),
+    ('root_server_uri',    ('root_server.url',),),
 ])
 
 meeting_field_map = OrderedDict([
@@ -82,6 +83,7 @@ meeting_field_map = OrderedDict([
     ('contact_name_1',           ('',),),
     ('published',                ('published',),),
     ('root_server_id',           ('root_server_id',),),
+    ('root_server_uri',          ('root_server.url',),),
 ])
 
 field_keys_with_descriptions = OrderedDict([

@@ -45,6 +45,7 @@
                             <xs:element minOccurs="0" maxOccurs="1" name="contact_name_1" type="xs:string"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="published" type="xs:integer"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="root_server_id" type="xs:integer"/>
+                            <xs:element minOccurs="0" maxOccurs="1" name="root_server_uri" type="xs:string" />
                         </xs:sequence>
                         <xs:attribute name="sequence_index" use="required" type="xs:integer"/>
                     </xs:complexType>
