@@ -15,22 +15,7 @@ def get_xml_schema_url(base_url, schema_name):
     return urljoin(base_url, reverse('xsd', kwargs={'schema_name': schema_name}))
 
 
-def model_to_xml(elem, model, map):
-    row = ET.SubElement(elem, 'row')
-    for to_attr, from_params in map.items():
-        if len(from_params) > 1:
-            qualifier = from_params[1]
-            if not qualifier(model):
-                continue
-        from_attr = from_params[0]
-        value = model_get_value(model, from_attr)
-        if value:
-            sub = ET.SubElement(row, to_attr)
-            sub.text = value
-    return row
-
-
-def _model_to_xml(writer, model, map, sequence_index):
+def model_to_xml(writer, model, map, sequence_index):
     writer.startElement(name='row', attrs={'sequence_index': str(sequence_index)})
     for to_attr, from_params in map.items():
         if len(from_params) > 1:
@@ -68,7 +53,7 @@ def models_to_xml(models, field_map, root_element_name, xmlns=None, schema_name=
             i = 0
             iterator = models.iterator() if isinstance(models, QuerySet) else models
             for m in iterator:
-                _model_to_xml(writer, m, field_map, i)
+                model_to_xml(writer, m, field_map, i)
                 stream.seek(0)
                 yield stream.getvalue()
                 stream.truncate(0)
@@ -83,7 +68,7 @@ def models_to_xml(models, field_map, root_element_name, xmlns=None, schema_name=
                 i = 0
                 iterator = sub_models.iterator() if isinstance(sub_models, QuerySet) else sub_models
                 for m in iterator:
-                    _model_to_xml(writer, m, sub_models_field_map, i)
+                    model_to_xml(writer, m, sub_models_field_map, i)
                     stream.seek(0)
                     yield stream.getvalue()
                     stream.truncate(0)
