@@ -163,7 +163,7 @@ def get_search_results(params):
     sort_keys = extract_specific_keys_param(params, 'sort_keys')
 
     meeting_qs = Meeting.objects.all()
-    meeting_qs = meeting_qs.prefetch_related('meetinginfo', 'service_body', 'formats')
+    meeting_qs = meeting_qs.prefetch_related('meetinginfo', 'service_body', 'formats', 'root_server')
 
     if weekdays_include:
         meeting_qs = meeting_qs.filter(weekday__in=weekdays_include)

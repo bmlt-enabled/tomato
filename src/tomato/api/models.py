@@ -319,7 +319,7 @@ class Meeting(models.Model):
 
             try:
                 try:
-                    qs = Meeting.objects.prefetch_related('meetinginfo', 'service_body', 'formats')
+                    qs = Meeting.objects.prefetch_related('meetinginfo', 'service_body', 'formats', 'root_server')
                     meeting = qs.get(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
                 except Meeting.DoesNotExist:
                     meeting = Meeting(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
