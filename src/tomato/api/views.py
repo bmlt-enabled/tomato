@@ -16,9 +16,10 @@ from django.db.models.functions import Concat
 from django.db.models.expressions import Case, When, Value
 from django.http import response
 from django.template.loader import render_to_string
+from .kml import apply_kml_annotations
 from .models import Format, Meeting, ServiceBody
 from .semantic import (field_keys, field_keys_with_descriptions, format_field_map, meeting_field_map,
-                       server_info_field_map, service_bodies_field_map)
+                       meeting_kml_field_map, server_info_field_map, service_bodies_field_map)
 from .semantic.csv import models_to_csv
 from .semantic.json import models_to_json
 from .semantic.xml import models_to_xml
@@ -386,32 +387,39 @@ valid_switcher_params = (
 
 def semantic_query(request, format='json'):
     switcher = request.GET.get('switcher')
-    if format not in ('csv', 'json', 'xml', 'jsonp'):
+    if format not in ('csv', 'json', 'xml', 'jsonp', 'kml'):
         return response.HttpResponseBadRequest()
     if not switcher:
         return response.HttpResponseBadRequest()
     if switcher not in valid_switcher_params:
         return response.HttpResponseBadRequest()
+    if format == 'kml' and switcher != 'GetSearchResults':
+        return response.HttpResponseBadRequest()
     if format == 'jsonp' and 'callback' not in request.GET:
         return response.HttpResponseBadRequest()
+
+    params = request.GET.copy()
 
     ret = None
     if format in ('json', 'jsonp'):
         content_type = 'application/json'
     elif format == 'csv':
         content_type = 'text/csv'
-    elif format == 'xml':
+    elif format in ('xml', 'kml'):
         content_type = 'application/xml'
 
     if switcher == 'GetSearchResults':
-        meetings = get_search_results(request.GET)
-        data_field_keys = extract_specific_keys_param(request.GET)
+        if format == 'kml' and 'data_field_key' in params:
+            # Invalid parameter for kml, as kml always returns the same fields.
+            params.pop('data_field_key')
+        meetings = get_search_results(params)
+        data_field_keys = extract_specific_keys_param(params)
         if format in ('json', 'jsonp', 'xml'):
-            if 'get_used_formats' in request.GET or 'get_formats_only' in request.GET:
+            if 'get_used_formats' in params or 'get_formats_only' in params:
                 formats = Format.objects.filter(id__in=meetings.values('formats'))
             if format in ('json', 'jsonp'):
-                if 'get_used_formats' in request.GET or 'get_formats_only' in request.GET:
-                    if 'get_formats_only' in request.GET:
+                if 'get_used_formats' in params or 'get_formats_only' in params:
+                    if 'get_formats_only' in params:
                         ret = models_to_json(formats, format_field_map, parent_keys='formats')
                     else:
                         ret = models_to_json(
@@ -424,8 +432,8 @@ def semantic_query(request, format='json'):
                     ret = models_to_json(meetings, meeting_field_map, return_attrs=data_field_keys)
             else:
                 xmlns = '{}://{}'.format(request.scheme, request.get_host())
-                if 'get_used_formats' in request.GET or 'get_formats_only' in request.GET:
-                    if 'get_formats_only' in request.GET:
+                if 'get_used_formats' in params or 'get_formats_only' in params:
+                    if 'get_formats_only' in params:
                         ret = models_to_xml(
                             meetings, format_field_map, 'formats',
                             xmlns=xmlns, schema_name='GetFormats'
@@ -441,17 +449,21 @@ def semantic_query(request, format='json'):
                         )
                 else:
                     ret = models_to_xml(meetings, meeting_field_map, 'meetings', xmlns=xmlns, schema_name=switcher)
+        elif format == 'kml':
+            meetings = apply_kml_annotations(meetings)
+            ret = models_to_xml(meetings, meeting_kml_field_map, 'kml.Document',
+                                model_name='Placemark', show_sequence_index=False)
         elif format == 'csv':
             ret = models_to_csv(meetings, meeting_field_map, data_field_keys)
     else:
         xml_schema_name = None
         if switcher == 'GetFormats':
-            models = get_formats(request.GET)
+            models = get_formats(params)
             field_map = format_field_map
             xml_node_name = 'formats'
             xml_schema_name = switcher
         elif switcher == 'GetServiceBodies':
-            models = get_service_bodies(request.GET)
+            models = get_service_bodies(params)
             field_map = service_bodies_field_map
             xml_node_name = 'serviceBodies'
         elif switcher == 'GetFieldKeys':
@@ -459,9 +471,9 @@ def semantic_query(request, format='json'):
             field_map = {'key': ('key',), 'description': ('description',)}
             xml_node_name = 'fields'
         elif switcher == 'GetFieldValues':
-            meeting_key = request.GET.get('meeting_key')
+            meeting_key = params.get('meeting_key')
             if meeting_key in field_keys:
-                models = get_field_values(request.GET)
+                models = get_field_values(params)
                 field_map = {meeting_key: (meeting_field_map.get(meeting_key)[0],), 'ids': ('ids',)}
                 xml_node_name = 'fields'
             else:
@@ -491,7 +503,7 @@ def semantic_query(request, format='json'):
             ret = models_to_xml(models, field_map, xml_node_name, xmlns=xmlns, schema_name=xml_schema_name)
 
     if format == 'jsonp':
-        return JSONPStreamingHttpResponse(ret, content_type=content_type, callback=request.GET.get('callback'))
+        return JSONPStreamingHttpResponse(ret, content_type=content_type, callback=params.get('callback'))
     return response.StreamingHttpResponse(ret, content_type=content_type)
 
 

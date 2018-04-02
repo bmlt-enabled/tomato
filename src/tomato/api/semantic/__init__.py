@@ -86,6 +86,13 @@ meeting_field_map = OrderedDict([
     ('root_server_uri',          ('root_server.url',),),
 ])
 
+meeting_kml_field_map = OrderedDict([
+    ('name',              ('name',),),
+    ('address',           ('address',),),
+    ('description',       ('description',),),
+    ('Point.coordinates', ('coordinates',),),
+])
+
 field_keys_with_descriptions = OrderedDict([
     ('id_bigint', 'ID'),
     ('worldid_mixed', 'World ID'),
