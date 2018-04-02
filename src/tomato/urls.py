@@ -19,8 +19,8 @@ urlpatterns = [
     url('ping/$', views.ping, name='ping'),
     # semantic api
     url(r'main_server[/]+client_interface/xml/GetServiceBodies.php$', views.get_service_bodies_php, name='get-service-bodies-php'),
-    url(r'main_server[/]+client_interface/(?P<format>json|xml)/GetLangs.php$', views.get_langs_php, name='get-langs-php'),
-    url(r'main_server[/]+client_interface/(?P<format>json|csv|xml)/', views.semantic_query, name='semantic-query'),
+    url(r'main_server[/]+client_interface/(?P<format>json|xml|jsonp)/GetLangs.php$', views.get_langs_php, name='get-langs-php'),
+    url(r'main_server[/]+client_interface/(?P<format>json|csv|xml|jsonp)/', views.semantic_query, name='semantic-query'),
     url(r'main_server[/]+client_interface/serverInfo.xml$', views.server_info_xml, name='server-info-xml'),
     url(r'main_server[/]+client_interface/xsd/(?P<schema_name>GetSearchResults|GetFormats)\.php$', views.xsd, name='xsd'),
     # rest api

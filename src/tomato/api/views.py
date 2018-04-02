@@ -1,5 +1,6 @@
 import datetime
 import json
+import itertools
 import logging
 import requests
 import textwrap
@@ -28,6 +29,17 @@ logger = logging.getLogger('django')
 
 class GeocodeAPIException(Exception):
     pass
+
+
+class JSONPStreamingHttpResponse(response.StreamingHttpResponse):
+    def __init__(self, *args, **kwargs):
+        self.callback = kwargs.pop('callback')
+        super().__init__(*args, **kwargs)
+
+    @response.StreamingHttpResponse.streaming_content.setter
+    def streaming_content(self, value):
+        value = itertools.chain(self.callback + '(', value, ')')
+        response.StreamingHttpResponse.streaming_content.fset(self, value)
 
 
 keys_not_searchable = [
@@ -374,15 +386,17 @@ valid_switcher_params = (
 
 def semantic_query(request, format='json'):
     switcher = request.GET.get('switcher')
-    if format not in ('csv', 'json', 'xml'):
+    if format not in ('csv', 'json', 'xml', 'jsonp'):
         return response.HttpResponseBadRequest()
     if not switcher:
         return response.HttpResponseBadRequest()
     if switcher not in valid_switcher_params:
         return response.HttpResponseBadRequest()
+    if format == 'jsonp' and 'callback' not in request.GET:
+        return response.HttpResponseBadRequest()
 
     ret = None
-    if format == 'json':
+    if format in ('json', 'jsonp'):
         content_type = 'application/json'
     elif format == 'csv':
         content_type = 'text/csv'
@@ -392,10 +406,10 @@ def semantic_query(request, format='json'):
     if switcher == 'GetSearchResults':
         meetings = get_search_results(request.GET)
         data_field_keys = extract_specific_keys_param(request.GET)
-        if format in ('json', 'xml'):
+        if format in ('json', 'jsonp', 'xml'):
             if 'get_used_formats' in request.GET or 'get_formats_only' in request.GET:
                 formats = Format.objects.filter(id__in=meetings.values('formats'))
-            if format == 'json':
+            if format in ('json', 'jsonp'):
                 if 'get_used_formats' in request.GET or 'get_formats_only' in request.GET:
                     if 'get_formats_only' in request.GET:
                         ret = models_to_json(formats, format_field_map, parent_keys='formats')
@@ -468,7 +482,7 @@ def semantic_query(request, format='json'):
             field_map = server_info_field_map
             xml_node_name = 'serverInfo'
 
-        if format == 'json':
+        if format in ('json', 'jsonp'):
             ret = models_to_json(models, field_map)
         elif format == 'csv':
             ret = models_to_csv(models, field_map)
@@ -476,6 +490,8 @@ def semantic_query(request, format='json'):
             xmlns = '{}://{}'.format(request.scheme, request.get_host())
             ret = models_to_xml(models, field_map, xml_node_name, xmlns=xmlns, schema_name=xml_schema_name)
 
+    if format == 'jsonp':
+        return JSONPStreamingHttpResponse(ret, content_type=content_type, callback=request.GET.get('callback'))
     return response.StreamingHttpResponse(ret, content_type=content_type)
 
 
@@ -486,7 +502,10 @@ def get_service_bodies_php(request):
 
 
 def get_langs_php(request, format='json'):
-    if format == 'json':
+    if format == 'jsonp' and 'callback' not in request.GET:
+        return response.HttpResponseBadRequest()
+
+    if format in ('json', 'jsonp'):
         content_type = 'application/json'
         ret = json.dumps({
             "languages": [
@@ -497,6 +516,8 @@ def get_langs_php(request, format='json'):
                 }
             ]
         })
+        if format == 'jsonp':
+            ret = request.GET.get('callback') + '(' + ret + ')'
     else:
         content_type = 'application/xml'
         ret = textwrap.dedent("""
