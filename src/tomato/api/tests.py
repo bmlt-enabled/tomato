@@ -376,7 +376,7 @@ class GetSearchResultsTests(TestCase):
     # data_field_keys
     def test_get_search_results_data_field_keys(self):
         for data_field_key in field_keys:
-            if is_spatialite and data_field_key == 'formats':
+            if is_spatialite and data_field_key in ('formats', 'format_shared_id_list'):
                 continue
             url = reverse('semantic-query', kwargs={'format': 'json'})
             url += '?switcher=GetSearchResults&'
@@ -394,7 +394,7 @@ class GetSearchResultsTests(TestCase):
             if i >= len(field_keys) - 1:
                 continue
             data_field_keys = [field_keys[i], field_keys[i + 1]]
-            if is_spatialite and 'formats' in data_field_keys:
+            if is_spatialite and ('formats' in data_field_keys or 'format_shared_id_list' in data_field_keys):
                 continue
             url = reverse('semantic-query', kwargs={'format': 'json'})
             url += '?switcher=GetSearchResults&'
@@ -660,7 +660,7 @@ class GetSearchResultsTests(TestCase):
 
     def test_get_search_results_sort_keys(self):
         for sort_key in field_keys:
-            if sort_key == 'formats':
+            if sort_key in ('formats', 'format_shared_id_list',):
                 continue  # not sure how this behaves... don't care
             url = reverse('semantic-query', kwargs={'format': 'json'})
             url += '?switcher=GetSearchResults&'

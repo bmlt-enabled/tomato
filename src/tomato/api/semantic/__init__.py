@@ -84,6 +84,7 @@ meeting_field_map = OrderedDict([
     ('published',                ('published',),),
     ('root_server_id',           ('root_server_id',),),
     ('root_server_uri',          ('root_server.url',),),
+    ('format_shared_id_list',    (('formats.id', 'format_shared_id_list_aggregate',),),),
 ])
 
 meeting_kml_field_map = OrderedDict([
@@ -119,6 +120,7 @@ field_keys_with_descriptions = OrderedDict([
     ('train_lines', 'Train Lines'),
     ('bus_lines', 'Bus Lines'),
     ('root_server_id', 'Root Server ID'),
+    ('format_shared_id_list', 'Format Shared ID List'),
 ])
 
 field_keys = list(field_keys_with_descriptions.keys())

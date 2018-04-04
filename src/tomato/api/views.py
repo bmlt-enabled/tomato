@@ -50,6 +50,7 @@ keys_not_searchable = [
     'formats',
     'longitude',
     'latitude',
+    'format_shared_id_list',
 ]
 
 valid_meeting_search_keys = [f for f in field_keys if f not in keys_not_searchable]
