@@ -371,7 +371,14 @@ class Meeting(models.Model):
     @staticmethod
     def validate_bmlt_object(root_server, bmlt_meeting):
         try:
-            formats = bmlt_meeting.get('formats').split(',')
+            format_source_ids = bmlt_meeting.get('format_shared_id_list')
+            if format_source_ids:
+                format_source_ids = [int(id) for id in format_source_ids.split(',')]
+                formats = Format.objects.filter(root_server=root_server, source_id__in=format_source_ids)
+            else:
+                format_key_strings = bmlt_meeting.get('formats').split(',')
+                formats = Format.objects.filter(root_server=root_server, key_string__in=format_key_strings)
+                formats = formats.distinct('key_string')
             return {
                 'source_id': get_int(bmlt_meeting, 'id_bigint'),
                 'service_body': ServiceBody.objects.get(root_server=root_server,
@@ -384,7 +391,7 @@ class Meeting(models.Model):
                 'latitude': get_decimal(bmlt_meeting, 'latitude'),
                 'longitude': get_decimal(bmlt_meeting, 'longitude'),
                 'published': bmlt_meeting.get('published', '0') == '1',
-                'formats': Format.objects.filter(root_server=root_server, key_string__in=formats).distinct('key_string'),
+                'formats': formats,
                 'meetinginfo': {
                     'email': bmlt_meeting.get('email_contact', None),
                     'location_text': bmlt_meeting.get('location_text', None),
