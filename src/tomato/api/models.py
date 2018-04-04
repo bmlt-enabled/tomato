@@ -373,7 +373,10 @@ class Meeting(models.Model):
         try:
             format_source_ids = bmlt_meeting.get('format_shared_id_list')
             if format_source_ids:
-                format_source_ids = [int(id) for id in format_source_ids.split(',')]
+                try:
+                    format_source_ids = [int(id) for id in format_source_ids.split(',')]
+                except ValueError:
+                    raise ImportException('Malformed format_shared_id_list', bmlt_meeting)
                 formats = Format.objects.filter(root_server=root_server, source_id__in=format_source_ids)
             else:
                 format_key_strings = bmlt_meeting.get('formats').split(',')
