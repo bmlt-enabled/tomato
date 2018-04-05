@@ -143,6 +143,7 @@ class ServiceBody(models.Model):
     type = models.CharField(max_length=2, choices=SERVICE_BODY_TYPE_CHOICES, null=True)
     description = models.TextField(null=True)
     url = models.URLField(null=True)
+    helpline = models.CharField(max_length=255, null=True)
     world_id = models.CharField(max_length=255, null=True)
 
     @staticmethod
@@ -167,7 +168,7 @@ class ServiceBody(models.Model):
 
             body = ServiceBody.objects.get_or_create(root_server=root_server, source_id=bmlt_body['source_id'])[0]
             dirty = False
-            field_names = ('name', 'type', 'description', 'url', 'world_id')
+            field_names = ('name', 'type', 'description', 'url', 'helpline', 'world_id')
             changed_fields = []
             for field_name in field_names:
                 if set_if_changed(body, field_name, bmlt_body[field_name]):
@@ -200,6 +201,7 @@ class ServiceBody(models.Model):
             'type': bmlt.get('type', None),
             'description': bmlt.get('description', None),
             'url': bmlt.get('url', None),
+            'helpline': bmlt.get('helpline', None),
             'world_id': bmlt.get('world_id', None),
         }
 
