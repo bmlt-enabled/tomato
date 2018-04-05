@@ -30,7 +30,6 @@ service_bodies_field_map = OrderedDict([
     ('description',    ('description',),),
     ('type',           ('type',),),
     ('url',            ('url',),),
-    ('helpline',       ('',),),
     ('root_server_id', ('root_server_id',),),
     ('helpline',       ('helpline',),),
     ('world_id',       ('world_id',),),
