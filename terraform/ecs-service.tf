@@ -84,6 +84,7 @@ resource "aws_db_instance" "tomato" {
   engine            = "postgres"
   engine_version    = "9.5.10"
   instance_class    = "db.t2.small"
+  storage_type      = "gp2"
 
   name     = "tomato"
   username = "tomato"
