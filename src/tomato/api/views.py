@@ -564,3 +564,7 @@ def xsd(request, schema_name):
 
 def ping(request):
     return response.HttpResponse("pong", content_type='text/plain')
+
+
+def server_root(request):
+    return response.HttpResponse("tomato", content_type='text/plain')

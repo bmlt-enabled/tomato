@@ -16,8 +16,9 @@ router.register(r'meetings', viewsets.MeetingViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url('ping/$', views.ping, name='ping'),
+    url(r'ping/$', views.ping, name='ping'),
     # semantic api
+    url(r'main_server/$', views.server_root, name='main_server'),
     url(r'main_server[/]+client_interface/xml/GetServiceBodies.php$', views.get_service_bodies_php, name='get-service-bodies-php'),
     url(r'main_server[/]+client_interface/(?P<format>json|xml|jsonp)/GetLangs.php$', views.get_langs_php, name='get-langs-php'),
     url(r'main_server[/]+client_interface/(?P<format>json|csv|xml|jsonp|kml)/', views.semantic_query, name='semantic-query'),
