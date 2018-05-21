@@ -437,6 +437,6 @@ class MeetingInfo(models.Model):
     location_postal_code_1 = models.CharField(max_length=255, null=True)
     location_nation = models.CharField(max_length=255, null=True)
     train_lines = models.CharField(max_length=255, null=True)
-    bus_lines = models.CharField(max_length=255, null=True)
+    bus_lines = models.TextField(max_length=512, null=True)
     world_id = models.CharField(max_length=255, null=True)
     comments = models.TextField(null=True)
