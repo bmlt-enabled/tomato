@@ -5,7 +5,7 @@ import requests.exceptions
 import time
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db import transaction
+from django.db import connections, transaction, DatabaseError
 from django.utils import timezone
 from urllib.parse import urljoin
 from ...models import Format, ImportProblem, Meeting, RootServer, ServiceBody
@@ -50,6 +50,9 @@ class Command(BaseCommand):
                             self.update_meetings(root)
                             root.last_successful_import = timezone.now()
                             root.save()
+                    except DatabaseError:
+                        logger.exception('Encountered DatabaseError, closing database connection')
+                        connections.close_all()
                     except Exception as e:
                         logger.error('Error updating root server: {}'.format(str(e)))
             logger.info('sleeping')
