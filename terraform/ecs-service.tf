@@ -111,7 +111,6 @@ resource "aws_ecs_task_definition" "webapp" {
 [
   {
     "volumesFrom": [],
-    "memory": 768,
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -179,9 +178,9 @@ resource "aws_ecs_task_definition" "webapp" {
         "awslogs-stream-prefix": "webapp"
       }
     },
-    "cpu": 768,
+    "cpu": 700,
     "privileged": null,
-    "memoryReservation": null
+    "memoryReservation": 512
   }
 ]
 EOF
@@ -194,7 +193,6 @@ resource "aws_ecs_task_definition" "daemon" {
 [
   {
     "volumesFrom": [],
-    "memory": 768,
     "extraHosts": null,
     "dnsServers": null,
     "disableNetworking": null,
@@ -248,9 +246,9 @@ resource "aws_ecs_task_definition" "daemon" {
         "awslogs-stream-prefix": "daemon"
       }
     },
-    "cpu": 768,
+    "cpu": 256,
     "privileged": null,
-    "memoryReservation": null
+    "memoryReservation": 384
   }
 ]
 EOF
@@ -262,6 +260,8 @@ resource "aws_ecs_service" "webapp" {
   desired_count   = 2
   iam_role        = "${aws_iam_role.tomato_lb.name}"
   task_definition = "${aws_ecs_task_definition.webapp.arn}"
+
+  deployment_minimum_healthy_percent = 50
 
   load_balancer {
     target_group_arn = "${aws_alb_target_group.tomato.id}"
@@ -280,4 +280,6 @@ resource "aws_ecs_service" "daemon" {
   cluster         = "${aws_ecs_cluster.main.id}"
   desired_count   = 1
   task_definition = "${aws_ecs_task_definition.daemon.arn}"
+
+  deployment_minimum_healthy_percent = 0
 }
