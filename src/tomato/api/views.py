@@ -455,8 +455,9 @@ def semantic_query(request, format='json'):
             ret = models_to_xml(meetings, meeting_kml_field_map, 'kml.Document',
                                 model_name='Placemark', show_sequence_index=False)
         elif format == 'poi':
+            meetings = meetings.order_by('weekday')
             meetings = apply_kml_annotations(meetings)
-            ret = models_to_csv(meetings, meeting_poi_field_map, data_field_keys)
+            ret = models_to_csv(meetings, meeting_poi_field_map)
         elif format == 'csv':
             ret = models_to_csv(meetings, meeting_field_map, data_field_keys)
     else:
