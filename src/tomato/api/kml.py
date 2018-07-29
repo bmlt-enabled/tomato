@@ -38,10 +38,41 @@ def apply_kml_annotations(qs):
                 default=Value(''),
                 output_field=models.CharField()
             ),
-            'meetinginfo__location_city_subsection',
+            Case(
+                When(
+                    ~Q(meetinginfo__location_city_subsection=None) & ~Q(meetinginfo__location_city_subsection=''),
+                    then=F('meetinginfo__location_city_subsection')
+                ),
+                default=Value(''),
+                output_field=models.CharField()
+            ),
             Case(
                 When(
                     (~Q(meetinginfo__location_city_subsection=None) & ~Q(meetinginfo__location_city_subsection='')) &
+                    (
+                        (~Q(meetinginfo__location_province=None) & ~Q(meetinginfo__location_province='')) |
+                        (~Q(meetinginfo__location_postal_code_1=None) & ~Q(meetinginfo__location_postal_code_1='')) |
+                        (~Q(meetinginfo__location_nation=None) & ~Q(meetinginfo__location_nation=''))
+                    ),
+                    then=Value(', ')
+                ),
+                default=Value(''),
+                output_field=models.CharField()
+            ),
+            Case(
+                When(
+                    Q(meetinginfo__location_city_subsection=None) | Q(meetinginfo__location_city_subsection=''),
+                    then=F('meetinginfo__location_municipality')
+                ),
+                default=Value(''),
+                output_field=models.CharField()
+            ),
+            Case(
+                When(
+                    (
+                        (Q(meetinginfo__location_city_subsection=None) | Q(meetinginfo__location_city_subsection='')) &
+                        ~Q(meetinginfo__location_municipality=None) & ~Q(meetinginfo__location_municipality='')
+                    ) &
                     (
                         (~Q(meetinginfo__location_province=None) & ~Q(meetinginfo__location_province='')) |
                         (~Q(meetinginfo__location_postal_code_1=None) & ~Q(meetinginfo__location_postal_code_1='')) |
@@ -111,10 +142,41 @@ def apply_kml_annotations(qs):
                 default=Value(''),
                 output_field=models.CharField()
             ),
-            'meetinginfo__location_city_subsection',
+            Case(
+                When(
+                  ~Q(meetinginfo__location_city_subsection=None) & ~Q(meetinginfo__location_city_subsection=''),
+                  then=F('meetinginfo__location_city_subsection')
+                ),
+                default=Value(''),
+                output_field=models.CharField()
+            ),
             Case(
                 When(
                     (~Q(meetinginfo__location_city_subsection=None) & ~Q(meetinginfo__location_city_subsection='')) &
+                    (
+                        (~Q(meetinginfo__location_province=None) & ~Q(meetinginfo__location_province='')) |
+                        (~Q(meetinginfo__location_postal_code_1=None) & ~Q(meetinginfo__location_postal_code_1='')) |
+                        (~Q(meetinginfo__location_nation=None) & ~Q(meetinginfo__location_nation=''))
+                    ),
+                    then=Value(', ')
+                ),
+                default=Value(''),
+                output_field=models.CharField()
+            ),
+            Case(
+                When(
+                    Q(meetinginfo__location_city_subsection=None) | Q(meetinginfo__location_city_subsection=''),
+                    then=F('meetinginfo__location_municipality')
+                ),
+                default=Value(''),
+                output_field=models.CharField()
+            ),
+            Case(
+                When(
+                    (
+                        (Q(meetinginfo__location_city_subsection=None) | Q(meetinginfo__location_city_subsection='')) &
+                        ~Q(meetinginfo__location_municipality=None) & ~Q(meetinginfo__location_municipality='')
+                    ) &
                     (
                         (~Q(meetinginfo__location_province=None) & ~Q(meetinginfo__location_province='')) |
                         (~Q(meetinginfo__location_postal_code_1=None) & ~Q(meetinginfo__location_postal_code_1='')) |

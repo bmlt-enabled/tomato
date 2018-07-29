@@ -34,7 +34,6 @@ def models_to_csv(models, field_map, fieldnames=None):
         for k, v in field_map.items():
             if len(v) > 1:
                 try:
-
                     model = next(models.iterator())
                 except StopIteration:
                     pass

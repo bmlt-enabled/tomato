@@ -19,7 +19,7 @@ from django.template.loader import render_to_string
 from .kml import apply_kml_annotations
 from .models import Format, Meeting, ServiceBody
 from .semantic import (field_keys, field_keys_with_descriptions, format_field_map, meeting_field_map,
-                       meeting_kml_field_map, server_info_field_map, service_bodies_field_map)
+                       meeting_poi_field_map, meeting_kml_field_map, server_info_field_map, service_bodies_field_map)
 from .semantic.csv import models_to_csv
 from .semantic.json import models_to_json
 from .semantic.xml import models_to_xml
@@ -388,13 +388,13 @@ valid_switcher_params = (
 
 def semantic_query(request, format='json'):
     switcher = request.GET.get('switcher')
-    if format not in ('csv', 'json', 'xml', 'jsonp', 'kml'):
+    if format not in ('csv', 'json', 'xml', 'jsonp', 'kml', 'poi'):
         return response.HttpResponseBadRequest()
     if not switcher:
         return response.HttpResponseBadRequest()
     if switcher not in valid_switcher_params:
         return response.HttpResponseBadRequest()
-    if format == 'kml' and switcher != 'GetSearchResults':
+    if format in ('kml', 'poi') and switcher != 'GetSearchResults':
         return response.HttpResponseBadRequest()
     if format == 'jsonp' and 'callback' not in request.GET:
         return response.HttpResponseBadRequest()
@@ -404,14 +404,14 @@ def semantic_query(request, format='json'):
     ret = None
     if format in ('json', 'jsonp'):
         content_type = 'application/json'
-    elif format == 'csv':
+    elif format in ('csv', 'poi'):
         content_type = 'text/csv'
     elif format in ('xml', 'kml'):
         content_type = 'application/xml'
 
     if switcher == 'GetSearchResults':
-        if format == 'kml' and 'data_field_key' in params:
-            # Invalid parameter for kml, as kml always returns the same fields.
+        if format in ('kml', 'poi') and 'data_field_key' in params:
+            # Invalid parameter for kml and poi, as they always returns the same fields.
             params.pop('data_field_key')
         meetings = get_search_results(params)
         data_field_keys = extract_specific_keys_param(params)
@@ -454,6 +454,9 @@ def semantic_query(request, format='json'):
             meetings = apply_kml_annotations(meetings)
             ret = models_to_xml(meetings, meeting_kml_field_map, 'kml.Document',
                                 model_name='Placemark', show_sequence_index=False)
+        elif format == 'poi':
+            meetings = apply_kml_annotations(meetings)
+            ret = models_to_csv(meetings, meeting_poi_field_map, data_field_keys)
         elif format == 'csv':
             ret = models_to_csv(meetings, meeting_field_map, data_field_keys)
     else:
@@ -505,7 +508,12 @@ def semantic_query(request, format='json'):
 
     if format == 'jsonp':
         return JSONPStreamingHttpResponse(ret, content_type=content_type, callback=params.get('callback'))
-    return response.StreamingHttpResponse(ret, content_type=content_type)
+
+    r = response.StreamingHttpResponse(ret, content_type=content_type)
+    if format == 'poi':
+        r['Content-Disposition'] = 'filename=SearchResultsPOI.csv'
+
+    return r
 
 
 def get_service_bodies_php(request):

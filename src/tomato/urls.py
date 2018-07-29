@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'main_server/$', views.server_root, name='main_server'),
     url(r'main_server[/]+client_interface/xml/GetServiceBodies.php$', views.get_service_bodies_php, name='get-service-bodies-php'),
     url(r'main_server[/]+client_interface/(?P<format>json|xml|jsonp)/GetLangs.php$', views.get_langs_php, name='get-langs-php'),
-    url(r'main_server[/]+client_interface/(?P<format>json|csv|xml|jsonp|kml)/', views.semantic_query, name='semantic-query'),
+    url(r'main_server[/]+client_interface/(?P<format>json|csv|xml|jsonp|kml|poi)/', views.semantic_query, name='semantic-query'),
     url(r'main_server[/]+client_interface/serverInfo.xml$', views.server_info_xml, name='server-info-xml'),
     url(r'main_server[/]+client_interface/xsd/(?P<schema_name>GetSearchResults|GetFormats)\.php$', views.xsd, name='xsd'),
     # rest api

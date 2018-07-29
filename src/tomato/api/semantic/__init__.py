@@ -94,6 +94,13 @@ meeting_kml_field_map = OrderedDict([
     ('Point.coordinates', ('coordinates',),),
 ])
 
+meeting_poi_field_map = OrderedDict([
+    ('lon',  ('longitude',),),
+    ('lat',  ('latitude',),),
+    ('name', ('name',),),
+    ('desc', ('description',),),
+])
+
 field_keys_with_descriptions = OrderedDict([
     ('id_bigint', 'ID'),
     ('worldid_mixed', 'World ID'),
