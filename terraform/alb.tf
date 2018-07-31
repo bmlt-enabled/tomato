@@ -74,6 +74,8 @@ resource "aws_alb_target_group" "tomato" {
   protocol = "HTTP"
   vpc_id   = "${aws_vpc.main.id}"
 
+  deregistration_delay = 60
+
   health_check {
     path    = "/ping/"
     matcher = "200"

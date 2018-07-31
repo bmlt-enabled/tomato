@@ -180,7 +180,10 @@ resource "aws_ecs_task_definition" "webapp" {
     },
     "cpu": 700,
     "privileged": null,
-    "memoryReservation": 512
+    "memoryReservation": 512,
+    "linuxParameters": {
+      "initProcessEnabled": true
+    }
   }
 ]
 EOF
@@ -248,7 +251,10 @@ resource "aws_ecs_task_definition" "daemon" {
     },
     "cpu": 256,
     "privileged": null,
-    "memoryReservation": 384
+    "memoryReservation": 384,
+    "linuxParameters": {
+      "initProcessEnabled": true
+    }
   }
 ]
 EOF
