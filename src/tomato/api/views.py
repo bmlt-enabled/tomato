@@ -255,14 +255,26 @@ def get_search_results(params):
             if search_string_all:
                 meeting_qs = meeting_qs.filter(search=search_string)
             else:
+                meeting_ids = []
                 query = None
-                for word in search_string.split():
-                    if len(word) < 3 or word.lower() == 'the':
+                for word in search_string.replace(',', ' ').split():
+                    if word.isdigit():
+                        meeting_ids.append(int(word))
+                        continue
+                    elif len(word) < 3 or word.lower() == 'the':
                         continue
                     q = SearchQuery(word)
                     query = q if not query else query | q
+                q = None
                 if query:
-                    meeting_qs = meeting_qs.filter(search=query)
+                    q = models.Q(search=query)
+                if meeting_ids:
+                    if not q:
+                        q = models.Q(id=meeting_ids.pop())
+                    for meeting_id in meeting_ids:
+                        q = q | models.Q(id=meeting_id)
+                if q:
+                    meeting_qs = meeting_qs.filter(q)
     if (long_val and lat_val and (geo_width or geo_width_km)) or (search_string and search_string_is_address):
         # Get latitude and longitude values, either directly from the request
         # or from the an address
