@@ -525,6 +525,8 @@ def semantic_query(request, format='json'):
     r = response.StreamingHttpResponse(ret, content_type=content_type)
     if format == 'poi':
         r['Content-Disposition'] = 'filename=SearchResultsPOI.csv'
+    elif format == 'kml':
+        r['Content-Disposition'] = 'filename=SearchResults.kml'
 
     return r
 
