@@ -2,11 +2,6 @@ data "aws_ecr_repository" "tomato" {
   name = "tomato"
 }
 
-resource "aws_cloudwatch_log_group" "tomato" {
-  name              = "tomato"
-  retention_in_days = 7
-}
-
 # IAM Role for ECS Service interaction with load balancer
 resource "aws_iam_role" "tomato_lb" {
   name = "tomato-lb"
@@ -173,7 +168,7 @@ resource "aws_ecs_task_definition" "webapp" {
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-group": "${aws_cloudwatch_log_group.tomato.name}",
+        "awslogs-group": "${aws_cloudwatch_log_group.tomato_webapp.name}",
         "awslogs-region": "us-east-1",
         "awslogs-stream-prefix": "webapp"
       }
@@ -244,7 +239,7 @@ resource "aws_ecs_task_definition" "daemon" {
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-group": "${aws_cloudwatch_log_group.tomato.name}",
+        "awslogs-group": "${aws_cloudwatch_log_group.tomato_daemon.name}",
         "awslogs-region": "us-east-1",
         "awslogs-stream-prefix": "daemon"
       }
