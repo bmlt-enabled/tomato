@@ -21,13 +21,14 @@ RUN apk add --no-cache \
 
 RUN mkdir /code
 WORKDIR /code
-ADD src/tomato /code/tomato
-ADD src/manage.py /code
-ADD requirements.txt /code
-ADD uwsgi.ini /code
 
+ADD requirements.txt /code
 RUN pip3 install uwsgi==2.0.17
 RUN pip3 install -r requirements.txt
+
+ADD src/tomato /code/tomato
+ADD src/manage.py /code
+ADD uwsgi.ini /code
 RUN DJANGO_SETTINGS_MODULE=tomato.settings.test python3 manage.py test
 
 EXPOSE 8000
