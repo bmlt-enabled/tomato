@@ -184,8 +184,8 @@ resource "aws_ecs_task_definition" "webapp" {
 EOF
 }
 
-resource "aws_ecs_task_definition" "daemon" {
-  family = "tomato-daemon"
+resource "aws_ecs_task_definition" "tomato_root_server_import" {
+  family = "tomato-root-server-import"
 
   container_definitions = <<EOF
 [
@@ -239,7 +239,7 @@ resource "aws_ecs_task_definition" "daemon" {
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-group": "${aws_cloudwatch_log_group.tomato_daemon.name}",
+        "awslogs-group": "${aws_cloudwatch_log_group.tomato_root_server_import.name}",
         "awslogs-region": "us-east-1",
         "awslogs-stream-prefix": "daemon"
       }
@@ -274,13 +274,4 @@ resource "aws_ecs_service" "webapp" {
     "aws_iam_role_policy.tomato_lb",
     "aws_alb_listener.tomato_https",
   ]
-}
-
-resource "aws_ecs_service" "daemon" {
-  name            = "daemon"
-  cluster         = "${aws_ecs_cluster.main.id}"
-  desired_count   = 1
-  task_definition = "${aws_ecs_task_definition.daemon.arn}"
-
-  deployment_minimum_healthy_percent = 0
 }
