@@ -108,8 +108,13 @@ def get_timedelta(d, key):
 
 class RootServer(models.Model):
     id = models.BigAutoField(primary_key=True)
+    name = models.CharField(max_length=255, null=True)
     url = models.URLField()
+    server_info = models.TextField(null=True)
     last_successful_import = models.DateTimeField(null=True)
+    num_areas = models.IntegerField(default=0)
+    num_regions = models.IntegerField(default=0)
+    num_meetings = models.IntegerField(default=0)
 
     def __str__(self):
         return '({}:{}:{})'.format(self.id, self.url, self.last_successful_import)

@@ -2,7 +2,6 @@ import json
 import logging
 import requests
 import requests.exceptions
-import time
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import connections, transaction, DatabaseError
@@ -14,6 +13,7 @@ from ...models import Format, ImportProblem, Meeting, RootServer, ServiceBody
 logger = logging.getLogger('django')
 
 
+
 class Command(BaseCommand):
     help = 'Updates the meetings database from root servers'
 
@@ -21,22 +21,25 @@ class Command(BaseCommand):
         logger.info('retrieving root servers')
         url = 'https://raw.githubusercontent.com/LittleGreenViper/BMLTTally/master/rootServerList.json'
         try:
-            root_server_urls = [rs['rootURL'] for rs in json.loads(self.request(url))]
-            root_server_urls = [url if url.endswith('/') else url + '/' for url in root_server_urls]
+            root_servers = json.loads(self.request(url))
+            for root_server in root_servers:
+                root_server['rootURL'] = root_server['rootURL'].strip()
+                if not root_server['rootURL'].endswith('/'):
+                    root_server['rootURL'] += '/'
         except Exception as e:
             logger.error('Error retrieving root server list: {}'.format(str(e)))
         else:
-            for old in RootServer.objects.exclude(url__in=root_server_urls):
+            for old in RootServer.objects.exclude(url__in=[r['rootURL'] for r in root_servers]):
                 try:
                     logger.info('Deleting old root server {}'.format(old.url))
                     old.delete()
                 except Exception as e:
                     logger.error('Error deleting old root server {}'.format(str(e)))
 
-            for url in root_server_urls:
-                logger.info('importing root server {}'.format(url))
+            for root_server in root_servers:
+                logger.info('importing root server {}'.format(root_server['rootURL']))
                 try:
-                    root = RootServer.objects.get_or_create(url=url)[0]
+                    root = self.get_root_server_instance(root_server)
                     ImportProblem.objects.filter(root_server=root).delete()
                     with transaction.atomic():
                         logger.info('importing service bodies')
@@ -45,6 +48,8 @@ class Command(BaseCommand):
                         self.update_formats(root)
                         logger.info('importing meetings')
                         self.update_meetings(root)
+                        logger.info('updating root server stats')
+                        self.update_root_server_stats(root)
                         root.last_successful_import = timezone.now()
                         root.save()
                 except DatabaseError:
@@ -60,6 +65,18 @@ class Command(BaseCommand):
         if response.status_code != 200:
             raise Exception('Unexpected status code from root server')
         return response.content
+
+    def get_root_server_instance(self, root_server_json_object):
+        root = RootServer.objects.get_or_create(url=root_server_json_object['rootURL'])[0]
+        root.name = root_server_json_object['name']
+        root.server_info = self.request(urljoin(root.url, 'client_interface/json/?switcher=GetServerInfo'))
+        root.server_info = json.dumps(json.loads(root.server_info))
+        return root
+
+    def update_root_server_stats(self, root):
+        root.num_regions = ServiceBody.objects.filter(root_server=root, type=ServiceBody.REGION).count()
+        root.num_areas = ServiceBody.objects.filter(root_server=root).exclude(type=ServiceBody.REGION).count()
+        root.num_meetings = Meeting.objects.filter(root_server=root).count()
 
     def update_service_bodies(self, root):
         url = urljoin(root.url, 'client_interface/json/?switcher=GetServiceBodies')
