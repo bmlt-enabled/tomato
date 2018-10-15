@@ -127,6 +127,7 @@ field_keys_with_descriptions = OrderedDict([
     ('train_lines', 'Train Lines'),
     ('bus_lines', 'Bus Lines'),
     ('root_server_id', 'Root Server ID'),
+    ('root_server_uri', 'Root Server URI'),
     ('format_shared_id_list', 'Format Shared ID List'),
 ])
 
