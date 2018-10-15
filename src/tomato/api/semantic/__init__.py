@@ -129,6 +129,7 @@ field_keys_with_descriptions = OrderedDict([
     ('root_server_id', 'Root Server ID'),
     ('root_server_uri', 'Root Server URI'),
     ('format_shared_id_list', 'Format Shared ID List'),
+    ('root_server_uri', 'Root Server URI'),
 ])
 
 field_keys = list(field_keys_with_descriptions.keys())
