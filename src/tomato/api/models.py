@@ -108,6 +108,7 @@ def get_timedelta(d, key):
 
 class RootServer(models.Model):
     id = models.BigAutoField(primary_key=True)
+    source_id = models.BigIntegerField(default=-1)
     name = models.CharField(max_length=255, null=True)
     url = models.URLField()
     server_info = models.TextField(null=True)

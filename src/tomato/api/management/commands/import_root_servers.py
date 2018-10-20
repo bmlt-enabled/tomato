@@ -61,7 +61,7 @@ class Command(BaseCommand):
 
     def request(self, url):
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0 +tomato'}
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, verify=False)
         if response.status_code != 200:
             raise Exception('Unexpected status code from root server')
         return response.content
@@ -71,6 +71,7 @@ class Command(BaseCommand):
         root.name = root_server_json_object['name']
         root.server_info = self.request(urljoin(root.url, 'client_interface/json/?switcher=GetServerInfo'))
         root.server_info = json.dumps(json.loads(root.server_info))
+        root.source_id = int(root_server_json_object['id'])
         return root
 
     def update_root_server_stats(self, root):
