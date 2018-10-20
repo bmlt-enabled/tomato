@@ -29,7 +29,7 @@ class Command(BaseCommand):
         except Exception as e:
             logger.error('Error retrieving root server list: {}'.format(str(e)))
         else:
-            for old in RootServer.objects.exclude(url__in=[r['rootURL'] for r in root_servers]):
+            for old in RootServer.objects.exclude(source_id__in=[int(r['id']) for r in root_servers]):
                 try:
                     logger.info('Deleting old root server {}'.format(old.url))
                     old.delete()
@@ -61,17 +61,18 @@ class Command(BaseCommand):
 
     def request(self, url):
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0 +tomato'}
-        response = requests.get(url, headers=headers, verify=False)
+        response = requests.get(url, headers=headers)
         if response.status_code != 200:
             raise Exception('Unexpected status code from root server')
         return response.content
 
     def get_root_server_instance(self, root_server_json_object):
-        root = RootServer.objects.get_or_create(url=root_server_json_object['rootURL'])[0]
+        root = RootServer.objects.get_or_create(source_id=int(root_server_json_object['id']))[0]
         root.name = root_server_json_object['name']
         root.server_info = self.request(urljoin(root.url, 'client_interface/json/?switcher=GetServerInfo'))
         root.server_info = json.dumps(json.loads(root.server_info))
-        root.source_id = int(root_server_json_object['id'])
+        root.url = root_server_json_object['rootURL']
+        root.save()
         return root
 
     def update_root_server_stats(self, root):
