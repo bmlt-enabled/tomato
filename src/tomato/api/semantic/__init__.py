@@ -2,12 +2,121 @@ import datetime
 import decimal
 from collections import OrderedDict
 from django.db import models
+from ..models import ServiceBody
 
 
 def model_has_distance(model):
     if isinstance(model, dict):
         return 'distance' in model
     return hasattr(model, 'distance')
+
+
+def get_naws_dump_area_region_world_id(model):
+    sb = model.service_body
+    if sb.type in (ServiceBody.AREA, ServiceBody.REGION) and sb.world_id:
+        return sb.world_id
+    return ''
+
+
+def get_naws_dump_parent_name(model):
+    sb = model.service_body
+    while sb:
+        if sb.type in (ServiceBody.AREA, ServiceBody.REGION):
+            return sb.name
+        sb = sb.parent
+    return ''
+
+
+def get_naws_dump_open_or_closed(model):
+    if model.formats.filter(world_id='OPEN').exists():
+        return 'OPEN'
+    return 'CLOSED'
+
+
+def get_naws_dump_wheelchair(model):
+    if model.formats.filter(world_id='WCHR').exists():
+        return 'TRUE'
+    return 'FALSE'
+
+
+def get_naws_dump_day(model):
+    days = [None, 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    return days[model.weekday]
+
+
+def get_naws_dump_time(model):
+    return ''.join(str(model.start_time).split(':')[0:2])
+
+
+def get_naws_dump_language(model):
+    if model.formats.filter(world_id='LANG').exists():
+        return model.formats.filter(world_id='LANG').first().key_string
+    return ''
+
+
+def get_naws_dump_format(model, format_num):
+    formats = model.formats.exclude(world_id__in=['OPEN', 'CLOSED', 'WCHR'])
+    formats = formats.filter(world_id__isnull=False)
+    formats = formats.exclude(world_id='')
+    formats = formats.order_by('world_id')
+    if formats:
+        if len(formats) >= format_num:
+            return formats[format_num - 1].world_id
+    return ''
+
+
+def get_naws_dump_format1(model):
+    return get_naws_dump_format(model, 1)
+
+
+def get_naws_dump_format2(model):
+    return get_naws_dump_format(model, 2)
+
+
+def get_naws_dump_format3(model):
+    return get_naws_dump_format(model, 3)
+
+
+def get_naws_dump_format4(model):
+    return get_naws_dump_format(model, 4)
+
+
+def get_naws_dump_format5(model):
+    return get_naws_dump_format(model, 5)
+
+
+def get_naws_dump_city(model):
+    if model.meetinginfo.location_city_subsection is not None:
+        ret = model.meetinginfo.location_city_subsection.strip()
+        if ret:
+            return ret
+    if model.meetinginfo.location_municipality is not None:
+        ret = model.meetinginfo.location_municipality.strip()
+        if ret:
+            return ret
+    if model.meetinginfo.location_neighborhood is not None:
+        return model.meetinginfo.location_neighborhood.strip()
+    return ''
+
+
+def get_naws_dump_institutional(model):
+    return 'FALSE'
+
+
+def get_naws_dump_deleted(model):
+    if model.deleted:
+        return 'D'
+    return ''
+
+
+def get_naws_dump_last_changed(model):
+    return ''
+
+
+def get_naws_dump_unpublished(model):
+    if not model.published:
+        return '1'
+    return ''
 
 
 server_info_field_map = OrderedDict([
@@ -44,6 +153,57 @@ format_field_map = OrderedDict([
     ('root_server_id',     ('root_server_id',),),
     ('world_id',           ('world_id',),),
     ('root_server_uri',    ('root_server.url',),),
+])
+
+naws_dump_field_map = OrderedDict([
+    ('Committee', ('meetinginfo.world_id',),),
+    ('CommitteeName', ('name',),),
+    ('AddDate', ('',),),
+    ('AreaRegion', (get_naws_dump_area_region_world_id,),),
+    ('ParentName', (get_naws_dump_parent_name,),),
+    ('ComemID', ('',),),
+    ('ContactID', ('',),),
+    ('ContactName', ('',),),
+    ('CompanyName', ('',),),
+    ('ContactAddrID', ('',),),
+    ('ContactAddress1', ('',),),
+    ('ContactAddress2', ('',),),
+    ('ContactCity', ('',),),
+    ('ContactState', ('',),),
+    ('ContactZip', ('',),),
+    ('ContactCountry', ('',),),
+    ('ContactPhone', ('',),),
+    ('MeetingID', ('',),),
+    ('Room', ('',),),
+    ('Closed', (get_naws_dump_open_or_closed,),),
+    ('WheelChr', (get_naws_dump_wheelchair,),),
+    ('Day', (get_naws_dump_day,),),
+    ('Time', (get_naws_dump_time,),),
+    ('Language1', (get_naws_dump_language,),),
+    ('Language2', ('',),),
+    ('Language3', ('',),),
+    ('LocationId', ('',),),
+    ('Place', ('meetinginfo.location_text',),),
+    ('Address', ('meetinginfo.location_street',),),
+    ('City', (get_naws_dump_city,),),
+    ('LocBorough', ('meetinginfo.location_neighborhood',),),
+    ('State', ('meetinginfo.location_province',),),
+    ('Zip', ('meetinginfo.location_postal_code_1',),),
+    ('Country', ('meetinginfo.location_nation',),),
+    ('Directions', ('meetinginfo.location_info',),),
+    ('Institutional', (get_naws_dump_institutional,),),
+    ('Format1', (get_naws_dump_format1,),),
+    ('Format2', (get_naws_dump_format2,),),
+    ('Format3', (get_naws_dump_format3,),),
+    ('Format4', (get_naws_dump_format4,),),
+    ('Format5', (get_naws_dump_format5,),),
+    ('Delete', (get_naws_dump_deleted,),),
+    ('LastChanged', (get_naws_dump_last_changed,),),
+    ('Longitude', ('longitude',),),
+    ('Latitude', ('latitude',),),
+    ('ContactGP', ('',),),
+    ('bmlt_id', ('id',),),
+    ('unpublished', (get_naws_dump_unpublished,),),
 ])
 
 meeting_field_map = OrderedDict([
@@ -162,21 +322,23 @@ def model_get_attr(model, attr):
 def model_get_value(model, attr):
     if not attr:
         return ''
+    elif callable(attr):
+        value = attr(model)
     else:
         value = model_get_attr(model, attr)
-        if isinstance(value, bool):
-            value = '1' if value else '0'
-        elif isinstance(value, list):
-            value = ','.join([str(v) for v in value])
-        elif isinstance(value, datetime.timedelta):
-            if value.seconds < 36000:
-                value = '0' + str(value)
-            else:
-                value = str(value)
-        elif isinstance(value, decimal.Decimal):
-            value = str(value).rstrip('0')
-        elif value is None:
-            value = ''
+    if isinstance(value, bool):
+        value = '1' if value else '0'
+    elif isinstance(value, list):
+        value = ','.join([str(v) for v in value])
+    elif isinstance(value, datetime.timedelta):
+        if value.seconds < 36000:
+            value = '0' + str(value)
         else:
             value = str(value)
+    elif isinstance(value, decimal.Decimal):
+        value = str(value).rstrip('0')
+    elif value is None:
+        value = ''
+    else:
+        value = str(value)
     return value

@@ -32,7 +32,7 @@ def models_to_csv(models, field_map, fieldnames=None):
     if not fieldnames:
         fieldnames = []
         for k, v in field_map.items():
-            if len(v) > 1:
+            if not callable(v) and len(v) > 1:
                 try:
                     model = next(models.iterator())
                 except StopIteration:

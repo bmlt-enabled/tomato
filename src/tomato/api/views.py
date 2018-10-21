@@ -11,7 +11,7 @@ from django.contrib.gis.measure import D
 from django.contrib.postgres.aggregates.general import ArrayAgg
 from django.contrib.postgres.search import SearchQuery, SearchVector
 from django.db import models
-from django.db.models import F, Window
+from django.db.models import F, Q, Window
 from django.db.models.functions import Concat
 from django.db.models.expressions import Case, When, Value
 from django.http import response
@@ -19,7 +19,8 @@ from django.template.loader import render_to_string
 from .kml import apply_kml_annotations
 from .models import Format, Meeting, ServiceBody
 from .semantic import (field_keys, field_keys_with_descriptions, format_field_map, meeting_field_map,
-                       meeting_poi_field_map, meeting_kml_field_map, server_info_field_map, service_bodies_field_map)
+                       meeting_poi_field_map, meeting_kml_field_map, server_info_field_map, service_bodies_field_map,
+                       naws_dump_field_map)
 from .semantic.csv import models_to_csv
 from .semantic.json import models_to_json
 from .semantic.xml import models_to_xml
@@ -394,7 +395,8 @@ valid_switcher_params = (
     'GetServiceBodies',
     'GetFieldKeys',
     'GetFieldValues',
-    'GetServerInfo'
+    'GetServerInfo',
+    'GetNAWSDump'
 )
 
 
@@ -407,6 +409,8 @@ def semantic_query(request, format='json'):
     if switcher not in valid_switcher_params:
         return response.HttpResponseBadRequest()
     if format in ('kml', 'poi') and switcher != 'GetSearchResults':
+        return response.HttpResponseBadRequest()
+    if format != 'csv' and switcher == 'GetNAWSDump':
         return response.HttpResponseBadRequest()
     if format == 'jsonp' and 'callback' not in request.GET:
         return response.HttpResponseBadRequest()
@@ -474,7 +478,22 @@ def semantic_query(request, format='json'):
             ret = models_to_csv(meetings, meeting_field_map, data_field_keys)
     else:
         xml_schema_name = None
-        if switcher == 'GetFormats':
+        if switcher == 'GetNAWSDump':
+            sb_id = params.get('sb_id', None)
+            if not sb_id:
+                return response.HttpResponseBadRequest()
+            sb_ids = [sb for sb in get_child_service_bodies([sb_id])]
+            qs = Meeting.objects.filter(deleted=False, published=True)
+            qs = qs.filter(service_body_id__in=sb_ids, service_body__world_id__isnull=False)
+            qs = qs.exclude(service_body__world_id='')
+            qs = qs.prefetch_related('meetinginfo', 'service_body', 'formats', 'root_server')
+            qs_union = Meeting.objects.filter(Q(deleted=True) | Q(published=False))
+            qs_union = qs_union.filter(service_body_id__in=sb_ids, service_body__world_id__isnull=False)
+            qs_union = qs_union.exclude(service_body__world_id='')
+            qs_union = qs_union.prefetch_related('meetinginfo', 'service_body', 'formats', 'root_server')
+            models = qs.union(qs_union, all=True)
+            field_map = naws_dump_field_map
+        elif switcher == 'GetFormats':
             models = get_formats(params)
             field_map = format_field_map
             xml_node_name = 'formats'
