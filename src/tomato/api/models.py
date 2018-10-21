@@ -304,6 +304,10 @@ class Meeting(models.Model):
     longitude = models.DecimalField(max_digits=15, decimal_places=12)
     point = models.PointField(null=True, geography=True)
     published = models.BooleanField(default=False)
+    deleted = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [models.Index(fields=['deleted', 'published'])]
 
     @staticmethod
     def import_from_bmlt_objects(root_server, bmlt_meetings):
@@ -335,7 +339,7 @@ class Meeting(models.Model):
                 dirty = False
                 field_names = ('service_body', 'name', 'weekday', 'start_time',
                                'duration', 'language', 'latitude', 'longitude',
-                               'published')
+                               'published', 'deleted')
                 changed_fields = []
                 for field_name in field_names:
                     if set_if_changed(meeting, field_name, bmlt_meeting[field_name]):
@@ -402,6 +406,7 @@ class Meeting(models.Model):
                 'latitude': get_decimal(bmlt_meeting, 'latitude'),
                 'longitude': get_decimal(bmlt_meeting, 'longitude'),
                 'published': bmlt_meeting.get('published', '0') == '1',
+                'deleted': bmlt_meeting.get('deleted', False),
                 'formats': formats,
                 'meetinginfo': {
                     'email': bmlt_meeting.get('email_contact', None),

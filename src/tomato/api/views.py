@@ -176,7 +176,7 @@ def get_search_results(params):
 
     sort_keys = extract_specific_keys_param(params, 'sort_keys')
 
-    meeting_qs = Meeting.objects.all()
+    meeting_qs = Meeting.objects.filter(deleted=False, published=True)
     meeting_qs = meeting_qs.prefetch_related('meetinginfo', 'service_body', 'formats', 'root_server')
 
     if weekdays_include:
@@ -336,9 +336,9 @@ def get_search_results(params):
 def get_field_values(params):
     root_server_id = params.get('root_server_id')
     meeting_key = params.get('meeting_key')
-    meeting_qs = Meeting.objects.all()
+    meeting_qs = Meeting.objects.filter(deleted=False, published=True)
     if root_server_id:
-        meeting_qs = Meeting.objects.filter(root_server_id=root_server_id)
+        meeting_qs = meeting_qs.filter(root_server_id=root_server_id)
     if meeting_key in field_keys:
         model_field = meeting_field_map.get(meeting_key)[0]
         if isinstance(model_field, tuple):

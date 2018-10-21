@@ -10,23 +10,23 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 
 class RootServerViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.RootServer.objects.all()
+    queryset = models.RootServer.objects.all().order_by('pk')
     serializer_class = serializers.RootServerSerializer
 
 
 class ServiceBodyViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.ServiceBody.objects.all()
+    queryset = models.ServiceBody.objects.all().order_by('pk')
     serializer_class = serializers.ServiceBodySerializer
     pagination_class = StandardResultsSetPagination
 
 
 class FormatViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Format.objects.all()
+    queryset = models.Format.objects.all().order_by('pk')
     serializer_class = serializers.FormatSerializer
     pagination_class = StandardResultsSetPagination
 
 
 class MeetingViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Meeting.objects.all().order_by('pk')
+    queryset = models.Meeting.objects.filter(deleted=False, published=True).order_by('pk')
     serializer_class = serializers.MeetingSerializer
     pagination_class = StandardResultsSetPagination
