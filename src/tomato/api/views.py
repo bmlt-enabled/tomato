@@ -546,6 +546,8 @@ def semantic_query(request, format='json'):
         r['Content-Disposition'] = 'attachment; filename="SearchResultsPOI.csv"'
     elif format == 'kml':
         r['Content-Disposition'] = 'attachment; filename="SearchResults.kml"'
+    elif format == 'csv' and switcher == 'GetNAWSDump':
+        r['Content-Disposition'] = 'attachment; filename="BMLT.csv"'
 
     return r
 
