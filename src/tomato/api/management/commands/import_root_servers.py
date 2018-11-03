@@ -140,9 +140,9 @@ class Command(BaseCommand):
     def get_root_server_instance(self, root_server_json_object):
         root = RootServer.objects.get_or_create(source_id=int(root_server_json_object['id']))[0]
         root.name = root_server_json_object['name']
+        root.url = root_server_json_object['rootURL']
         root.server_info = self.request(urljoin(root.url, 'client_interface/json/?switcher=GetServerInfo'))
         root.server_info = json.dumps(json.loads(root.server_info))
-        root.url = root_server_json_object['rootURL']
         root.save()
         return root
 
