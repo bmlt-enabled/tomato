@@ -42,8 +42,8 @@ resource "aws_cloudwatch_log_metric_filter" "root_server_sync" {
 ### Running the root server import
 resource "aws_cloudwatch_event_rule" "root_server_import" {
   name                = "tomato-root-server-import"
-  description         = "Kicks off root server import every 4 hours"
-  schedule_expression = "rate(4 hours)"
+  description         = "Kicks off root server import every 2 hours"
+  schedule_expression = "rate(2 hours)"
 }
 
 data "aws_iam_policy_document" "ecs_events" {
