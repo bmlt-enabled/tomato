@@ -90,7 +90,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logger.info('retrieving root servers')
-        url = 'https://raw.githubusercontent.com/LittleGreenViper/BMLTTally/master/rootServerList.json'
+        url = 'https://raw.githubusercontent.com/bmlt-enabled/BMLTTally/master/rootServerList.json'
         try:
             root_servers = json.loads(self.request(url))
             for root_server in root_servers:
