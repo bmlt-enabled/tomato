@@ -5,3 +5,4 @@
 *.tfstate
 *.tfvars
 *.tfstate.backup
+venv
