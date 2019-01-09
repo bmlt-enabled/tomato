@@ -10,11 +10,12 @@ RUN apk add --no-cache \
 
 RUN apk add --no-cache \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
-    libressl2.7-libcrypto
+    libressl2.7-libcrypto \
+    openssl
 
 RUN apk add --no-cache \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-    gdal \
+    gdal-dev \
     geos-dev \
     proj4-dev \
     libspatialite
