@@ -7,7 +7,6 @@ from rest_framework import routers
 import re
 from .api import views, viewsets
 
-
 router = routers.DefaultRouter()
 router.register(r'rootservers', viewsets.RootServerViewSet)
 router.register(r'servicebodies', viewsets.ServiceBodyViewSet)
@@ -17,6 +16,7 @@ router.register(r'meetings', viewsets.MeetingViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'ping/$', views.ping, name='ping'),
+    url(r'tally/$', views.tally, name='tally'),
     # semantic api
     url(r'main_server/$', views.server_root, name='main_server'),
     url(r'main_server[/]+client_interface/xml/GetServiceBodies.php$', views.get_service_bodies_php, name='get-service-bodies-php'),

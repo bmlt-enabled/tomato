@@ -16,6 +16,7 @@ from django.db.models.functions import Concat
 from django.db.models.expressions import Case, When, Value
 from django.http import response
 from django.template.loader import render_to_string
+from django.shortcuts import render
 from .kml import apply_kml_annotations
 from .models import Format, Meeting, ServiceBody
 from .semantic import (field_keys, field_keys_with_descriptions, format_field_map, meeting_field_map,
@@ -612,3 +613,6 @@ def ping(request):
 
 def server_root(request):
     return response.HttpResponse("tomato", content_type='text/plain')
+
+def tally(request):
+    return render(request, 'tally.html')
