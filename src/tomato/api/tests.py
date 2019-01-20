@@ -782,3 +782,20 @@ class GetServiceBodiesTests(TestCase):
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         for body in response:
             self.assertEqual(body['root_server_id'], '1')
+
+    def test_get_search_results_one_meeting(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetSearchResults&meeting_ids[]=1'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
+        self.assertEqual(len(response), 1)
+        meeting = response[0]
+        for key in meeting.keys():
+            self.assertIn(key, meeting_field_map.keys())
+        for key in meeting_field_map.keys():
+            value = meeting_field_map[key]
+            if len(value) > 1 and callable(value[1]):
+                continue
+            self.assertIn(key, meeting.keys())

@@ -124,6 +124,9 @@ def get_search_results(params):
     page_num = params.get('page_num')
     page_num = abs(int(page_num)) if page_num is not None else page_num
 
+    meeting_ids = params.getlist('meeting_ids[]', [])
+    meeting_ids = [int(m) for m in meeting_ids]
+
     weekdays = params.get('weekdays')
     weekdays = params.getlist('weekdays[]', []) if weekdays is None else [weekdays]
     weekdays = [int(w) for w in weekdays]
@@ -183,6 +186,8 @@ def get_search_results(params):
     meeting_qs = Meeting.objects.filter(deleted=False, published=True)
     meeting_qs = meeting_qs.prefetch_related('meetinginfo', 'service_body', 'formats', 'root_server')
 
+    if meeting_ids:
+        meeting_qs = meeting_qs.filter(pk__in=meeting_ids)
     if weekdays_include:
         meeting_qs = meeting_qs.filter(weekday__in=weekdays_include)
     if weekdays_exclude:
