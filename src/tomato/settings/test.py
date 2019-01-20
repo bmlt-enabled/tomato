@@ -1,20 +1,25 @@
+from sys import platform
 from . import *
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.spatialite',
-        'NAME': 'testdb.sqlite3',
-    }
+        'TEST': {'NAME': 'testdb.sqlite3'},
+    },
 }
 
 
 def in_docker():
-    with open('/proc/self/cgroup', 'r') as procfile:
-        for line in procfile:
-            fields = line.strip().split('/')
-            if fields[1] == 'docker':
-                return True
+    if os.path.exists('/proc/self/cgroup'):
+        with open('/proc/self/cgroup', 'r') as procfile:
+            for line in procfile:
+                fields = line.strip().split('/')
+                if fields[1] == 'docker':
+                    return True
+    return False
 
 
 if in_docker():
     SPATIALITE_LIBRARY_PATH = '/usr/lib/mod_spatialite.so.7'
+elif platform == "darwin":
+    SPATIALITE_LIBRARY_PATH = '/usr/local/lib/mod_spatialite.dylib'
