@@ -467,6 +467,8 @@ class GetSearchResultsTests(TestCase):
 
     # ends before
     def test_get_search_results_ends_before_hour(self):
+        if is_spatialite:
+            return
         url = reverse('semantic-query', kwargs={'format': 'json'})
         url += '?switcher=GetSearchResults&EndsBeforeH=12'
         response = self.client.get(url)
@@ -681,8 +683,6 @@ class GetSearchResultsTests(TestCase):
                             sort_value = parse_timedelta_params(pcs[0], pcs[1])
                         except ValueError:
                             self.fail('Invalid time')
-                    elif not is_spatialite:
-                        sort_value = sort_value.lower()
                 if prev_sort_value:
                     self.assertTrue(sort_value >= prev_sort_value)
                 prev_sort_value = sort_value
@@ -712,8 +712,6 @@ class GetSearchResultsTests(TestCase):
                             sort_value = parse_timedelta_params(pcs[0], pcs[1])
                         except ValueError:
                             self.fail('Invalid time')
-                    elif not is_spatialite:
-                        sort_value = sort_value.lower()
                 if prev_sort_value:
                     self.assertTrue(sort_value >= prev_sort_value)
                 prev_sort_value = sort_value

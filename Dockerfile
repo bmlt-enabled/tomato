@@ -13,6 +13,7 @@ RUN apk add --no-cache \
     libressl2.7-libcrypto
 
 RUN apk add --no-cache \
+    --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
     --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
     gdal \
     geos-dev \
