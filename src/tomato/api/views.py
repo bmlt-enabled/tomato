@@ -176,6 +176,9 @@ def get_search_results(params):
     search_string_exact = params.get('SearchStringExact', None) == '1'
 
     sort_keys = extract_specific_keys_param(params, 'sort_keys')
+    if not sort_keys:
+        # default sort order
+        sort_keys = ['lang_enum', 'weekday_tinyint', 'start_time', 'id_bigint']
 
     meeting_qs = Meeting.objects.filter(deleted=False, published=True)
     meeting_qs = meeting_qs.prefetch_related('meetinginfo', 'service_body', 'formats', 'root_server')
