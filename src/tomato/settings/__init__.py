@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.gis',
     'corsheaders',
     'rest_framework',
+    'django_filters',
     'tomato.api',
 ]
 
@@ -189,4 +190,8 @@ IGNORE_SERVICE_BODIES = {
     'https://naflorida.org/bmlt_server/': [9, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 37, 39, 41],
     'http://naflorida.org/bmlt_server/': [9, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 37, 39, 41],
     'https://www.narcoticsanonymousnj.org/main_server/': [31, 32],  # Duplicated Eastern New York Region
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
 }

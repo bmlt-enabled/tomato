@@ -30,3 +30,5 @@ class MeetingViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Meeting.objects.filter(deleted=False, published=True).order_by('pk')
     serializer_class = serializers.MeetingSerializer
     pagination_class = StandardResultsSetPagination
+    filter_fields = ('id', 'root_server', 'source_id', 'weekday', 'start_time', 'duration', 'formats',
+                     'language', 'latitude', 'longitude', 'published', 'deleted',)
