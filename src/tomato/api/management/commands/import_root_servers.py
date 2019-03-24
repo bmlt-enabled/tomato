@@ -5,6 +5,7 @@ import io
 import requests
 import requests.exceptions
 from django.conf import settings
+from django.core.exceptions import MultipleObjectsReturned
 from django.core.management.base import BaseCommand
 from django.db import connections, transaction, DatabaseError
 from django.utils import timezone
@@ -58,31 +59,34 @@ def naws_meeting_to_bmlt_meeting(root, meeting):
         formats = [f for f in qs.values_list('key_string', flat=True).distinct()]
         return ','.join(formats)
 
-    return {
-        'id_bigint': get_int(meeting, 'bmlt_id'),
-        'service_body_bigint': ServiceBody.objects.get(root_server=root,
-                                                       world_id=get_required_str(meeting, 'AreaRegion')).source_id,
-        'meeting_name': get_required_str(meeting, 'CommitteeName'),
-        'weekday_tinyint': get_weekday(meeting),
-        'start_time': get_time(meeting),
-        'duration_time': '1:00',
-        'lang_enum': 'en',
-        'latitude': get_decimal(meeting, 'Latitude'),
-        'longitude': get_decimal(meeting, 'Longitude'),
-        'published': '1' if meeting.get('unpublished', '0') == '0' else '0',
-        'formats': get_formats(meeting),
-        'email_contact': None,
-        'location_text': meeting.get('Place', None),
-        'location_info': meeting.get('Directions', None),
-        'location_street': meeting.get('Address', None),
-        'location_neighborhood': meeting.get('LocBorough', None),
-        'location_province': meeting.get('State', None),
-        'location_postal_code_1': meeting.get('Zip', None),
-        'location_nation': meeting.get('Country', None),
-        'location_city_subsection': meeting.get('City', None),
-        'worldid_mixed': meeting.get('Committee', None),
-        'deleted': meeting.get('Delete', '').strip() == 'D'
-    }
+    try:
+        return {
+            'id_bigint': get_int(meeting, 'bmlt_id'),
+            'service_body_bigint': ServiceBody.objects.get(root_server=root,
+                                                           world_id=get_required_str(meeting, 'AreaRegion')).source_id,
+            'meeting_name': get_required_str(meeting, 'CommitteeName'),
+            'weekday_tinyint': get_weekday(meeting),
+            'start_time': get_time(meeting),
+            'duration_time': '1:00',
+            'lang_enum': 'en',
+            'latitude': get_decimal(meeting, 'Latitude'),
+            'longitude': get_decimal(meeting, 'Longitude'),
+            'published': '1' if meeting.get('unpublished', '0') == '0' else '0',
+            'formats': get_formats(meeting),
+            'email_contact': None,
+            'location_text': meeting.get('Place', None),
+            'location_info': meeting.get('Directions', None),
+            'location_street': meeting.get('Address', None),
+            'location_neighborhood': meeting.get('LocBorough', None),
+            'location_province': meeting.get('State', None),
+            'location_postal_code_1': meeting.get('Zip', None),
+            'location_nation': meeting.get('Country', None),
+            'location_city_subsection': meeting.get('City', None),
+            'worldid_mixed': meeting.get('Committee', None),
+            'deleted': meeting.get('Delete', '').strip() == 'D'
+        }
+    except MultipleObjectsReturned:
+        raise ImportException('Multiple service bodies with the world id exist', meeting)
 
 
 class Command(BaseCommand):
