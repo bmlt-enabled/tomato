@@ -101,6 +101,7 @@ class Command(BaseCommand):
                 root_server['rootURL'] = root_server['rootURL'].strip()
                 if not root_server['rootURL'].endswith('/'):
                     root_server['rootURL'] += '/'
+            root_servers = [root_server for root_server in root_servers if root_server['rootURL'] not in settings.IGNORE_ROOT_SERVERS]
         except Exception as e:
             logger.error('Error retrieving root server list: {}'.format(str(e)))
         else:
