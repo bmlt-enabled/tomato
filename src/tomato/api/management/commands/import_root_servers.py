@@ -93,7 +93,7 @@ class Command(BaseCommand):
     help = 'Updates the meetings database from root servers'
 
     def handle(self, *args, **options):
-        url = 'https://raw.githubusercontent.com/bmlt-enabled/BMLTTally/master/rootServerList.json'
+        url = 'https://raw.githubusercontent.com/bmlt-enabled/tomato/master/rootServerList.json'
         logger.info('retrieving root servers from {}'.format(url))
         try:
             root_servers = json.loads(self.request(url))
