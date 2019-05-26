@@ -3,6 +3,7 @@ import json
 import itertools
 import logging
 import requests
+import sys
 import textwrap
 from django.conf import settings
 from django.contrib.gis.db.models.functions import Distance
@@ -20,7 +21,7 @@ from .kml import apply_kml_annotations
 from .models import TranslatedFormat, Meeting, ServiceBody
 from .semantic import (field_keys, field_keys_with_descriptions, format_field_map, meeting_field_map,
                        meeting_poi_field_map, meeting_kml_field_map, server_info_field_map, service_bodies_field_map,
-                       naws_dump_field_map)
+                       naws_dump_field_map, distance_field_keys)
 from .semantic.csv import models_to_csv
 from .semantic.json import models_to_json
 from .semantic.xml import models_to_xml
@@ -52,6 +53,8 @@ keys_not_searchable = [
     'longitude',
     'latitude',
     'format_shared_id_list',
+    'distance_in_km',
+    'distance_in_mi',
 ]
 
 valid_meeting_search_keys = [f for f in field_keys if f not in keys_not_searchable]
@@ -84,10 +87,10 @@ def parse_timedelta_params(hour, minute):
     return None
 
 
-def extract_specific_keys_param(GET, key='data_field_key'):
+def extract_specific_keys_param(GET, key='data_field_key', exclude=list()):
     data_field_keys = GET.get(key)
     if data_field_keys:
-        data_field_keys = [k for k in data_field_keys.split(',') if k in field_keys]
+        data_field_keys = [k for k in data_field_keys.split(',') if k in field_keys and k not in exclude]
     return data_field_keys
 
 
@@ -179,7 +182,7 @@ def get_search_results(params):
     search_string_all = params.get('SearchStringAll', None) == '1'
     search_string_exact = params.get('SearchStringExact', None) == '1'
 
-    sort_keys = extract_specific_keys_param(params, 'sort_keys')
+    sort_keys = extract_specific_keys_param(params, 'sort_keys', distance_field_keys)
     if not sort_keys:
         # default sort order
         sort_keys = ['lang_enum', 'weekday_tinyint', 'start_time', 'id_bigint']
@@ -239,7 +242,7 @@ def get_search_results(params):
         meeting_qs = meeting_qs.filter(duration__lte=max_duration)
     if data_field_keys:
         values = []
-        for key in data_field_keys:
+        for key in [k for k in data_field_keys if k not in distance_field_keys]:
             model_field = meeting_field_map.get(key)[0]
             if isinstance(model_field, tuple):
                 field_name = model_field[0].replace('.', '__')
@@ -294,7 +297,7 @@ def get_search_results(params):
                         q = q | models.Q(id=meeting_id)
                 if q:
                     meeting_qs = meeting_qs.filter(q)
-    if (long_val and lat_val and (geo_width or geo_width_km)) or (search_string and search_string_is_address):
+    if (long_val and lat_val and (geo_width or geo_width_km or set(data_field_keys).intersection(distance_field_keys))) or (search_string and search_string_is_address):
         # Get latitude and longitude values, either directly from the request
         # or from the an address
         try:
@@ -317,6 +320,8 @@ def get_search_results(params):
                     geo_width_km = float(geo_width_km)
                     if geo_width_km < 0:
                         get_nearest = abs(int(geo_width_km))
+                else:
+                    get_nearest = sys.maxsize
             point = Point(x=longitude, y=latitude, srid=4326)
         except Exception as e:
             if isinstance(e, ValueError) or isinstance(e, GeocodeAPIException):

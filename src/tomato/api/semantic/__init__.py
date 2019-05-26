@@ -296,7 +296,8 @@ field_keys_with_descriptions = OrderedDict([
     ('format_shared_id_list', 'Format Shared ID List'),
 ])
 
-field_keys = list(field_keys_with_descriptions.keys())
+distance_field_keys = ['distance_in_mi', 'distance_in_km']
+field_keys = list(field_keys_with_descriptions.keys()) + distance_field_keys
 
 
 def model_get_attr(model, attr, related_models_filter_function=None):
