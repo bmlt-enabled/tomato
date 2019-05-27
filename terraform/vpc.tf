@@ -4,8 +4,7 @@ resource "aws_vpc" "main" {
   enable_dns_support   = true
 
   tags {
-    application = "tomato"
-    environment = "production"
+    Name = "tomato"
   }
 }
 
@@ -16,8 +15,7 @@ resource "aws_subnet" "public_a" {
   availability_zone       = "us-east-1a"
 
   tags {
-    application = "tomato"
-    environment = "production"
+    Name = "tomato"
   }
 }
 
@@ -28,8 +26,7 @@ resource "aws_subnet" "public_b" {
   availability_zone       = "us-east-1b"
 
   tags {
-    application = "tomato"
-    environment = "production"
+    Name = "tomato"
   }
 }
 
@@ -37,8 +34,7 @@ resource "aws_internet_gateway" "main" {
   vpc_id = "${aws_vpc.main.id}"
 
   tags {
-    application = "tomato"
-    environment = "production"
+    Name = "tomato"
   }
 }
 
@@ -46,8 +42,7 @@ resource "aws_route_table" "public" {
   vpc_id = "${aws_vpc.main.id}"
 
   tags {
-    application = "tomato"
-    environment = "production"
+    Name = "tomato"
   }
 }
 
