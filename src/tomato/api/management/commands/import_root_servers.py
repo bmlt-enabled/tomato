@@ -177,21 +177,21 @@ class Command(BaseCommand):
         ignore_bodies = settings.IGNORE_SERVICE_BODIES.get(root.url)
         if ignore_bodies:
             meetings = [m for m in meetings if int(m['service_body_bigint']) not in ignore_bodies]
-        meeting_ids = set([m['id_bigint'] for m in meetings])
-        for sb in get_top_service_bodies_with_world_ids(root):
-            logger.info('...pulling naws dump for {}'.format(str(sb)))
-            url = urljoin(root.url, 'client_interface/csv/?switcher=GetNAWSDump&sb_id={}'.format(sb.source_id))
-            with io.StringIO(self.request(url).decode()) as s:
-                for row in csv.DictReader(s):
-                    published = row.get('unpublished', '0').strip() != '1'
-                    deleted = row.get('Delete', '').strip() == 'D'
-                    sb_qs = ServiceBody.objects.filter(root_server=root, world_id=row['AreaRegion'])
-                    if row['bmlt_id'] not in meeting_ids and (not published or deleted) and sb_qs.exists():
-                        try:
-                            meetings.append(naws_meeting_to_bmlt_meeting(root, row))
-                            meeting_ids.add(row['bmlt_id'])
-                        except ImportException as e:
-                            logger.warning('Error parsing naws dump meeting: {}'.format(str(e)))
-                            ImportProblem.objects.create(root_server=root, message=str(e), data=str(e.bmlt_object))
-                            continue
+        #meeting_ids = set([m['id_bigint'] for m in meetings])
+        #for sb in get_top_service_bodies_with_world_ids(root):
+        #    logger.info('...pulling naws dump for {}'.format(str(sb)))
+        #    url = urljoin(root.url, 'client_interface/csv/?switcher=GetNAWSDump&sb_id={}'.format(sb.source_id))
+        #    with io.StringIO(self.request(url).decode()) as s:
+        #        for row in csv.DictReader(s):
+        #            published = row.get('unpublished', '0').strip() != '1'
+        #            deleted = row.get('Delete', '').strip() == 'D'
+        #            sb_qs = ServiceBody.objects.filter(root_server=root, world_id=row['AreaRegion'])
+        #            if row['bmlt_id'] not in meeting_ids and (not published or deleted) and sb_qs.exists():
+        #                try:
+        #                    meetings.append(naws_meeting_to_bmlt_meeting(root, row))
+        #                    meeting_ids.add(row['bmlt_id'])
+        #                except ImportException as e:
+        #                    logger.warning('Error parsing naws dump meeting: {}'.format(str(e)))
+        #                    ImportProblem.objects.create(root_server=root, message=str(e), data=str(e.bmlt_object))
+        #                    continue
         Meeting.import_from_bmlt_objects(root, meetings)
