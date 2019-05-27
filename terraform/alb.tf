@@ -4,11 +4,11 @@ resource "aws_athena_database" "tomato_webapp_alb_logs" {
 }
 
 resource "aws_s3_bucket" "tomato_webapp_alb_logs_athena" {
-  bucket = "tomato-webapp-alb-logs-athena"
+  bucket_prefix = "tomato-webapp-alb-logs-athena-"
 }
 
 resource "aws_s3_bucket" "tomato_webapp_alb_logs" {
-  bucket = "tomato-webapp-alb-logs"
+  bucket_prefix = "tomato-webapp-alb-logs-"
 }
 
 resource "aws_s3_bucket_policy" "tomato_webapp_alb_logs" {
@@ -63,8 +63,7 @@ resource "aws_alb" "tomato" {
   }
 
   tags {
-    application = "tomato"
-    environment = "production"
+    Name = "tomato"
   }
 }
 
@@ -86,7 +85,7 @@ resource "aws_alb_listener" "tomato_https" {
   load_balancer_arn = "${aws_alb.tomato.id}"
   port              = 443
   protocol          = "HTTPS"
-  certificate_arn   = "${var.certificate_arn}"
+  certificate_arn   = "${aws_acm_certificate.tomato_bmltenabled.arn}"
 
   default_action {
     target_group_arn = "${aws_alb_target_group.tomato.id}"
@@ -96,5 +95,5 @@ resource "aws_alb_listener" "tomato_https" {
 
 resource "aws_alb_listener_certificate" "tomato_bmlt_cert" {
   listener_arn    = "${aws_alb_listener.tomato_https.arn}"
-  certificate_arn = "${var.additional_certificate_arn}"
+  certificate_arn = "${data.aws_acm_certificate.tomato_na_bmlt.arn}"
 }

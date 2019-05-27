@@ -1,7 +1,3 @@
-data "aws_ecr_repository" "tomato" {
-  name = "tomato"
-}
-
 # IAM Role for ECS Service interaction with load balancer
 resource "aws_iam_role" "tomato_lb" {
   name = "tomato-lb"
@@ -46,57 +42,6 @@ resource "aws_iam_role_policy" "tomato_lb" {
   ]
 }
 EOF
-}
-
-# RDS
-resource "aws_security_group" "tomato_rds" {
-  name   = "tomato-rds"
-  vpc_id = "${aws_vpc.main.id}"
-
-  ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["${aws_subnet.public_a.cidr_block}", "${aws_subnet.public_b.cidr_block}"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-resource "aws_db_subnet_group" "tomato" {
-  name       = "tomato"
-  subnet_ids = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
-}
-
-resource "aws_db_instance" "tomato" {
-  identifier        = "tomato"
-  allocated_storage = 100
-  engine            = "postgres"
-  engine_version    = "9.5.10"
-  instance_class    = "db.t2.small"
-  storage_type      = "gp2"
-
-  name     = "tomato"
-  username = "tomato"
-  password = "${var.rds_password}"
-  port     = 5432
-
-  apply_immediately      = true
-  publicly_accessible    = true
-  vpc_security_group_ids = ["${aws_security_group.tomato_rds.id}"]
-  db_subnet_group_name   = "${aws_db_subnet_group.tomato.name}"
-
-  skip_final_snapshot = true
-
-  tags {
-    application = "tomato"
-    environment = "production"
-  }
 }
 
 resource "aws_ecs_task_definition" "webapp" {
@@ -157,7 +102,7 @@ resource "aws_ecs_task_definition" "webapp" {
     "links": [],
     "workingDirectory": "/code",
     "readonlyRootFilesystem": null,
-    "image": "${data.aws_ecr_repository.tomato.repository_url}:latest",
+    "image": "${aws_ecr_repository.tomato.repository_url}:latest",
     "command": [
       "sh",
       "-c",
@@ -228,7 +173,7 @@ resource "aws_ecs_task_definition" "tomato_root_server_import" {
     "links": [],
     "workingDirectory": "/code",
     "readonlyRootFilesystem": null,
-    "image": "${data.aws_ecr_repository.tomato.repository_url}:latest",
+    "image": "${aws_ecr_repository.tomato.repository_url}:latest",
     "command": [
       "sh",
       "-c",

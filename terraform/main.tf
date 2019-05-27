@@ -1,13 +1,13 @@
 terraform {
   backend "s3" {
-    bucket  = "tomato-tfstate"
+    bucket  = "tomato-terraform-state"
     key     = "state"
     region  = "us-east-1"
-    profile = "personal"
+    profile = "bmlt"
   }
 }
 
 provider "aws" {
   region  = "us-east-1"
-  profile = "personal"
+  profile = "bmlt"
 }
