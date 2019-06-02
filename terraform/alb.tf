@@ -38,6 +38,13 @@ resource "aws_security_group" "ecs_http_load_balancers" {
 
   ingress {
     protocol    = "tcp"
+    from_port   = 80
+    to_port     = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    protocol    = "tcp"
     from_port   = 443
     to_port     = 443
     cidr_blocks = ["0.0.0.0/0"]
@@ -78,6 +85,22 @@ resource "aws_alb_target_group" "tomato" {
   health_check {
     path    = "/ping/"
     matcher = "200"
+  }
+}
+
+resource "aws_lb_listener" "tomato_http" {
+  load_balancer_arn = "${aws_alb.tomato.arn}"
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
   }
 }
 
