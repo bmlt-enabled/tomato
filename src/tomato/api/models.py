@@ -223,6 +223,7 @@ class Format(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True)
     language = models.CharField(max_length=7, default='en')
+    type = models.CharField(max_length=7, null=True)
     world_id = models.CharField(max_length=255, null=True)
 
     @staticmethod
@@ -247,7 +248,7 @@ class Format(models.Model):
 
             format = Format.objects.get_or_create(root_server=root_server, source_id=bmlt_format['source_id'])[0]
             dirty = False
-            field_names = ('key_string', 'name', 'description', 'language', 'world_id')
+            field_names = ('key_string', 'name', 'description', 'language', 'type', 'world_id')
             changed_fields = []
             for field_name in field_names:
                 if set_if_changed(format, field_name, bmlt_format[field_name]):
@@ -265,6 +266,7 @@ class Format(models.Model):
             'name': get_required_str(bmlt, 'name_string'),
             'description': bmlt.get('description_string', None),
             'language': bmlt.get('lang'),
+            'type': bmlt.get('format_type_enum', None),
             'world_id': bmlt.get('world_id', None),
         }
 

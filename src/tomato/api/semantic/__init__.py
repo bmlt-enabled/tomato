@@ -153,6 +153,7 @@ format_field_map = OrderedDict([
     ('root_server_id',     ('root_server_id',),),
     ('world_id',           ('world_id',),),
     ('root_server_uri',    ('root_server.url',),),
+    ('format_type_enum',   ('type', lambda m: m.type is not None,),),
 ])
 
 naws_dump_field_map = OrderedDict([
