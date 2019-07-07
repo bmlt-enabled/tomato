@@ -1,6 +1,6 @@
 resource "aws_athena_database" "tomato_webapp_alb_logs" {
   name   = "tomato_webapp_alb_logs"
-  bucket = "${aws_s3_bucket.tomato_webapp_alb_logs_athena.bucket}"
+  bucket = aws_s3_bucket.tomato_webapp_alb_logs_athena.bucket
 }
 
 resource "aws_s3_bucket" "tomato_webapp_alb_logs_athena" {
@@ -12,7 +12,7 @@ resource "aws_s3_bucket" "tomato_webapp_alb_logs" {
 }
 
 resource "aws_s3_bucket_policy" "tomato_webapp_alb_logs" {
-  bucket = "${aws_s3_bucket.tomato_webapp_alb_logs.id}"
+  bucket = aws_s3_bucket.tomato_webapp_alb_logs.id
   policy = <<EOF
 {
   "Id": "Policy1521565569242",
@@ -30,93 +30,96 @@ resource "aws_s3_bucket_policy" "tomato_webapp_alb_logs" {
   ]
 }
 EOF
+
 }
 
 resource "aws_security_group" "ecs_http_load_balancers" {
-  vpc_id = "${aws_vpc.main.id}"
-  name   = "tomato-lb"
+  vpc_id = aws_vpc.main.id
+  name = "tomato-lb"
 
   ingress {
-    protocol    = "tcp"
-    from_port   = 80
-    to_port     = 80
+    protocol = "tcp"
+    from_port = 80
+    to_port = 80
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    protocol    = "tcp"
-    from_port   = 443
-    to_port     = 443
+    protocol = "tcp"
+    from_port = 443
+    to_port = 443
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     from_port = 0
-    to_port   = 0
-    protocol  = "-1"
+    to_port = 0
+    protocol = "-1"
 
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 resource "aws_alb" "tomato" {
-  name            = "tomato"
-  subnets         = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
-  security_groups = ["${aws_security_group.ecs_http_load_balancers.id}"]
+  name = "tomato"
+  subnets = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+  security_groups = [aws_security_group.ecs_http_load_balancers.id]
 
   access_logs {
-    bucket = "${aws_s3_bucket.tomato_webapp_alb_logs.bucket}"
+    bucket = aws_s3_bucket.tomato_webapp_alb_logs.bucket
     enabled = true
   }
 
-  tags {
+  tags = {
     Name = "tomato"
   }
 }
 
 resource "aws_alb_target_group" "tomato" {
-  name     = "tomato"
-  port     = 80
+  name = "tomato"
+  port = 80
   protocol = "HTTP"
-  vpc_id   = "${aws_vpc.main.id}"
+  vpc_id = aws_vpc.main.id
 
   deregistration_delay = 60
 
   health_check {
-    path    = "/ping/"
+    path = "/ping/"
     matcher = "200"
   }
 }
 
 resource "aws_lb_listener" "tomato_http" {
-  load_balancer_arn = "${aws_alb.tomato.arn}"
-  port              = "80"
-  protocol          = "HTTP"
+  load_balancer_arn = aws_alb.tomato.arn
+  port = "80"
+  protocol = "HTTP"
 
   default_action {
     type = "redirect"
 
     redirect {
-      port        = "443"
-      protocol    = "HTTPS"
+      port = "443"
+      protocol = "HTTPS"
       status_code = "HTTP_301"
     }
   }
 }
 
 resource "aws_alb_listener" "tomato_https" {
-  load_balancer_arn = "${aws_alb.tomato.id}"
-  port              = 443
-  protocol          = "HTTPS"
-  certificate_arn   = "${aws_acm_certificate.tomato_bmltenabled.arn}"
+  load_balancer_arn = aws_alb.tomato.id
+  port = 443
+  protocol = "HTTPS"
+  ssl_policy = "ELBSecurityPolicy-FS-2018-06"
+  certificate_arn = aws_acm_certificate.tomato_bmltenabled.arn
 
   default_action {
-    target_group_arn = "${aws_alb_target_group.tomato.id}"
-    type             = "forward"
+    target_group_arn = aws_alb_target_group.tomato.id
+    type = "forward"
   }
 }
 
 resource "aws_alb_listener_certificate" "tomato_bmlt_cert" {
-  listener_arn    = "${aws_alb_listener.tomato_https.arn}"
-  certificate_arn = "${data.aws_acm_certificate.tomato_na_bmlt.arn}"
+  listener_arn = aws_alb_listener.tomato_https.arn
+  certificate_arn = data.aws_acm_certificate.tomato_na_bmlt.arn
 }
+

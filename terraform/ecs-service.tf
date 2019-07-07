@@ -17,11 +17,12 @@ resource "aws_iam_role" "tomato_lb" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_role_policy" "tomato_lb" {
-  name = "${aws_iam_role.tomato_lb.name}"
-  role = "${aws_iam_role.tomato_lb.name}"
+  name = aws_iam_role.tomato_lb.name
+  role = aws_iam_role.tomato_lb.name
 
   policy = <<EOF
 {
@@ -42,12 +43,13 @@ resource "aws_iam_role_policy" "tomato_lb" {
   ]
 }
 EOF
+
 }
 
 resource "aws_ecs_task_definition" "webapp" {
-  family = "tomato-webapp"
+family = "tomato-webapp"
 
-  container_definitions = <<EOF
+container_definitions = <<EOF
 [
   {
     "volumesFrom": [],
@@ -127,12 +129,13 @@ resource "aws_ecs_task_definition" "webapp" {
   }
 ]
 EOF
+
 }
 
 resource "aws_ecs_task_definition" "tomato_root_server_import" {
-  family = "tomato-root-server-import"
+family = "tomato-root-server-import"
 
-  container_definitions = <<EOF
+container_definitions = <<EOF
 [
   {
     "volumesFrom": [],
@@ -198,25 +201,27 @@ resource "aws_ecs_task_definition" "tomato_root_server_import" {
   }
 ]
 EOF
+
 }
 
 resource "aws_ecs_service" "webapp" {
   name            = "webapp"
-  cluster         = "${aws_ecs_cluster.main.id}"
+  cluster         = aws_ecs_cluster.main.id
   desired_count   = 2
-  iam_role        = "${aws_iam_role.tomato_lb.name}"
-  task_definition = "${aws_ecs_task_definition.webapp.arn}"
+  iam_role        = aws_iam_role.tomato_lb.name
+  task_definition = aws_ecs_task_definition.webapp.arn
 
   deployment_minimum_healthy_percent = 50
 
   load_balancer {
-    target_group_arn = "${aws_alb_target_group.tomato.id}"
+    target_group_arn = aws_alb_target_group.tomato.id
     container_name   = "tomato"
     container_port   = 8000
   }
 
   depends_on = [
-    "aws_iam_role_policy.tomato_lb",
-    "aws_alb_listener.tomato_https",
+    aws_iam_role_policy.tomato_lb,
+    aws_alb_listener.tomato_https,
   ]
 }
+

@@ -37,29 +37,30 @@ data "aws_iam_policy_document" "ecs_events_run_task_with_any_role" {
   statement {
     effect    = "Allow"
     actions   = ["ecs:RunTask"]
-    resources = ["${aws_ecs_task_definition.tomato_root_server_import.arn}"]
+    resources = [aws_ecs_task_definition.tomato_root_server_import.arn]
   }
 }
 
 resource "aws_iam_role" "ecs_events" {
   name               = "ecs-events"
-  assume_role_policy = "${data.aws_iam_policy_document.ecs_events.json}"
+  assume_role_policy = data.aws_iam_policy_document.ecs_events.json
 }
 
 resource "aws_iam_role_policy" "ecs_events_run_task_with_any_role" {
   name   = "ecs-events-run-task-with-any-role"
-  role   = "${aws_iam_role.ecs_events.id}"
-  policy = "${data.aws_iam_policy_document.ecs_events_run_task_with_any_role.json}"
+  role   = aws_iam_role.ecs_events.id
+  policy = data.aws_iam_policy_document.ecs_events_run_task_with_any_role.json
 }
 
 resource "aws_cloudwatch_event_target" "root_server_import" {
   target_id = "tomato-root-server-import"
-  arn       = "${aws_ecs_cluster.main.arn}"
-  rule      = "${aws_cloudwatch_event_rule.root_server_import.name}"
-  role_arn  = "${aws_iam_role.ecs_events.arn}"
+  arn       = aws_ecs_cluster.main.arn
+  rule      = aws_cloudwatch_event_rule.root_server_import.name
+  role_arn  = aws_iam_role.ecs_events.arn
 
   ecs_target {
     task_count          = 1
-    task_definition_arn = "${aws_ecs_task_definition.tomato_root_server_import.arn}"
+    task_definition_arn = aws_ecs_task_definition.tomato_root_server_import.arn
   }
 }
+

@@ -3,7 +3,7 @@ resource "aws_ecs_cluster" "main" {
 }
 
 resource "aws_iam_role" "cluster_instance" {
-  name = "${aws_ecs_cluster.main.name}"
+  name = aws_ecs_cluster.main.name
 
   assume_role_policy = <<EOF
 {
@@ -20,21 +20,22 @@ resource "aws_iam_role" "cluster_instance" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_role_policy_attachment" "attach_ecs_policy" {
-  role       = "${aws_iam_role.cluster_instance.name}"
+  role = aws_iam_role.cluster_instance.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
 resource "aws_iam_role_policy_attachment" "attach_ecr_policy" {
-  role       = "${aws_iam_role.cluster_instance.name}"
+  role = aws_iam_role.cluster_instance.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
 resource "aws_iam_role_policy" "allow_logging_policy" {
-  name = "${aws_iam_role.cluster_instance.name}"
-  role = "${aws_iam_role.cluster_instance.name}"
+  name = aws_iam_role.cluster_instance.name
+  role = aws_iam_role.cluster_instance.name
 
   policy = <<EOF
 {
@@ -55,87 +56,89 @@ resource "aws_iam_role_policy" "allow_logging_policy" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_instance_profile" "cluster" {
-  name = "${aws_ecs_cluster.main.name}"
-  role = "${aws_iam_role.cluster_instance.name}"
+name = aws_ecs_cluster.main.name
+role = aws_iam_role.cluster_instance.name
 }
 
 resource "aws_autoscaling_group" "cluster" {
-  name                 = "${aws_ecs_cluster.main.name}"
-  vpc_zone_identifier  = ["${aws_subnet.public_a.id}", "${aws_subnet.public_b.id}"]
-  min_size             = 2
-  max_size             = 2
-  desired_capacity     = 2
-  launch_configuration = "${aws_launch_configuration.cluster.name}"
+name                 = aws_ecs_cluster.main.name
+vpc_zone_identifier  = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+min_size             = 2
+max_size             = 2
+desired_capacity     = 2
+launch_configuration = aws_launch_configuration.cluster.name
 
-  tags = [
-    {
-      key                 = "application"
-      value               = "tomato"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "environment"
-      value               = "production"
-      propagate_at_launch = true
-    },
-  ]
+tags = [
+{
+key                 = "application"
+value               = "tomato"
+propagate_at_launch = true
+},
+{
+key                 = "environment"
+value               = "production"
+propagate_at_launch = true
+},
+]
 }
 
 resource "aws_security_group" "cluster" {
-  description = "controls direct access to cluster container instances"
-  vpc_id      = "${aws_vpc.main.id}"
-  name        = "${aws_ecs_cluster.main.name}"
+description = "controls direct access to cluster container instances"
+vpc_id      = aws_vpc.main.id
+name        = aws_ecs_cluster.main.name
 
-  ingress {
-    protocol  = "tcp"
-    from_port = 32768
-    to_port   = 61000
+ingress {
+protocol  = "tcp"
+from_port = 32768
+to_port   = 61000
 
-    security_groups = [
-      "${aws_security_group.ecs_http_load_balancers.id}",
-    ]
-  }
+security_groups = [
+aws_security_group.ecs_http_load_balancers.id,
+]
+}
 
-  #ingress {
-  #  protocol    = "tcp"
-  #  from_port   = 22
-  #  to_port     = 22
-  #  cidr_blocks = ["0.0.0.0/0"]
-  #}
+#ingress {
+#  protocol    = "tcp"
+#  from_port   = 22
+#  to_port     = 22
+#  cidr_blocks = ["0.0.0.0/0"]
+#}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+egress {
+from_port   = 0
+to_port     = 0
+protocol    = "-1"
+cidr_blocks = ["0.0.0.0/0"]
+}
 }
 
 data "template_file" "user_data" {
-  template = "${file("${path.module}/templates/user_data.sh")}"
+template = file("${path.module}/templates/user_data.sh")
 
-  vars {
-    ecs_config        = "echo '' > /etc/ecs/ecs.config"
-    ecs_logging       = "[\"json-file\",\"awslogs\"]"
-    cluster_name      = "${aws_ecs_cluster.main.name}"
-    cloudwatch_prefix = "tomato"
-  }
+vars = {
+ecs_config        = "echo '' > /etc/ecs/ecs.config"
+ecs_logging       = "[\"json-file\",\"awslogs\"]"
+cluster_name      = aws_ecs_cluster.main.name
+cloudwatch_prefix = "tomato"
+}
 }
 
 resource "aws_launch_configuration" "cluster" {
-  security_groups             = ["${aws_security_group.cluster.id}"]
-  key_name                    = "${aws_key_pair.main.key_name}"
-  image_id                    = "ami-cb17d8b6"
-  instance_type               = "t2.micro"
-  iam_instance_profile        = "${aws_iam_instance_profile.cluster.name}"
-  associate_public_ip_address = false
+security_groups             = [aws_security_group.cluster.id]
+key_name                    = aws_key_pair.main.key_name
+image_id                    = "ami-cb17d8b6"
+instance_type               = "t2.micro"
+iam_instance_profile        = aws_iam_instance_profile.cluster.name
+associate_public_ip_address = false
 
-  user_data = "${data.template_file.user_data.rendered}"
+user_data = data.template_file.user_data.rendered
 
-  lifecycle {
-    create_before_destroy = true
-  }
+lifecycle {
+create_before_destroy = true
 }
+}
+

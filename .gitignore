@@ -6,3 +6,4 @@
 *.tfvars
 *.tfstate.backup
 venv
+plan.plan
