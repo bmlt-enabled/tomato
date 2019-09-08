@@ -8,8 +8,8 @@ resource "aws_acm_certificate" "tomato_bmltenabled" {
 }
 
 resource "aws_acm_certificate_validation" "tomato_bmltenabled" {
-  certificate_arn         = "${aws_acm_certificate.tomato_bmltenabled.arn}"
-  validation_record_fqdns = ["${aws_route53_record.tomato_bmltenabled_validation.fqdn}"]
+  certificate_arn         = aws_acm_certificate.tomato_bmltenabled.arn
+  validation_record_fqdns = [aws_route53_record.tomato_bmltenabled_validation.fqdn]
 }
 
 data "aws_acm_certificate" "tomato_na_bmlt" {
@@ -17,3 +17,4 @@ data "aws_acm_certificate" "tomato_na_bmlt" {
   statuses    = ["ISSUED"]
   most_recent = true
 }
+
