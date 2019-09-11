@@ -426,8 +426,10 @@ def semantic_query(request, format='json'):
     params = request.GET.copy()
 
     ret = None
-    if format in ('json', 'jsonp'):
+    if format == 'json':
         content_type = 'application/json'
+    elif format == 'jsonp':
+        content_type = 'text/javascript'
     elif format in ('csv', 'poi'):
         content_type = 'text/csv'
     elif format in ('xml', 'kml'):
