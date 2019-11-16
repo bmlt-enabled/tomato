@@ -19,7 +19,5 @@ def in_docker():
     return False
 
 
-if in_docker():
-    SPATIALITE_LIBRARY_PATH = '/usr/lib/mod_spatialite.so.7'
-elif platform == "darwin":
+if platform == "darwin":
     SPATIALITE_LIBRARY_PATH = '/usr/local/lib/mod_spatialite.dylib'

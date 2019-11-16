@@ -1,24 +1,16 @@
-FROM alpine:3.7
+FROM ubuntu:18.04
 
-RUN apk add --no-cache \
-    python3 \
-    python3-dev \
-    build-base \
-    linux-headers \
-    libffi-dev \
-    postgresql-dev
-
-RUN apk add --no-cache \
-    --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
-    libressl2.7-libcrypto
-
-RUN apk add --no-cache \
-    --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
-    --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
-    gdal \
-    geos-dev \
-    proj4-dev \
-    libspatialite
+RUN apt-get update -y
+RUN apt-get upgrade -y
+RUN apt-get install -y \
+  python3 \
+  python3-pip \
+  python3-dev \
+  libgdal-dev \
+  libspatialite-dev \
+  libsqlite3-mod-spatialite \
+  libgeos++-dev \
+  libproj-dev
 
 RUN mkdir /code
 WORKDIR /code
