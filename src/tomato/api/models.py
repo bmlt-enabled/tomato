@@ -115,6 +115,7 @@ class RootServer(models.Model):
     last_successful_import = models.DateTimeField(null=True)
     num_areas = models.IntegerField(default=0)
     num_regions = models.IntegerField(default=0)
+    num_zones = models.IntegerField(default=0)
     num_meetings = models.IntegerField(default=0)
 
     def __str__(self):
@@ -136,10 +137,12 @@ class ServiceBody(models.Model):
     AREA = 'AS'
     METRO = 'MA'
     REGION = 'RS'
+    ZONE = 'ZF'
     SERVICE_BODY_TYPE_CHOICES = (
         (AREA, 'Area'),
         (METRO, 'Metro'),
         (REGION, 'Region'),
+        (ZONE, 'Zone')
     )
     id = models.BigAutoField(primary_key=True)
     source_id = models.BigIntegerField()
