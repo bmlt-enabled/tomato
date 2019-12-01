@@ -134,15 +134,23 @@ class ImportProblem(models.Model):
 
 
 class ServiceBody(models.Model):
+    GROUP = 'GR'
+    GSU = 'GS'
+    LSU = 'LS'
     AREA = 'AS'
     METRO = 'MA'
     REGION = 'RS'
     ZONE = 'ZF'
+    WORLD = 'WS'
     SERVICE_BODY_TYPE_CHOICES = (
+        (GROUP, 'Group'),
+        (GSU, 'Group Support Unit'),
+        (LSU, 'Local Service Unit'),
         (AREA, 'Area'),
         (METRO, 'Metro'),
         (REGION, 'Region'),
-        (ZONE, 'Zone')
+        (ZONE, 'Zone'),
+        (WORLD, 'World')
     )
     id = models.BigAutoField(primary_key=True)
     source_id = models.BigIntegerField()
@@ -154,6 +162,8 @@ class ServiceBody(models.Model):
     url = models.URLField(null=True)
     helpline = models.CharField(max_length=255, null=True)
     world_id = models.CharField(max_length=255, null=True)
+    num_meetings = models.IntegerField(default=0)
+    num_groups = models.IntegerField(default=0)
 
     @staticmethod
     def import_from_bmlt_objects(root_server, bmlt_bodies):
