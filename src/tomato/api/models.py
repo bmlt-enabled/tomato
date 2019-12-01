@@ -134,15 +134,23 @@ class ImportProblem(models.Model):
 
 
 class ServiceBody(models.Model):
+    GROUP = 'GR'
+    GSU = 'GS'
+    LSU = 'LS'
     AREA = 'AS'
     METRO = 'MA'
     REGION = 'RS'
     ZONE = 'ZF'
+    WORLD = 'WS'
     SERVICE_BODY_TYPE_CHOICES = (
+        (GROUP, 'Group'),
+        (GSU, 'Group Support Unit'),
+        (LSU, 'Local Service Unit'),
         (AREA, 'Area'),
         (METRO, 'Metro'),
         (REGION, 'Region'),
-        (ZONE, 'Zone')
+        (ZONE, 'Zone'),
+        (WORLD, 'World')
     )
     id = models.BigAutoField(primary_key=True)
     source_id = models.BigIntegerField()
