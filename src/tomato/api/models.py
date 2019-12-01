@@ -162,6 +162,8 @@ class ServiceBody(models.Model):
     url = models.URLField(null=True)
     helpline = models.CharField(max_length=255, null=True)
     world_id = models.CharField(max_length=255, null=True)
+    num_meetings = models.IntegerField(default=0)
+    num_groups = models.IntegerField(default=0)
 
     @staticmethod
     def import_from_bmlt_objects(root_server, bmlt_bodies):

@@ -36,7 +36,8 @@ class ServiceBodySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ServiceBody
         fields = ('url', 'root_server', 'parent', 'source_id', 'name', 'type',
-                  'description', 'service_body_url', 'world_id')
+                  'description', 'service_body_url', 'world_id', 'num_meetings',
+                  'num_groups')
 
 
 class FormatSerializer(serializers.HyperlinkedModelSerializer):

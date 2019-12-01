@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.management.base import BaseCommand
 from django.db import connections, transaction, DatabaseError
+from django.db.models import Count, Q, F
 from django.utils import timezone
 from urllib.parse import urljoin
 from ...models import (Format, ImportProblem, Meeting, RootServer, ServiceBody,
@@ -124,6 +125,8 @@ class Command(BaseCommand):
                         self.update_formats(root)
                         logger.info('importing meetings')
                         self.update_meetings(root)
+                        logger.info('updating service body stats')
+                        self.update_service_body_stats(root)
                         logger.info('updating root server stats')
                         self.update_root_server_stats(root)
                         root.last_successful_import = timezone.now()
@@ -196,3 +199,39 @@ class Command(BaseCommand):
         #                    ImportProblem.objects.create(root_server=root, message=str(e), data=str(e.bmlt_object))
         #                    continue
         Meeting.import_from_bmlt_objects(root, meetings)
+
+    def update_service_body_stats(self, root):
+        service_bodies = ServiceBody.objects.filter(root_server=root)
+        service_bodies = service_bodies.annotate(count_meetings=Count('meeting__pk'))
+        service_bodies = service_bodies.annotate(
+            count_groups_world_ids=Count(
+                'meeting__meetinginfo__world_id',
+                distinct=True,
+                filter=~Q(meeting__meetinginfo__world_id=None) & ~Q(meeting__meetinginfo__world_id='')
+            )
+        )
+        service_bodies = service_bodies.annotate(
+            count_groups_no_world_ids=Count(
+                'meeting__name',
+                distinct=True,
+                filter=Q(meeting__meetinginfo__world_id=None) | Q(meeting__meetinginfo__world_id='')
+            )
+        )
+        service_bodies = service_bodies.annotate(count_groups=F('count_groups_world_ids') + F('count_groups_no_world_ids'))
+        service_bodies = list(service_bodies)
+        parent_to_children = {service_body.pk: [sb for sb in service_bodies if sb.parent == service_body] for service_body in service_bodies}
+
+        def get_all_children(service_body, children=None):
+            if children is None:
+                children = []
+            for child in parent_to_children[service_body.pk]:
+                if child not in children:
+                    children.append(child)
+                get_all_children(child, children)
+            return children
+
+        for service_body in service_bodies:
+            children = get_all_children(service_body)
+            service_body.num_meetings = sum([sb.count_meetings for sb in children]) + service_body.count_meetings
+            service_body.num_groups = sum([sb.count_groups for sb in children]) + service_body.count_groups
+            service_body.save()
