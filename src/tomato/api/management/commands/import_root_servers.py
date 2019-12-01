@@ -152,6 +152,7 @@ class Command(BaseCommand):
         return root
 
     def update_root_server_stats(self, root):
+        root.num_zones = ServiceBody.objects.filter(root_server=root, type=ServiceBody.ZONE).count()
         root.num_regions = ServiceBody.objects.filter(root_server=root, type=ServiceBody.REGION).count()
         root.num_areas = ServiceBody.objects.filter(root_server=root).exclude(type=ServiceBody.REGION).count()
         root.num_meetings = Meeting.objects.filter(deleted=False, published=True, root_server=root).count()
