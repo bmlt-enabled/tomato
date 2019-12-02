@@ -117,6 +117,7 @@ class RootServer(models.Model):
     num_regions = models.IntegerField(default=0)
     num_zones = models.IntegerField(default=0)
     num_meetings = models.IntegerField(default=0)
+    num_groups = models.IntegerField(default=0)
 
     def __str__(self):
         return '({}:{}:{})'.format(self.id, self.url, self.last_successful_import)

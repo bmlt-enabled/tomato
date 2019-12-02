@@ -13,7 +13,7 @@ class RootServerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.RootServer
         fields = ('url', 'root_server_url', 'name', 'source_id', 'num_zones', 'num_regions', 'num_areas',
-                  'num_meetings', 'server_info', 'last_successful_import')
+                  'num_meetings', 'num_groups', 'server_info', 'last_successful_import')
 
 
 class ServiceBodySerializer(serializers.ModelSerializer):

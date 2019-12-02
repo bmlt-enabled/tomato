@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.management.base import BaseCommand
 from django.db import connections, transaction, DatabaseError
-from django.db.models import Count, Q, F
+from django.db.models import Count, Q, F, Sum
 from django.utils import timezone
 from urllib.parse import urljoin
 from ...models import (Format, ImportProblem, Meeting, RootServer, ServiceBody,
@@ -159,6 +159,7 @@ class Command(BaseCommand):
         root.num_regions = ServiceBody.objects.filter(root_server=root, type=ServiceBody.REGION).count()
         root.num_areas = ServiceBody.objects.filter(root_server=root).exclude(type=ServiceBody.REGION).count()
         root.num_meetings = Meeting.objects.filter(deleted=False, published=True, root_server=root).count()
+        root.num_groups = ServiceBody.objects.filter(root_server=root, parent=None).aggregate(Sum('num_groups'))['num_groups__sum']
 
     def update_service_bodies(self, root):
         url = urljoin(root.url, 'client_interface/json/?switcher=GetServiceBodies')
