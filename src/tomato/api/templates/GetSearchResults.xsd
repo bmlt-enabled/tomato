@@ -37,6 +37,8 @@
                             <xs:element minOccurs="0" maxOccurs="1" name="comments" type="xs:string"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="train_lines" type="xs:string"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="bus_lines" type="xs:string"/>
+                            <xs:element minOccurs="0" maxOccurs="1" name="virtual_meeting_link" type="xs:string"/>
+                            <xs:element minOccurs="0" maxOccurs="1" name="phone_meeting_number" type="xs:string"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="contact_phone_2" type="xs:string"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="contact_email_2" type="xs:string"/>
                             <xs:element minOccurs="0" maxOccurs="1" name="contact_name_2" type="xs:string"/>

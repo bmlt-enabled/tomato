@@ -58,7 +58,8 @@ class MeetingInfoSerializer(serializers.ModelSerializer):
         fields = ('email', 'location_text', 'location_info', 'location_street',
                   'location_city_subsection', 'location_neighborhood', 'location_municipality',
                   'location_sub_province', 'location_province', 'location_postal_code_1',
-                  'location_nation', 'train_lines', 'bus_lines', 'world_id', 'comments')
+                  'location_nation', 'train_lines', 'bus_lines', 'world_id', 'comments',
+                  'virtual_meeting_link', 'phone_meeting_number')
 
 
 class MeetingSerializer(serializers.HyperlinkedModelSerializer):

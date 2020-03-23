@@ -361,6 +361,7 @@ class GetSearchResultsTests(TestCase):
             t = type(actual_field)
             if t in (models.CharField, models.TextField):
                 qs = qs.exclude(**{model_field.replace('.', '__'): ''})
+            qs = list(qs)
             meeting = qs[0]
             value = model_get_value(meeting, model_field)
             url = reverse('semantic-query', kwargs={'format': 'json'})

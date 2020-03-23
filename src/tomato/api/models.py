@@ -440,6 +440,8 @@ class Meeting(models.Model):
                     'bus_lines': bmlt_meeting.get('bus_lines', None),
                     'world_id': bmlt_meeting.get('worldid_mixed', None),
                     'comments': bmlt_meeting.get('comments', None),
+                    'virtual_meeting_link': bmlt_meeting.get('virtual_meeting_link', None),
+                    'phone_meeting_number': bmlt_meeting.get('phone_meeting_number', None)
                 }
             }
         except ServiceBody.DoesNotExist:
@@ -467,3 +469,5 @@ class MeetingInfo(models.Model):
     bus_lines = models.TextField(max_length=512, null=True)
     world_id = models.CharField(max_length=255, null=True)
     comments = models.TextField(null=True)
+    virtual_meeting_link = models.TextField(max_length=255, null=True)
+    phone_meeting_number = models.TextField(max_length=255, null=True)
