@@ -148,6 +148,7 @@ def get_search_results(params):
     formats = [int(f) for f in formats]
     formats_include = [f for f in formats if f > 0]
     formats_exclude = [abs(f) for f in formats if f < 0]
+    formats_comparison_operator = 'AND' if params.get('formats_comparison_operator') != 'OR' else 'OR'
 
     root_server_ids = params.get('root_server_ids')
     root_server_ids = params.getlist('root_server_ids[]', []) if root_server_ids is None else [root_server_ids]
@@ -197,8 +198,17 @@ def get_search_results(params):
     if services_exclude:
         meeting_qs = meeting_qs.exclude(service_body_id__in=services_exclude)
     if formats_include:
-        for id in formats_include:
-            meeting_qs = meeting_qs.filter(models.Q(formats__id=id))
+        if formats_comparison_operator == 'AND':
+            for id in formats_include:
+                meeting_qs = meeting_qs.filter(models.Q(formats__id=id))
+        else:
+            condition = None
+            for id in formats_include:
+                if condition is None:
+                    condition = models.Q(formats__id=id)
+                else:
+                    condition |= models.Q(formats__id=id)
+            meeting_qs = meeting_qs.filter(condition)
     if formats_exclude:
         for id in formats_exclude:
             meeting_qs = meeting_qs.filter(~models.Q(formats__id=id))
