@@ -393,9 +393,24 @@ def get_formats(params):
 
 def get_service_bodies(params):
     root_server_id = params.get('root_server_id')
+
+    services = params.get('services')
+    services = params.getlist('services[]', []) if services is None else [services]
+    services = [int(s) for s in services]
+    services_include = [s for s in services if s > 0]
+    services_exclude = [abs(s) for s in services if s < 0]
+    recursive = params.get('recursive', None) == '1'
+    if recursive:
+        services_include.extend(get_child_service_bodies(services_include))
+        services_exclude.extend(get_child_service_bodies(services_exclude))
+
     body_qs = ServiceBody.objects.all()
     if root_server_id:
         body_qs = body_qs.filter(root_server_id=root_server_id)
+    if services_include:
+        body_qs = body_qs.filter(id__in=services_include)
+    if services_exclude:
+        body_qs = body_qs.exclude(id__in=services_exclude)
     # BMLT returns top-level parents as having parent_id 0
     body_qs = body_qs.annotate(
         calculated_parent_id=Case(
