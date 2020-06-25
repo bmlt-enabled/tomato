@@ -346,7 +346,7 @@ def model_get_value(model, attr, related_models_filter_function=None):
     if isinstance(value, bool):
         value = '1' if value else '0'
     elif isinstance(value, list):
-        value = ','.join([str(v) for v in value])
+        value = ','.join({str(v) for v in value})
     elif isinstance(value, datetime.timedelta):
         if value.seconds < 36000:
             value = '0' + str(value)

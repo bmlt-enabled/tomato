@@ -17,7 +17,7 @@ from django.db.models.expressions import Case, When, Value
 from django.http import response
 from django.template.loader import render_to_string
 from .kml import apply_kml_annotations
-from .models import Format, TranslatedFormat, Meeting, ServiceBody
+from .models import TranslatedFormat, Meeting, ServiceBody
 from .semantic import (field_keys, field_keys_with_descriptions, format_field_map, meeting_field_map,
                        meeting_poi_field_map, meeting_kml_field_map, server_info_field_map, service_bodies_field_map,
                        naws_dump_field_map)
@@ -471,8 +471,6 @@ def semantic_query(request, format='json'):
                 if language != 'en' and not language_qs.exists():
                     return qs.filter(language='en')
                 return language_qs.filter()
-            elif qs.model is Format:
-                return qs.distinct('id')
             return qs.filter()
 
         if format in ('kml', 'poi') and 'data_field_key' in params:
