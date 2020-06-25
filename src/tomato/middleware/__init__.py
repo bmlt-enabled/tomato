@@ -10,6 +10,7 @@ except ImportError:
 else:
     UWSGI_ENABLED = True
 
+
 logger = logging.getLogger('django')
 
 
