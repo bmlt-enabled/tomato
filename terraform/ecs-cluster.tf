@@ -123,11 +123,7 @@ resource "aws_launch_configuration" "cluster" {
   iam_instance_profile        = aws_iam_instance_profile.cluster.name
   associate_public_ip_address = false
   user_data                   = data.template_file.user_data.rendered
-  ebs_optimized               = true
-
-  root_block_device {
-    volume_type = "gp2"
-  }
+  ebs_optimized               = false
 
   lifecycle {
     create_before_destroy = true
