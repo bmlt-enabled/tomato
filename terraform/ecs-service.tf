@@ -99,6 +99,10 @@ resource "aws_ecs_task_definition" "webapp" {
       {
         "name": "SECRET_KEY",
         "value": "${var.secret_key}"
+      },
+      {
+        "name": "CACHE_FORMATS",
+        "value": "1"
       }
     ],
     "links": [],

@@ -131,7 +131,7 @@ resource "aws_launch_configuration" "cluster" {
   security_groups             = [aws_security_group.cluster.id]
   key_name                    = aws_key_pair.main.key_name
   image_id                    = "ami-066ce9bb9f4cbb03d"
-  instance_type               = "t2.micro"
+  instance_type               = "t3a.micro"
   iam_instance_profile        = aws_iam_instance_profile.cluster.name
   associate_public_ip_address = false
 

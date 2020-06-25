@@ -4,12 +4,15 @@ Django==2.2.13
 django-cache-machine==1.1.0
 django-cors-headers==3.0.1
 django-filter==2.1.0
+django-redis==4.12.1
 djangorestframework==3.9.4
 idna==2.8
 mock==3.0.5
 pbr==5.2.0
 psycopg2-binary==2.8.2
+python-memcached==1.59
 pytz==2019.1
+redis==3.5.3
 requests==2.22.0
 six==1.12.0
 sqlparse==0.3.0
