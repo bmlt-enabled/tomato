@@ -24,12 +24,12 @@ class FormatsCacheInvalidatingMiddleware:
             cache_data_version = uwsgi.cache_get('cache_data_version')
             if cache_data_version:
                 cache_data_version = cache_data_version.decode('utf-8')
-            if cache_data_version != current_data_version:
+            if current_data_version != cache_data_version:
                 logger.info("clearing cache, current_data_version: {}, cache_data_version: {}".format(
                     current_data_version, cache_data_version
                 ))
                 cache.clear()
-                uwsgi.cache_set('cache_data_version', current_data_version)
+                uwsgi.cache_update('cache_data_version', current_data_version)
 
         response = self.get_response(request)
         return response
