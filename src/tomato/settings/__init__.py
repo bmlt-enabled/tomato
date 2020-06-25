@@ -54,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'tomato.middleware.FormatsCacheInvalidatingMiddleware',
 ]
 
 ROOT_URLCONF = 'tomato.urls'
@@ -90,19 +91,11 @@ if CACHE_FORMATS:
                 }
             }
         }
-    elif os.getenv('MEMCACHED_LOCATION'):
-        CACHES = {
-            'default': {
-                'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-                'LOCATION': os.getenv('MEMCACHED_LOCATION'),
-                'TIMEOUT': None
-            }
-        }
     else:
         CACHES = {
             'default': {
-                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-                'LOCATION': 'blah',
+                'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+                'LOCATION': os.path.join(os.getcwd(), 'tomato-django-cache'),
                 'TIMEOUT': None,
                 'OPTIONS': {
                     'MAX_ENTRIES': 200000,

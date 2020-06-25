@@ -16,7 +16,7 @@ RUN mkdir /code
 WORKDIR /code
 
 ADD requirements.txt /code
-RUN pip3 install uwsgi==2.0.17
+RUN pip3 install uwsgi==2.0.19.1
 RUN pip3 install -r requirements.txt
 
 ADD src/tomato /code/tomato

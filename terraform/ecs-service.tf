@@ -103,9 +103,13 @@ resource "aws_ecs_task_definition" "webapp" {
       {
         "name": "CACHE_FORMATS",
         "value": "1"
+      },
+      {
+        "name": "REDIS_LOCATION",
+        "value": "redis://redis:6379"
       }
     ],
-    "links": [],
+    "links": ["redis"],
     "workingDirectory": "/code",
     "readonlyRootFilesystem": null,
     "image": "${aws_ecr_repository.tomato.repository_url}:latest",
@@ -130,83 +134,124 @@ resource "aws_ecs_task_definition" "webapp" {
     "linuxParameters": {
       "initProcessEnabled": true
     }
+  },
+  {
+    "name": "redis",
+    "volumesFrom": [],
+    "extraHosts": null,
+    "dnsServers": null,
+    "disableNetworking": null,
+    "dnsSearchDomains": null,
+    "portMappings": [
+      {
+        "containerPort": 6379,
+        "protocol": "tcp"
+      }
+    ],
+    "hostname": null,
+    "essential": true,
+    "entryPoint": ["docker-entrypoint.sh"],
+    "mountPoints": [],
+    "ulimits": null,
+    "dockerSecurityOptions": null,
+    "environment": [],
+    "links": [],
+    "workingDirectory": "/data",
+    "readonlyRootFilesystem": null,
+    "image": "redis:6.0.5",
+    "command": ["redis-server"],
+    "user": null,
+    "dockerLabels": null,
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${aws_cloudwatch_log_group.tomato_webapp.name}",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "redis"
+      }
+    },
+    "memoryReservation": 128,
+    "privileged": null,
+    "linuxParameters": {
+      "initProcessEnabled": true
+    }
   }
 ]
 EOF
 
 }
 
-//resource "aws_ecs_task_definition" "tomato_root_server_import" {
-//  family = "tomato-root-server-import"
-//
-//  container_definitions = <<EOF
-//[
-//  {
-//    "volumesFrom": [],
-//    "extraHosts": null,
-//    "dnsServers": null,
-//    "disableNetworking": null,
-//    "dnsSearchDomains": null,
-//    "portMappings": [],
-//    "hostname": null,
-//    "essential": true,
-//    "entryPoint": null,
-//    "mountPoints": [],
-//    "name": "tomato",
-//    "ulimits": null,
-//    "dockerSecurityOptions": null,
-//    "environment": [
-//      {
-//        "name": "RDS_HOST",
-//        "value": "${aws_db_instance.tomato.address}"
-//      },
-//      {
-//        "name": "RDS_NAME",
-//        "value": "${aws_db_instance.tomato.name}"
-//      },
-//      {
-//        "name": "RDS_USER",
-//        "value": "${aws_db_instance.tomato.username}"
-//      },
-//      {
-//        "name": "RDS_PASSWORD",
-//        "value": "${aws_db_instance.tomato.password}"
-//      },
-//      {
-//        "name": "RDS_PORT",
-//        "value": "${aws_db_instance.tomato.port}"
-//      }
-//    ],
-//    "links": [],
-//    "workingDirectory": "/code",
-//    "readonlyRootFilesystem": null,
-//    "image": "${aws_ecr_repository.tomato.repository_url}:latest",
-//    "command": [
-//      "sh",
-//      "-c",
-//      "python3 manage.py initialize && python3 manage.py import_root_servers"
-//    ],
-//    "user": null,
-//    "dockerLabels": null,
-//    "logConfiguration": {
-//      "logDriver": "awslogs",
-//      "options": {
-//        "awslogs-group": "${aws_cloudwatch_log_group.tomato_root_server_import.name}",
-//        "awslogs-region": "us-east-1",
-//        "awslogs-stream-prefix": "daemon"
-//      }
-//    },
-//    "cpu": 256,
-//    "privileged": null,
-//    "memoryReservation": 384,
-//    "linuxParameters": {
-//      "initProcessEnabled": true
-//    }
-//  }
-//]
-//EOF
-//
-//}
+resource "aws_ecs_task_definition" "tomato_root_server_import" {
+  family = "tomato-root-server-import"
+
+  container_definitions = <<EOF
+[
+  {
+    "volumesFrom": [],
+    "extraHosts": null,
+    "dnsServers": null,
+    "disableNetworking": null,
+    "dnsSearchDomains": null,
+    "portMappings": [],
+    "hostname": null,
+    "essential": true,
+    "entryPoint": null,
+    "mountPoints": [],
+    "name": "tomato",
+    "ulimits": null,
+    "dockerSecurityOptions": null,
+    "environment": [
+      {
+        "name": "RDS_HOST",
+        "value": "${aws_db_instance.tomato.address}"
+      },
+      {
+        "name": "RDS_NAME",
+        "value": "${aws_db_instance.tomato.name}"
+      },
+      {
+        "name": "RDS_USER",
+        "value": "${aws_db_instance.tomato.username}"
+      },
+      {
+        "name": "RDS_PASSWORD",
+        "value": "${aws_db_instance.tomato.password}"
+      },
+      {
+        "name": "RDS_PORT",
+        "value": "${aws_db_instance.tomato.port}"
+      }
+    ],
+    "links": [],
+    "workingDirectory": "/code",
+    "readonlyRootFilesystem": null,
+    "image": "${aws_ecr_repository.tomato.repository_url}:latest",
+    "command": [
+      "sh",
+      "-c",
+      "python3 manage.py initialize && python3 manage.py import_root_servers"
+    ],
+    "user": null,
+    "dockerLabels": null,
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${aws_cloudwatch_log_group.tomato_root_server_import.name}",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "daemon"
+      }
+    },
+    "cpu": 256,
+    "privileged": null,
+    "memoryReservation": 256,
+    "linuxParameters": {
+      "initProcessEnabled": true
+    }
+  }
+]
+EOF
+
+}
 
 resource "aws_ecs_service" "webapp" {
   name            = "webapp"
