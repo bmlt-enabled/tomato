@@ -237,7 +237,8 @@ class GetSearchResultsTests(TestCase):
         self.assertTrue(len(response) > 0)
         f = Format.objects.get(id=29)
         for meeting in response:
-            self.assertIn(f.key_string, meeting['formats'])
+            for tf in f.translatedformats.all():
+                self.assertIn(tf.key_string, meeting['formats'])
 
     def test_get_search_results_formats_include_multiple(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
@@ -249,8 +250,10 @@ class GetSearchResultsTests(TestCase):
         f_nine = Format.objects.get(id=9)
         f_twelve = Format.objects.get(id=12)
         for meeting in response:
-            self.assertIn(f_nine.key_string, meeting['formats'])
-            self.assertIn(f_twelve.key_string, meeting['formats'])
+            for tf in f_nine.translatedformats.filter(language='en'):
+                self.assertIn(tf.key_string, meeting['formats'])
+            for tf in f_twelve.translatedformats.filter(language='en'):
+                self.assertIn(tf.key_string, meeting['formats'])
 
     def test_get_search_results_formats_include_none_found(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
@@ -269,7 +272,8 @@ class GetSearchResultsTests(TestCase):
         self.assertTrue(len(response) > 0)
         f = Format.objects.get(id=29)
         for meeting in response:
-            self.assertNotIn(f.key_string, meeting['formats'])
+            for tf in f.translatedformats.all():
+                self.assertNotIn(tf.key_string, meeting['formats'])
 
     def test_get_search_results_formats_exclude_multiple(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
@@ -281,8 +285,10 @@ class GetSearchResultsTests(TestCase):
         f_nine = Format.objects.get(id=9)
         f_twelve = Format.objects.get(id=12)
         for meeting in response:
-            self.assertNotIn(f_nine.key_string, meeting['formats'])
-            self.assertNotIn(f_twelve.key_string, meeting['formats'])
+            for tf in f_nine.translatedformats.all():
+                self.assertNotIn(tf.key_string, meeting['formats'])
+            for tf in f_twelve.translatedformats.all():
+                self.assertNotIn(tf.key_string, meeting['formats'])
 
     # root_server_ids filters
     def test_get_search_results_root_server_ids_include_single(self):

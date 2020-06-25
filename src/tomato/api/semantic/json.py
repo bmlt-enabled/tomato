@@ -10,16 +10,20 @@ logger = logging.getLogger('django')
 
 
 class StreamList(list):
-    def __init__(self, models, field_map, return_attrs, *args, **kwargs):
+    def __init__(self, models, field_map, return_attrs, related_models_filter_function, *args, **kwargs):
         self.models = models
         self.field_map = field_map
+        self.related_models_filter_function = related_models_filter_function
         self.return_attrs = return_attrs
         super().__init__(*args, **kwargs)
 
     def __iter__(self):
         try:
             for m in self.models.iterator():
-                yield model_to_json(m, self.field_map, return_attrs=self.return_attrs)
+                yield model_to_json(
+                    m, self.field_map,
+                    return_attrs=self.return_attrs,
+                    related_models_filter_function=self.related_models_filter_function)
         except Exception as e:
             logger.error('Error in iterator: {}'.format(str(e)))
             raise
@@ -33,7 +37,7 @@ class StreamList(list):
             return 1
 
 
-def model_to_json(model, map, return_attrs=None):
+def model_to_json(model, map, related_models_filter_function=None, return_attrs=None):
     ret = OrderedDict()
     keys = return_attrs if return_attrs else map.keys()
     for to_attr in keys:
@@ -45,25 +49,32 @@ def model_to_json(model, map, return_attrs=None):
             if not qualifier(model):
                 continue
         from_attr = from_params[0]
-        value = model_get_value(model, from_attr)
+        value = model_get_value(model, from_attr, related_models_filter_function=related_models_filter_function)
         ret[to_attr] = value
     return ret
 
 
-def models_to_json(models, field_maps, return_attrs=None, parent_keys=None):
+def models_to_json(models, field_maps, related_models_filter_function=None, return_attrs=None, parent_keys=None):
     if not isinstance(models, tuple):
         models = (models,)
     if not isinstance(field_maps, tuple):
         field_maps = (field_maps,)
+    if not isinstance(related_models_filter_function, tuple):
+        related_models_filter_function = (related_models_filter_function,)
     if not isinstance(return_attrs, tuple):
         return_attrs = (return_attrs,)
     if parent_keys is not None and not isinstance(parent_keys, tuple):
         parent_keys = (parent_keys,)
     if len(models) == 1:
         if isinstance(models[0], QuerySet):
-            ret = StreamList(models[0], field_maps[0], return_attrs[0])
+            ret = StreamList(models[0], field_maps[0], return_attrs[0], related_models_filter_function[0])
         else:
-            ret = [model_to_json(m, field_maps[0], return_attrs[0]) for m in models[0]]
+            ret = [
+                model_to_json(m, field_maps[0],
+                              return_attrs=return_attrs[0],
+                              related_models_filter_function=related_models_filter_function[0])
+                for m in models[0]
+            ]
         if parent_keys:
             ret = {parent_keys[0]: ret}
     else:
@@ -72,9 +83,14 @@ def models_to_json(models, field_maps, return_attrs=None, parent_keys=None):
         ret = {}
         for i in range(len(models)):
             if isinstance(models[i], QuerySet):
-                ret[parent_keys[i]] = StreamList(models[i], field_maps[i], return_attrs[i])
+                ret[parent_keys[i]] = StreamList(models[i], field_maps[i], return_attrs[i], related_models_filter_function[i])
             else:
-                ret[parent_keys[i]] = [model_to_json(m, field_maps[i], return_attrs[i]) for m in models[i]]
+                ret[parent_keys[i]] = [
+                    model_to_json(m, field_maps[i],
+                                  return_attrs=return_attrs[i],
+                                  related_models_filter_function=related_models_filter_function[i])
+                    for m in models[i]
+                ]
 
     if getattr(settings, 'DEBUG', False):
         return json.JSONEncoder(indent=2).iterencode(ret)

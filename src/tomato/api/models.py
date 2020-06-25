@@ -1,6 +1,8 @@
 import datetime
 import decimal
 import logging
+from caching.base import CachingManager, CachingMixin
+from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
 
@@ -229,32 +231,33 @@ class ServiceBody(models.Model):
         return '({}:{})'.format(self.id, self.name)
 
 
-class Format(models.Model):
+class Format(CachingMixin, models.Model):
     id = models.BigAutoField(primary_key=True)
     source_id = models.BigIntegerField()
     root_server = models.ForeignKey(RootServer, on_delete=models.CASCADE)
-    key_string = models.CharField(max_length=255)
-    name = models.CharField(max_length=255)
-    description = models.TextField(null=True)
-    language = models.CharField(max_length=7, default='en')
     type = models.CharField(max_length=7, null=True)
     world_id = models.CharField(max_length=255, null=True)
+
+    if settings.CACHE_FORMATS:
+        objects = CachingManager()
 
     @staticmethod
     def import_from_bmlt_objects(root_server, bmlt_formats):
         logger = logging.getLogger('django')
 
         try:
-            format_ids = [int(f['id']) for f in bmlt_formats]
+            format_ids = [int(fid) for fid in bmlt_formats.keys()]
             Format.objects.filter(root_server=root_server).exclude(source_id__in=format_ids).delete()
         except Exception as e:
             message = 'Error deleting old formats: {}'.format(str(e))
             logger.error(message)
             ImportProblem.objects.create(root_server=root_server, message=message)
 
-        for bmlt_format in bmlt_formats:
+        for bmlt_format in bmlt_formats.values():
+            bmlt_translated_formats = list(bmlt_format.values())
+
             try:
-                bmlt_format = Format.validate_bmlt_object(root_server, bmlt_format)
+                bmlt_format = Format.validate_bmlt_object(root_server, bmlt_translated_formats[0])
             except ImportException as e:
                 logger.warning('Error parsing format: {}'.format(str(e)))
                 ImportProblem.objects.create(root_server=root_server, message=str(e), data=str(e.bmlt_object))
@@ -262,7 +265,7 @@ class Format(models.Model):
 
             format = Format.objects.get_or_create(root_server=root_server, source_id=bmlt_format['source_id'])[0]
             dirty = False
-            field_names = ('key_string', 'name', 'description', 'language', 'type', 'world_id')
+            field_names = ('type', 'world_id')
             changed_fields = []
             for field_name in field_names:
                 if set_if_changed(format, field_name, bmlt_format[field_name]):
@@ -272,20 +275,86 @@ class Format(models.Model):
             if dirty:
                 format.save()
 
+            TranslatedFormat.import_from_bmlt_objects(root_server, bmlt_translated_formats)
+
     @staticmethod
     def validate_bmlt_object(root_server, bmlt):
         return {
             'source_id': get_int(bmlt, 'id'),
-            'key_string': get_required_str(bmlt, 'key_string'),
-            'name': get_required_str(bmlt, 'name_string'),
-            'description': bmlt.get('description_string', None),
-            'language': bmlt.get('lang'),
             'type': bmlt.get('format_type_enum', None),
             'world_id': bmlt.get('world_id', None),
         }
 
     def __str__(self):
-        return '({}:{}:{}:{})'.format(self.id, self.root_server, self.key_string, self.name)
+        return '({}:{})'.format(self.id, self.root_server)
+
+
+class TranslatedFormat(CachingMixin, models.Model):
+    id = models.BigAutoField(primary_key=True)
+    format = models.ForeignKey(
+        Format,
+        on_delete=models.CASCADE,
+        related_name='translatedformats',
+        related_query_name='translatedformats'
+    )
+    key_string = models.CharField(max_length=20)
+    name = models.CharField(max_length=255)
+    description = models.TextField(null=True)
+    language = models.CharField(max_length=7, default='en', db_index=True)
+
+    if settings.CACHE_FORMATS:
+        objects = CachingManager()
+
+    @staticmethod
+    def import_from_bmlt_objects(root_server, bmlt_translated_formats):
+        logger = logging.getLogger('django')
+
+        try:
+            languages = [f['lang'] for f in bmlt_translated_formats]
+            source_id = int(bmlt_translated_formats[0]['id'])
+            TranslatedFormat.objects \
+                .filter(format__root_server=root_server, format__source_id=source_id) \
+                .exclude(language__in=languages) \
+                .delete()
+        except Exception as e:
+            message = 'Error deleting old translated formats: {}'.format(str(e))
+            logger.error(message)
+            ImportProblem.objects.create(root_server=root_server, message=message)
+
+        for bmlt_translated_format in bmlt_translated_formats:
+            try:
+                bmlt_translated_format = TranslatedFormat.validate_bmlt_object(root_server, bmlt_translated_format)
+            except ImportException as e:
+                logger.warning('Error parsing translated format: {}'.format(str(e)))
+                ImportProblem.objects.create(root_server=root_server, message=str(e), data=str(e.bmlt_object))
+                continue
+
+            fmt = bmlt_translated_format['format']
+            language = bmlt_translated_format['language']
+            translated_format = TranslatedFormat.objects.get_or_create(format=fmt, language=language)[0]
+            dirty = False
+            field_names = ('key_string', 'name', 'description')
+            changed_fields = []
+            for field_name in field_names:
+                if set_if_changed(translated_format, field_name, bmlt_translated_format[field_name]):
+                    changed_fields.append(field_name)
+                    dirty = True
+
+            if dirty:
+                translated_format.save()
+
+    @staticmethod
+    def validate_bmlt_object(root_server, bmlt):
+        return {
+            'format': Format.objects.get(root_server=root_server, source_id=bmlt.get('id')),
+            'key_string': get_required_str(bmlt, 'key_string'),
+            'name': get_required_str(bmlt, 'name_string'),
+            'description': bmlt.get('description_string', None),
+            'language': get_required_str(bmlt, 'lang'),
+        }
+
+    def __str__(self):
+        return '({}:{}:{}:{})'.format(self.id, self.format.root_server, self.key_string, self.name)
 
 
 class Meeting(models.Model):
@@ -347,7 +416,8 @@ class Meeting(models.Model):
 
             try:
                 try:
-                    qs = Meeting.objects.prefetch_related('meetinginfo', 'service_body', 'formats', 'root_server')
+                    qs = Meeting.objects.select_related('meetinginfo', 'service_body', 'root_server')
+                    qs = qs.prefetch_related('formats', 'formats__translatedformats')
                     meeting = qs.get(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
                 except Meeting.DoesNotExist:
                     meeting = Meeting(root_server=root_server, source_id=bmlt_meeting.get('source_id'))
@@ -407,9 +477,25 @@ class Meeting(models.Model):
                     raise ImportException('Malformed format_shared_id_list', bmlt_meeting)
                 formats = Format.objects.filter(root_server=root_server, source_id__in=format_source_ids)
             else:
-                format_key_strings = bmlt_meeting.get('formats').split(',')
-                formats = Format.objects.filter(root_server=root_server, key_string__in=format_key_strings)
-                formats = formats.distinct('key_string')
+                format_key_strings = [fks for fks in bmlt_meeting.get('formats').split(',') if fks.strip()]
+                if not format_key_strings:
+                    formats = Format.objects.none()
+                else:
+                    formats = Format.objects.filter(
+                        root_server=root_server,
+                        translatedformat__key_string__in=format_key_strings,
+                        translatedformat__language=bmlt_meeting.get('lang_enum')
+                    )
+                    seen_key_strings = set()
+                    unique_formats = list()
+                    for fmt in formats:
+                        for tf in fmt.translatedformats.filter(language=bmlt_meeting.get('lang_enum')):
+                            if tf.key_string in seen_key_strings:
+                                break
+                            seen_key_strings.add(tf.key_string)
+                        else:
+                            unique_formats.append(fmt)
+                    formats = unique_formats
             return {
                 'source_id': get_int(bmlt_meeting, 'id_bigint'),
                 'service_body': ServiceBody.objects.get(root_server=root_server,

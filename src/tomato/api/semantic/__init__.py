@@ -149,11 +149,11 @@ format_field_map = OrderedDict([
     ('name_string',        ('name',),),
     ('description_string', ('description',),),
     ('lang',               ('language',),),
-    ('id',                 ('id',),),
-    ('root_server_id',     ('root_server_id',),),
-    ('world_id',           ('world_id',),),
-    ('root_server_uri',    ('root_server.url',),),
-    ('format_type_enum',   ('type', lambda m: m.type is not None,),),
+    ('id',                 ('format.id',),),
+    ('root_server_id',     ('format.root_server_id',),),
+    ('world_id',           ('format.world_id',),),
+    ('root_server_uri',    ('format.root_server.url',),),
+    ('format_type_enum',   ('format.type', lambda m: m.format.type is not None,),),
 ])
 
 naws_dump_field_map = OrderedDict([
@@ -215,7 +215,7 @@ meeting_field_map = OrderedDict([
     ('weekday_tinyint',          ('weekday',),),
     ('start_time',               ('start_time',),),
     ('duration_time',            ('duration',),),
-    ('formats',                  (('formats.key_string', 'formats_aggregate',),),),
+    ('formats',                  (('formats.translatedformats.key_string', 'formats_aggregate',),),),
     ('lang_enum',                ('language',),),
     ('longitude',                ('longitude',),),
     ('latitude',                 ('latitude',),),
@@ -299,7 +299,7 @@ field_keys_with_descriptions = OrderedDict([
 field_keys = list(field_keys_with_descriptions.keys())
 
 
-def model_get_attr(model, attr):
+def model_get_attr(model, attr, related_models_filter_function=None):
     def _get_attr(_attr):
         if isinstance(model, dict):
             if '.' in _attr:
@@ -307,10 +307,22 @@ def model_get_attr(model, attr):
             return model.get(_attr)
         item = model
         for a in _attr.split('.')[0:-1]:
-            item = getattr(item, a)
+            if isinstance(item, models.Manager) or isinstance(item, models.QuerySet):
+                item = [getattr(item, a).filter() for item in item.filter()]
+            else:
+                item = getattr(item, a)
         if isinstance(item, models.Manager):
-            items = item.all()
+            items = related_models_filter_function(item) if related_models_filter_function else item.filter()
             return [getattr(item, _attr.split('.')[-1]) for item in items]
+        elif isinstance(item, list):
+            ret = []
+            items = item
+            for item in items:
+                ret.extend([
+                    getattr(_item, _attr.split('.')[-1])
+                    for _item in (related_models_filter_function(item) if related_models_filter_function else item.filter())
+                ])
+            return ret
         return getattr(item, _attr.split('.')[-1], None)
 
     if isinstance(attr, tuple):
@@ -324,13 +336,13 @@ def model_get_attr(model, attr):
         return _get_attr(attr)
 
 
-def model_get_value(model, attr):
+def model_get_value(model, attr, related_models_filter_function=None):
     if not attr:
         return ''
     elif callable(attr):
         value = attr(model)
     else:
-        value = model_get_attr(model, attr)
+        value = model_get_attr(model, attr, related_models_filter_function=related_models_filter_function)
     if isinstance(value, bool):
         value = '1' if value else '0'
     elif isinstance(value, list):

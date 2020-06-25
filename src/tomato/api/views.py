@@ -17,7 +17,7 @@ from django.db.models.expressions import Case, When, Value
 from django.http import response
 from django.template.loader import render_to_string
 from .kml import apply_kml_annotations
-from .models import Format, Meeting, ServiceBody
+from .models import Format, TranslatedFormat, Meeting, ServiceBody
 from .semantic import (field_keys, field_keys_with_descriptions, format_field_map, meeting_field_map,
                        meeting_poi_field_map, meeting_kml_field_map, server_info_field_map, service_bodies_field_map,
                        naws_dump_field_map)
@@ -185,7 +185,7 @@ def get_search_results(params):
         sort_keys = ['lang_enum', 'weekday_tinyint', 'start_time', 'id_bigint']
 
     meeting_qs = Meeting.objects.filter(deleted=False, published=True)
-    meeting_qs = meeting_qs.prefetch_related('meetinginfo', 'service_body', 'formats', 'root_server')
+    meeting_qs = meeting_qs.select_related('meetinginfo', 'service_body', 'root_server')
 
     if meeting_ids:
         meeting_qs = meeting_qs.filter(pk__in=meeting_ids)
@@ -385,7 +385,9 @@ def get_field_values(params):
 
 def get_formats(params):
     root_server_id = params.get('root_server_id')
-    format_qs = Format.objects.all()
+    language = params.get('lang_enum', default='en')
+    format_qs = TranslatedFormat.objects.filter(language=language)
+    format_qs = format_qs.select_related('format')
     if root_server_id:
         format_qs = format_qs.filter(root_server_id=root_server_id)
     return format_qs
@@ -460,7 +462,19 @@ def semantic_query(request, format='json'):
     elif format in ('xml', 'kml'):
         content_type = 'application/xml'
 
+    language = params.get('lang_enum', default='en')
+
     if switcher == 'GetSearchResults':
+        def related_models_filter_function(qs):
+            if qs.model is TranslatedFormat:
+                language_qs = qs.filter(language=language)
+                if language != 'en' and not language_qs.exists():
+                    return qs.filter(language='en')
+                return language_qs.filter()
+            elif qs.model is Format:
+                return qs.distinct('id')
+            return qs.filter()
+
         if format in ('kml', 'poi') and 'data_field_key' in params:
             # Invalid parameter for kml and poi, as they always returns the same fields.
             params.pop('data_field_key')
@@ -468,7 +482,8 @@ def semantic_query(request, format='json'):
         data_field_keys = extract_specific_keys_param(params)
         if format in ('json', 'jsonp', 'xml'):
             if 'get_used_formats' in params or 'get_formats_only' in params:
-                formats = Format.objects.filter(id__in=meetings.values('formats'))
+                formats = TranslatedFormat.objects.filter(language=language, format__id__in=meetings.values('formats'))
+                formats = formats.select_related('format')
             if format in ('json', 'jsonp'):
                 if 'get_used_formats' in params or 'get_formats_only' in params:
                     if 'get_formats_only' in params:
@@ -477,22 +492,26 @@ def semantic_query(request, format='json'):
                         ret = models_to_json(
                             (meetings, formats),
                             (meeting_field_map, format_field_map),
+                            related_models_filter_function=(related_models_filter_function, None),
                             parent_keys=('meetings', 'formats'),
                             return_attrs=(data_field_keys, None)
                         )
                 else:
-                    ret = models_to_json(meetings, meeting_field_map, return_attrs=data_field_keys)
+                    ret = models_to_json(
+                        meetings,
+                        meeting_field_map,
+                        related_models_filter_function=(related_models_filter_function, None),
+                        return_attrs=data_field_keys
+                    )
             else:
                 xmlns = '{}://{}'.format(request.scheme, request.get_host())
                 if 'get_used_formats' in params or 'get_formats_only' in params:
                     if 'get_formats_only' in params:
-                        ret = models_to_xml(
-                            meetings, format_field_map, 'formats',
-                            xmlns=xmlns, schema_name='GetFormats'
-                        )
+                        ret = models_to_xml(formats, format_field_map, 'formats', xmlns=xmlns, schema_name='GetFormats')
                     else:
                         ret = models_to_xml(
                             meetings, meeting_field_map, 'meetings',
+                            related_models_filter_function=related_models_filter_function,
                             xmlns=xmlns,
                             schema_name=switcher,
                             sub_models=formats,
@@ -500,7 +519,11 @@ def semantic_query(request, format='json'):
                             sub_models_element_name='formats'
                         )
                 else:
-                    ret = models_to_xml(meetings, meeting_field_map, 'meetings', xmlns=xmlns, schema_name=switcher)
+                    ret = models_to_xml(
+                        meetings, meeting_field_map, 'meetings',
+                        related_models_filter_function=related_models_filter_function,
+                        xmlns=xmlns, schema_name=switcher
+                    )
         elif format == 'kml':
             meetings = apply_kml_annotations(meetings)
             ret = models_to_xml(meetings, meeting_kml_field_map, 'kml.Document',
@@ -521,11 +544,13 @@ def semantic_query(request, format='json'):
             qs = Meeting.objects.filter(deleted=False, published=True)
             qs = qs.filter(service_body_id__in=sb_ids, service_body__world_id__isnull=False)
             qs = qs.exclude(service_body__world_id='')
-            qs = qs.prefetch_related('meetinginfo', 'service_body', 'formats', 'root_server')
+            qs = qs.select_related('meetinginfo', 'service_body', 'root_server')
+            qs = qs.prefetch_related('formats', 'formats__translatedformats')
             qs_union = Meeting.objects.filter(Q(deleted=True) | Q(published=False))
             qs_union = qs_union.filter(service_body_id__in=sb_ids, service_body__world_id__isnull=False)
             qs_union = qs_union.exclude(service_body__world_id='')
-            qs_union = qs_union.prefetch_related('meetinginfo', 'service_body', 'formats', 'root_server')
+            qs_union = qs_union.select_related('meetinginfo', 'service_body', 'root_server')
+            qs_union = qs_union.prefetch_related('formats', 'formats__translatedformats')
             models = qs.union(qs_union, all=True)
             field_map = naws_dump_field_map
         elif switcher == 'GetFormats':
@@ -597,26 +622,42 @@ def get_langs_php(request, format='json'):
     if format == 'jsonp' and 'callback' not in request.GET:
         return response.HttpResponseBadRequest()
 
+    lang_to_name = {
+        "en": "English",
+        "de": "Deutsch",
+        "dk": "Dansk",
+        "es": "Español",
+        "fa": "فارسی",
+        "fr": "Français",
+        "it": "Italiano",
+        "pl": "Polskie",
+        "pt": "Português",
+        "sv": "Svenska"
+    }
+
+    languages = TranslatedFormat.objects.values_list('language', flat=True).distinct()
     if format in ('json', 'jsonp'):
         content_type = 'application/json'
-        ret = json.dumps({
-            "languages": [
-                {
-                    "key": "en",
-                    "name": "English",
-                    "default": True
-                }
-            ]
-        })
+        ret = {"languages": []}
+        for language in languages:
+            ret["languages"].append({
+                "key": language,
+                "name": lang_to_name.get(language, ''),
+                "default": True if language == 'en' else False
+            })
+        ret = json.dumps(ret)
         if format == 'jsonp':
             ret = request.GET.get('callback') + '(' + ret + ')'
     else:
         content_type = 'application/xml'
-        ret = textwrap.dedent("""
-            <languages>
-                <language key="en" default="1">English</language>
-            </languages>
-        """)
+        ret = "<languages>"
+        for language in languages:
+            ret += '\n  <language key="{}"{}>{}</language>'.format(
+                language,
+                ' default="1"' if language == 'en' else "",
+                lang_to_name.get(language, '')
+            )
+        ret += "\n</languages>"
 
     return response.HttpResponse(ret, content_type=content_type)
 

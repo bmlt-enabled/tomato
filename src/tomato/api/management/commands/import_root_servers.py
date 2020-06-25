@@ -172,8 +172,13 @@ class Command(BaseCommand):
         ServiceBody.import_from_bmlt_objects(root, service_bodies)
 
     def update_formats(self, root):
-        url = urljoin(root.url, 'client_interface/json/?switcher=GetFormats')
-        formats = json.loads(self.request(url))
+        formats = {}
+        for language in json.loads(root.server_info)[0]['langs'].split(','):
+            url = urljoin(root.url, 'client_interface/json/?switcher=GetFormats&lang_enum={}'.format(language))
+            for fmt in json.loads(self.request(url)):
+                if fmt['id'] not in formats:
+                    formats[fmt['id']] = {}
+                formats[fmt['id']][language] = fmt
         Format.import_from_bmlt_objects(root, formats)
 
     def update_meetings(self, root):

@@ -77,6 +77,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'tomato.wsgi.application'
 
 
+CACHE_FORMATS = True if os.getenv('CACHE_FORMATS', default='0') == '1' else False
+if CACHE_FORMATS:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'blah',
+            'TIMEOUT': None,
+            'OPTIONS': {
+                'MAX_ENTRIES': 120000,
+            }
+        }
+    }
+
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 

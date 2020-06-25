@@ -425,10 +425,6 @@
     "fields": {
       "source_id": 3,
       "root_server": 1,
-      "key_string": "BT",
-      "name": "Basic Text",
-      "description": "This meeting is focused on discussion of the Basic Text of Narcotics Anonymous.",
-      "language": "en",
       "world_id": "BT"
     }
   },
@@ -438,10 +434,6 @@
     "fields": {
       "source_id": 4,
       "root_server": 1,
-      "key_string": "C",
-      "name": "Closed",
-      "description": "This meeting is closed to non-addicts. You should attend only if you believe that you may have a problem with substance abuse.",
-      "language": "en",
       "world_id": "CLOSED"
     }
   },
@@ -451,10 +443,6 @@
     "fields": {
       "source_id": 6,
       "root_server": 1,
-      "key_string": "CL",
-      "name": "Candlelight",
-      "description": "This meeting is held by candlelight.",
-      "language": "en",
       "world_id": "CAN"
     }
   },
@@ -464,10 +452,6 @@
     "fields": {
       "source_id": 7,
       "root_server": 1,
-      "key_string": "CS",
-      "name": "Children under Supervision",
-      "description": "Well-behaved, supervised children are welcome.",
-      "language": "en",
       "world_id": null
     }
   },
@@ -477,10 +461,6 @@
     "fields": {
       "source_id": 8,
       "root_server": 1,
-      "key_string": "D",
-      "name": "Discussion",
-      "description": "This meeting invites participation by all attendees.",
-      "language": "en",
       "world_id": "DISC"
     }
   },
@@ -490,10 +470,6 @@
     "fields": {
       "source_id": 10,
       "root_server": 1,
-      "key_string": "GL",
-      "name": "Gay/Lesbian/Transgender",
-      "description": "This meeting is focused on the needs of gay, lesbian and transgender members of NA.",
-      "language": "en",
       "world_id": "GL"
     }
   },
@@ -503,10 +479,6 @@
     "fields": {
       "source_id": 12,
       "root_server": 1,
-      "key_string": "IP",
-      "name": "Informational Pamphlet",
-      "description": "This meeting is focused on discussion of one or more Informational Pamphlets.",
-      "language": "en",
       "world_id": "IP"
     }
   },
@@ -516,10 +488,6 @@
     "fields": {
       "source_id": 13,
       "root_server": 1,
-      "key_string": "IW",
-      "name": "It Works -How and Why",
-      "description": "This meeting is focused on discussion of the It Works -How and Why text.",
-      "language": "en",
       "world_id": "IW"
     }
   },
@@ -529,10 +497,6 @@
     "fields": {
       "source_id": 14,
       "root_server": 1,
-      "key_string": "JT",
-      "name": "Just for Today",
-      "description": "This meeting is focused on discussion of the Just For Today text.",
-      "language": "en",
       "world_id": "JFT"
     }
   },
@@ -542,10 +506,6 @@
     "fields": {
       "source_id": 15,
       "root_server": 1,
-      "key_string": "M",
-      "name": "Men",
-      "description": "This meeting is meant to be attended by men only.",
-      "language": "en",
       "world_id": "M"
     }
   },
@@ -555,10 +515,6 @@
     "fields": {
       "source_id": 16,
       "root_server": 1,
-      "key_string": "NC",
-      "name": "No Children",
-      "description": "Please do not bring children to this meeting.",
-      "language": "en",
       "world_id": null
     }
   },
@@ -568,10 +524,6 @@
     "fields": {
       "source_id": 17,
       "root_server": 1,
-      "key_string": "O",
-      "name": "Open",
-      "description": "This meeting is open to addicts and non-addicts alike. All are welcome.",
-      "language": "en",
       "world_id": "OPEN"
     }
   },
@@ -581,10 +533,6 @@
     "fields": {
       "source_id": 19,
       "root_server": 1,
-      "key_string": "RF",
-      "name": "Rotating Format",
-      "description": "This meeting has a format that changes for each meeting.",
-      "language": "en",
       "world_id": "VAR"
     }
   },
@@ -594,10 +542,6 @@
     "fields": {
       "source_id": 22,
       "root_server": 1,
-      "key_string": "SD",
-      "name": "Speaker/Discussion",
-      "description": "This meeting is lead by a speaker, then opened for participation by attendees.",
-      "language": "en",
       "world_id": "SPK"
     }
   },
@@ -607,10 +551,6 @@
     "fields": {
       "source_id": 23,
       "root_server": 1,
-      "key_string": "SG",
-      "name": "Step Working Guide",
-      "description": "This meeting is focused on discussion of the Step Working Guide text.",
-      "language": "en",
       "world_id": "SWG"
     }
   },
@@ -620,10 +560,6 @@
     "fields": {
       "source_id": 27,
       "root_server": 1,
-      "key_string": "St",
-      "name": "Step",
-      "description": "This meeting is focused on discussion of the Twelve Steps of NA.",
-      "language": "en",
       "world_id": "STEP"
     }
   },
@@ -633,10 +569,6 @@
     "fields": {
       "source_id": 29,
       "root_server": 1,
-      "key_string": "To",
-      "name": "Topic",
-      "description": "This meeting is based upon a topic chosen by a speaker or by group conscience.",
-      "language": "en",
       "world_id": "TOP"
     }
   },
@@ -646,10 +578,6 @@
     "fields": {
       "source_id": 30,
       "root_server": 1,
-      "key_string": "Tr",
-      "name": "Tradition",
-      "description": "This meeting is focused on discussion of the Twelve Traditions of NA.",
-      "language": "en",
       "world_id": "TRAD"
     }
   },
@@ -659,10 +587,6 @@
     "fields": {
       "source_id": 32,
       "root_server": 1,
-      "key_string": "W",
-      "name": "Women",
-      "description": "This meeting is meant to be attended by women only.",
-      "language": "en",
       "world_id": "W"
     }
   },
@@ -672,10 +596,6 @@
     "fields": {
       "source_id": 33,
       "root_server": 1,
-      "key_string": "WC",
-      "name": "Wheelchair",
-      "description": "This meeting is wheelchair accessible.",
-      "language": "en",
       "world_id": "WCHR"
     }
   },
@@ -685,10 +605,6 @@
     "fields": {
       "source_id": 34,
       "root_server": 1,
-      "key_string": "YP",
-      "name": "Young People",
-      "description": "This meeting is focused on the needs of younger members of NA.",
-      "language": "en",
       "world_id": "Y"
     }
   },
@@ -698,10 +614,6 @@
     "fields": {
       "source_id": 37,
       "root_server": 1,
-      "key_string": "NS",
-      "name": "No Smoking",
-      "description": "Smoking is not allowed at this meeting.",
-      "language": "en",
       "world_id": null
     }
   },
@@ -711,10 +623,6 @@
     "fields": {
       "source_id": 41,
       "root_server": 1,
-      "key_string": "ME",
-      "name": "Meditation",
-      "description": "This meeting encourages its participants to engage in quiet meditation.",
-      "language": "en",
       "world_id": "MED"
     }
   },
@@ -724,10 +632,6 @@
     "fields": {
       "source_id": 44,
       "root_server": 1,
-      "key_string": "CW",
-      "name": "Children Welcome",
-      "description": "Children are welcome at this meeting.",
-      "language": "en",
       "world_id": "CW"
     }
   },
@@ -737,10 +641,6 @@
     "fields": {
       "source_id": 51,
       "root_server": 1,
-      "key_string": "LC",
-      "name": "Living Clean",
-      "description": "This is a discussion of the NA book Living Clean -The Journey Continues.",
-      "language": "en",
       "world_id": "LC"
     }
   },
@@ -750,10 +650,6 @@
     "fields": {
       "source_id": 52,
       "root_server": 1,
-      "key_string": "LS",
-      "name": "Literature Study",
-      "description": "This meetings studies NA literature by group's choice.",
-      "language": "en",
       "world_id": "LIT"
     }
   },
@@ -763,10 +659,6 @@
     "fields": {
       "source_id": 53,
       "root_server": 1,
-      "key_string": "SM",
-      "name": "Stick Meeting",
-      "description": "A sticks are given to members with a recovery topic for the member to share on.",
-      "language": "en",
       "world_id": null
     }
   },
@@ -776,10 +668,6 @@
     "fields": {
       "source_id": 54,
       "root_server": 1,
-      "key_string": "L",
-      "name": "Literature Available",
-      "description": "",
-      "language": "en",
       "world_id": null
     }
   },
@@ -789,10 +677,6 @@
     "fields": {
       "source_id": 55,
       "root_server": 1,
-      "key_string": "K/M",
-      "name": "Key Tag/Medallion",
-      "description": "Key tags and Medallion available.",
-      "language": "en",
       "world_id": null
     }
   },
@@ -802,10 +686,6 @@
     "fields": {
       "source_id": 56,
       "root_server": 1,
-      "key_string": "LD",
-      "name": "Literature Discussion",
-      "description": "Literature is discussed by group choice.",
-      "language": "en",
       "world_id": "LIT"
     }
   },
@@ -815,10 +695,6 @@
     "fields": {
       "source_id": 57,
       "root_server": 1,
-      "key_string": "SS",
-      "name": "Step Study",
-      "description": "Group studies 12 Steps of NA.",
-      "language": "en",
       "world_id": "LIT"
     }
   },
@@ -828,10 +704,6 @@
     "fields": {
       "source_id": 58,
       "root_server": 1,
-      "key_string": "S",
-      "name": "Speaker",
-      "description": "",
-      "language": "en",
       "world_id": "SPK"
     }
   },
@@ -841,10 +713,6 @@
     "fields": {
       "source_id": 1,
       "root_server": 2,
-      "key_string": "B",
-      "name": "Beginners",
-      "description": "This meeting is focused on the needs of new members of NA.",
-      "language": "en",
       "world_id": "BEG"
     }
   },
@@ -854,10 +722,6 @@
     "fields": {
       "source_id": 3,
       "root_server": 2,
-      "key_string": "BT",
-      "name": "Basic Text",
-      "description": "This meeting is focused on discussion of the Basic Text of Narcotics Anonymous.",
-      "language": "en",
       "world_id": "BT"
     }
   },
@@ -867,10 +731,6 @@
     "fields": {
       "source_id": 4,
       "root_server": 2,
-      "key_string": "C",
-      "name": "Closed",
-      "description": "This meeting is closed to non-addicts. You should attend only if you believe that you may have a problem with substance abuse.",
-      "language": "en",
       "world_id": "CLOSED"
     }
   },
@@ -880,10 +740,6 @@
     "fields": {
       "source_id": 6,
       "root_server": 2,
-      "key_string": "CL",
-      "name": "Candlelight",
-      "description": "This meeting is held by candlelight.",
-      "language": "en",
       "world_id": "CAN"
     }
   },
@@ -893,10 +749,6 @@
     "fields": {
       "source_id": 8,
       "root_server": 2,
-      "key_string": "D",
-      "name": "Discussion",
-      "description": "This meeting invites participation by all attendees.",
-      "language": "en",
       "world_id": "DISC"
     }
   },
@@ -906,10 +758,6 @@
     "fields": {
       "source_id": 10,
       "root_server": 2,
-      "key_string": "GL",
-      "name": "Gay/Lesbian/Transgender",
-      "description": "This meeting is focused on the needs of gay, lesbian and transgender members of NA.",
-      "language": "en",
       "world_id": "GL"
     }
   },
@@ -919,10 +767,6 @@
     "fields": {
       "source_id": 11,
       "root_server": 2,
-      "key_string": "IL",
-      "name": "Illness",
-      "description": "This meeting is focused on the needs of NA members with chronic illness.",
-      "language": "en",
       "world_id": "CLOSED"
     }
   },
@@ -932,10 +776,6 @@
     "fields": {
       "source_id": 12,
       "root_server": 2,
-      "key_string": "IP",
-      "name": "Informational Pamphlet",
-      "description": "This meeting is focused on discussion of one or more Informational Pamphlets.",
-      "language": "en",
       "world_id": "IP"
     }
   },
@@ -945,10 +785,6 @@
     "fields": {
       "source_id": 13,
       "root_server": 2,
-      "key_string": "IW",
-      "name": "It Works -How and Why",
-      "description": "This meeting is focused on discussion of the It Works -How and Why text.",
-      "language": "en",
       "world_id": "IW"
     }
   },
@@ -958,10 +794,6 @@
     "fields": {
       "source_id": 14,
       "root_server": 2,
-      "key_string": "JT",
-      "name": "Just for Today",
-      "description": "This meeting is focused on discussion of the Just For Today text.",
-      "language": "en",
       "world_id": "JFT"
     }
   },
@@ -971,10 +803,6 @@
     "fields": {
       "source_id": 15,
       "root_server": 2,
-      "key_string": "M",
-      "name": "Men",
-      "description": "This meeting is meant to be attended by men only.",
-      "language": "en",
       "world_id": "M"
     }
   },
@@ -984,10 +812,6 @@
     "fields": {
       "source_id": 16,
       "root_server": 2,
-      "key_string": "NC",
-      "name": "No Children",
-      "description": "Please do not bring children to this meeting.",
-      "language": "en",
       "world_id": "RA"
     }
   },
@@ -997,10 +821,6 @@
     "fields": {
       "source_id": 17,
       "root_server": 2,
-      "key_string": "O",
-      "name": "Open",
-      "description": "This meeting is open to addicts and non-addicts alike. All are welcome.",
-      "language": "en",
       "world_id": "OPEN"
     }
   },
@@ -1010,10 +830,6 @@
     "fields": {
       "source_id": 18,
       "root_server": 2,
-      "key_string": "Pi",
-      "name": "Pick",
-      "description": "This meeting has a format that consists of each person who shares picking the next person.",
-      "language": "en",
       "world_id": "DISC"
     }
   },
@@ -1023,10 +839,6 @@
     "fields": {
       "source_id": 19,
       "root_server": 2,
-      "key_string": "RF",
-      "name": "Rotating Format",
-      "description": "This meeting has a format that changes for each meeting.",
-      "language": "en",
       "world_id": "VAR"
     }
   },
@@ -1036,10 +848,6 @@
     "fields": {
       "source_id": 22,
       "root_server": 2,
-      "key_string": "SD",
-      "name": "Speaker/Discussion",
-      "description": "This meeting is lead by a speaker, then opened for participation by attendees.",
-      "language": "en",
       "world_id": "SPK"
     }
   },
@@ -1049,10 +857,6 @@
     "fields": {
       "source_id": 26,
       "root_server": 2,
-      "key_string": "So",
-      "name": "Speaker Only",
-      "description": "This meeting is a speaker-only meeting. Other attendees do not participate in the discussion.",
-      "language": "en",
       "world_id": "SPK"
     }
   },
@@ -1062,10 +866,6 @@
     "fields": {
       "source_id": 27,
       "root_server": 2,
-      "key_string": "St",
-      "name": "Step",
-      "description": "This meeting is focused on discussion of the Twelve Steps of NA.",
-      "language": "en",
       "world_id": "STEP"
     }
   },
@@ -1075,10 +875,6 @@
     "fields": {
       "source_id": 29,
       "root_server": 2,
-      "key_string": "To",
-      "name": "Topic",
-      "description": "This meeting is based upon a topic chosen by a speaker or by group conscience.",
-      "language": "en",
       "world_id": "TOP"
     }
   },
@@ -1088,10 +884,6 @@
     "fields": {
       "source_id": 30,
       "root_server": 2,
-      "key_string": "Tr",
-      "name": "Tradition",
-      "description": "This meeting is focused on discussion of the Twelve Traditions of NA.",
-      "language": "en",
       "world_id": "TRAD"
     }
   },
@@ -1101,10 +893,6 @@
     "fields": {
       "source_id": 32,
       "root_server": 2,
-      "key_string": "W",
-      "name": "Women",
-      "description": "This meeting is meant to be attended by women only.",
-      "language": "en",
       "world_id": "W"
     }
   },
@@ -1114,10 +902,6 @@
     "fields": {
       "source_id": 33,
       "root_server": 2,
-      "key_string": "WC",
-      "name": "Wheelchair",
-      "description": "This meeting is wheelchair accessible.",
-      "language": "en",
       "world_id": "WCHR"
     }
   },
@@ -1127,10 +911,6 @@
     "fields": {
       "source_id": 35,
       "root_server": 2,
-      "key_string": "OE",
-      "name": "Open-Ended",
-      "description": "No fixed duration. The meeting continues until everyone present has had a chance to share.",
-      "language": "en",
       "world_id": "OPEN"
     }
   },
@@ -1140,10 +920,6 @@
     "fields": {
       "source_id": 36,
       "root_server": 2,
-      "key_string": "BK",
-      "name": "Book Study",
-      "description": "Approved N.A. Books",
-      "language": "en",
       "world_id": "LIT"
     }
   },
@@ -1153,10 +929,6 @@
     "fields": {
       "source_id": 37,
       "root_server": 2,
-      "key_string": "NS",
-      "name": "No Smoking",
-      "description": "Smoking is not allowed at this meeting.",
-      "language": "en",
       "world_id": null
     }
   },
@@ -1166,10 +938,6 @@
     "fields": {
       "source_id": 39,
       "root_server": 2,
-      "key_string": "FD",
-      "name": "Five and Dime",
-      "description": "Discussion of the Fifth Step and the Tenth Step",
-      "language": "en",
       "world_id": "STEP"
     }
   },
@@ -1179,10 +947,6 @@
     "fields": {
       "source_id": 41,
       "root_server": 2,
-      "key_string": "ME",
-      "name": "Meditation",
-      "description": "This meeting encourages its participants to engage in quiet meditation.",
-      "language": "en",
       "world_id": "MED"
     }
   },
@@ -1192,10 +956,6 @@
     "fields": {
       "source_id": 43,
       "root_server": 2,
-      "key_string": "QA",
-      "name": "Question and Answer",
-      "description": "Attendees may ask questions and expect answers from Group members.",
-      "language": "en",
       "world_id": "QA"
     }
   },
@@ -1205,10 +965,6 @@
     "fields": {
       "source_id": 45,
       "root_server": 2,
-      "key_string": "CP",
-      "name": "Concepts",
-      "description": "This meeting is focused on discussion of the twelve concepts of NA.",
-      "language": "en",
       "world_id": "CPT"
     }
   },
@@ -1218,10 +974,6 @@
     "fields": {
       "source_id": 47,
       "root_server": 2,
-      "key_string": "ENG",
-      "name": "English speaking",
-      "description": "This Meeting can be attended by speakers of English.",
-      "language": "en",
       "world_id": "OPEN"
     }
   },
@@ -1231,10 +983,6 @@
     "fields": {
       "source_id": 51,
       "root_server": 2,
-      "key_string": "LC",
-      "name": "Living Clean",
-      "description": "This is a discussion of the NA book Living Clean -The Journey Continues.",
-      "language": "en",
       "world_id": "LC"
     }
   },
@@ -1244,10 +992,6 @@
     "fields": {
       "source_id": 53,
       "root_server": 2,
-      "key_string": "1st",
-      "name": "First Step",
-      "description": "First Step",
-      "language": "en",
       "world_id": "BEG"
     }
   },
@@ -1257,10 +1001,6 @@
     "fields": {
       "source_id": 54,
       "root_server": 2,
-      "key_string": "CD",
-      "name": "Closed Discussion",
-      "description": "Closed Discussion",
-      "language": "en",
       "world_id": "CLOSED"
     }
   },
@@ -1270,10 +1010,6 @@
     "fields": {
       "source_id": 55,
       "root_server": 2,
-      "key_string": "CS",
-      "name": "Closed Speaker",
-      "description": "Closed Speaker",
-      "language": "en",
       "world_id": "CLOSED"
     }
   },
@@ -1283,11 +1019,755 @@
     "fields": {
       "source_id": 56,
       "root_server": 2,
+      "world_id": "SMOK"
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 1,
+    "fields": {
+      "key_string": "BT",
+      "name": "Basic Text",
+      "description": "This meeting is focused on discussion of the Basic Text of Narcotics Anonymous.",
+      "language": "en",
+      "format": 1
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 2,
+    "fields": {
+      "key_string": "C",
+      "name": "Closed",
+      "description": "This meeting is closed to non-addicts. You should attend only if you believe that you may have a problem with substance abuse.",
+      "language": "en",
+      "format": 2
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 3,
+    "fields": {
+      "key_string": "CL",
+      "name": "Candlelight",
+      "description": "This meeting is held by candlelight.",
+      "language": "en",
+      "format": 3
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 4,
+    "fields": {
+      "key_string": "CS",
+      "name": "Children under Supervision",
+      "description": "Well-behaved, supervised children are welcome.",
+      "language": "en",
+      "format": 4
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 5,
+    "fields": {
+      "key_string": "D",
+      "name": "Discussion",
+      "description": "This meeting invites participation by all attendees.",
+      "language": "en",
+      "format": 5
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 6,
+    "fields": {
+      "key_string": "GL",
+      "name": "Gay/Lesbian/Transgender",
+      "description": "This meeting is focused on the needs of gay, lesbian and transgender members of NA.",
+      "language": "en",
+      "format": 6
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 7,
+    "fields": {
+      "key_string": "IP",
+      "name": "Informational Pamphlet",
+      "description": "This meeting is focused on discussion of one or more Informational Pamphlets.",
+      "language": "en",
+      "format": 7
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 8,
+    "fields": {
+      "key_string": "IW",
+      "name": "It Works -How and Why",
+      "description": "This meeting is focused on discussion of the It Works -How and Why text.",
+      "language": "en",
+      "format": 8
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 9,
+    "fields": {
+      "key_string": "JT",
+      "name": "Just for Today",
+      "description": "This meeting is focused on discussion of the Just For Today text.",
+      "language": "en",
+      "format": 9
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 10,
+    "fields": {
+      "key_string": "M",
+      "name": "Men",
+      "description": "This meeting is meant to be attended by men only.",
+      "language": "en",
+      "format": 10
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 11,
+    "fields": {
+      "key_string": "NC",
+      "name": "No Children",
+      "description": "Please do not bring children to this meeting.",
+      "language": "en",
+      "format": 11
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 12,
+    "fields": {
+      "key_string": "O",
+      "name": "Open",
+      "description": "This meeting is open to addicts and non-addicts alike. All are welcome.",
+      "language": "en",
+      "format": 12
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 13,
+    "fields": {
+      "key_string": "RF",
+      "name": "Rotating Format",
+      "description": "This meeting has a format that changes for each meeting.",
+      "language": "en",
+      "format": 13
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 14,
+    "fields": {
+      "key_string": "SD",
+      "name": "Speaker/Discussion",
+      "description": "This meeting is lead by a speaker, then opened for participation by attendees.",
+      "language": "en",
+      "format": 14
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 15,
+    "fields": {
+      "key_string": "SG",
+      "name": "Step Working Guide",
+      "description": "This meeting is focused on discussion of the Step Working Guide text.",
+      "language": "en",
+      "format": 15
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 16,
+    "fields": {
+      "key_string": "St",
+      "name": "Step",
+      "description": "This meeting is focused on discussion of the Twelve Steps of NA.",
+      "language": "en",
+      "format": 16
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 17,
+    "fields": {
+      "key_string": "To",
+      "name": "Topic",
+      "description": "This meeting is based upon a topic chosen by a speaker or by group conscience.",
+      "language": "en",
+      "format": 17
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 18,
+    "fields": {
+      "key_string": "Tr",
+      "name": "Tradition",
+      "description": "This meeting is focused on discussion of the Twelve Traditions of NA.",
+      "language": "en",
+      "format": 18
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 19,
+    "fields": {
+      "key_string": "W",
+      "name": "Women",
+      "description": "This meeting is meant to be attended by women only.",
+      "language": "en",
+      "format": 19
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 20,
+    "fields": {
+      "key_string": "WC",
+      "name": "Wheelchair",
+      "description": "This meeting is wheelchair accessible.",
+      "language": "en",
+      "format": 20
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 21,
+    "fields": {
+      "key_string": "YP",
+      "name": "Young People",
+      "description": "This meeting is focused on the needs of younger members of NA.",
+      "language": "en",
+      "format": 21
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 22,
+    "fields": {
+      "key_string": "NS",
+      "name": "No Smoking",
+      "description": "Smoking is not allowed at this meeting.",
+      "language": "en",
+      "format": 22
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 23,
+    "fields": {
+      "key_string": "ME",
+      "name": "Meditation",
+      "description": "This meeting encourages its participants to engage in quiet meditation.",
+      "language": "en",
+      "format": 23
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 24,
+    "fields": {
+      "key_string": "CW",
+      "name": "Children Welcome",
+      "description": "Children are welcome at this meeting.",
+      "language": "en",
+      "format": 24
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 25,
+    "fields": {
+      "key_string": "LC",
+      "name": "Living Clean",
+      "description": "This is a discussion of the NA book Living Clean -The Journey Continues.",
+      "language": "en",
+      "format": 25
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 26,
+    "fields": {
+      "key_string": "LS",
+      "name": "Literature Study",
+      "description": "This meetings studies NA literature by group's choice.",
+      "language": "en",
+      "format": 26
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 27,
+    "fields": {
+      "key_string": "SM",
+      "name": "Stick Meeting",
+      "description": "A sticks are given to members with a recovery topic for the member to share on.",
+      "language": "en",
+      "format": 27
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 28,
+    "fields": {
+      "key_string": "L",
+      "name": "Literature Available",
+      "description": "",
+      "language": "en",
+      "format": 28
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 29,
+    "fields": {
+      "key_string": "K/M",
+      "name": "Key Tag/Medallion",
+      "description": "Key tags and Medallion available.",
+      "language": "en",
+      "format": 29
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 30,
+    "fields": {
+      "key_string": "LD",
+      "name": "Literature Discussion",
+      "description": "Literature is discussed by group choice.",
+      "language": "en",
+      "format": 30
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 31,
+    "fields": {
+      "key_string": "SS",
+      "name": "Step Study",
+      "description": "Group studies 12 Steps of NA.",
+      "language": "en",
+      "format": 31
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 32,
+    "fields": {
+      "key_string": "S",
+      "name": "Speaker",
+      "description": "",
+      "language": "en",
+      "format": 32
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 33,
+    "fields": {
+      "key_string": "B",
+      "name": "Beginners",
+      "description": "This meeting is focused on the needs of new members of NA.",
+      "language": "en",
+      "format": 33
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 34,
+    "fields": {
+      "key_string": "BT",
+      "name": "Basic Text",
+      "description": "This meeting is focused on discussion of the Basic Text of Narcotics Anonymous.",
+      "language": "en",
+      "format": 34
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 35,
+    "fields": {
+      "key_string": "C",
+      "name": "Closed",
+      "description": "This meeting is closed to non-addicts. You should attend only if you believe that you may have a problem with substance abuse.",
+      "language": "en",
+      "format": 35
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 36,
+    "fields": {
+      "key_string": "CL",
+      "name": "Candlelight",
+      "description": "This meeting is held by candlelight.",
+      "language": "en",
+      "format": 36
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 37,
+    "fields": {
+      "key_string": "D",
+      "name": "Discussion",
+      "description": "This meeting invites participation by all attendees.",
+      "language": "en",
+      "format": 37
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 38,
+    "fields": {
+      "key_string": "GL",
+      "name": "Gay/Lesbian/Transgender",
+      "description": "This meeting is focused on the needs of gay, lesbian and transgender members of NA.",
+      "language": "en",
+      "format": 38
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 39,
+    "fields": {
+      "key_string": "IL",
+      "name": "Illness",
+      "description": "This meeting is focused on the needs of NA members with chronic illness.",
+      "language": "en",
+      "format": 39
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 40,
+    "fields": {
+      "key_string": "IP",
+      "name": "Informational Pamphlet",
+      "description": "This meeting is focused on discussion of one or more Informational Pamphlets.",
+      "language": "en",
+      "format": 40
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 41,
+    "fields": {
+      "key_string": "IW",
+      "name": "It Works -How and Why",
+      "description": "This meeting is focused on discussion of the It Works -How and Why text.",
+      "language": "en",
+      "format": 41
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 42,
+    "fields": {
+      "key_string": "JT",
+      "name": "Just for Today",
+      "description": "This meeting is focused on discussion of the Just For Today text.",
+      "language": "en",
+      "format": 42
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 43,
+    "fields": {
+      "key_string": "M",
+      "name": "Men",
+      "description": "This meeting is meant to be attended by men only.",
+      "language": "en",
+      "format": 43
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 44,
+    "fields": {
+      "key_string": "NC",
+      "name": "No Children",
+      "description": "Please do not bring children to this meeting.",
+      "language": "en",
+      "format": 44
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 45,
+    "fields": {
+      "key_string": "O",
+      "name": "Open",
+      "description": "This meeting is open to addicts and non-addicts alike. All are welcome.",
+      "language": "en",
+      "format": 45
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 46,
+    "fields": {
+      "key_string": "Pi",
+      "name": "Pick",
+      "description": "This meeting has a format that consists of each person who shares picking the next person.",
+      "language": "en",
+      "format": 46
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 47,
+    "fields": {
+      "key_string": "RF",
+      "name": "Rotating Format",
+      "description": "This meeting has a format that changes for each meeting.",
+      "language": "en",
+      "format": 47
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 48,
+    "fields": {
+      "key_string": "SD",
+      "name": "Speaker/Discussion",
+      "description": "This meeting is lead by a speaker, then opened for participation by attendees.",
+      "language": "en",
+      "format": 48
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 49,
+    "fields": {
+      "key_string": "So",
+      "name": "Speaker Only",
+      "description": "This meeting is a speaker-only meeting. Other attendees do not participate in the discussion.",
+      "language": "en",
+      "format": 49
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 50,
+    "fields": {
+      "key_string": "St",
+      "name": "Step",
+      "description": "This meeting is focused on discussion of the Twelve Steps of NA.",
+      "language": "en",
+      "format": 50
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 51,
+    "fields": {
+      "key_string": "To",
+      "name": "Topic",
+      "description": "This meeting is based upon a topic chosen by a speaker or by group conscience.",
+      "language": "en",
+      "format": 51
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 52,
+    "fields": {
+      "key_string": "Tr",
+      "name": "Tradition",
+      "description": "This meeting is focused on discussion of the Twelve Traditions of NA.",
+      "language": "en",
+      "format": 52
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 53,
+    "fields": {
+      "key_string": "W",
+      "name": "Women",
+      "description": "This meeting is meant to be attended by women only.",
+      "language": "en",
+      "format": 53
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 54,
+    "fields": {
+      "key_string": "WC",
+      "name": "Wheelchair",
+      "description": "This meeting is wheelchair accessible.",
+      "language": "en",
+      "format": 54
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 55,
+    "fields": {
+      "key_string": "OE",
+      "name": "Open-Ended",
+      "description": "No fixed duration. The meeting continues until everyone present has had a chance to share.",
+      "language": "en",
+      "format": 55
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 56,
+    "fields": {
+      "key_string": "BK",
+      "name": "Book Study",
+      "description": "Approved N.A. Books",
+      "language": "en",
+      "format": 56
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 57,
+    "fields": {
+      "key_string": "NS",
+      "name": "No Smoking",
+      "description": "Smoking is not allowed at this meeting.",
+      "language": "en",
+      "format": 57
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 58,
+    "fields": {
+      "key_string": "FD",
+      "name": "Five and Dime",
+      "description": "Discussion of the Fifth Step and the Tenth Step",
+      "language": "en",
+      "format": 58
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 59,
+    "fields": {
+      "key_string": "ME",
+      "name": "Meditation",
+      "description": "This meeting encourages its participants to engage in quiet meditation.",
+      "language": "en",
+      "format": 59
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 60,
+    "fields": {
+      "key_string": "QA",
+      "name": "Question and Answer",
+      "description": "Attendees may ask questions and expect answers from Group members.",
+      "language": "en",
+      "format": 60
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 61,
+    "fields": {
+      "key_string": "CP",
+      "name": "Concepts",
+      "description": "This meeting is focused on discussion of the twelve concepts of NA.",
+      "language": "en",
+      "format": 61
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 62,
+    "fields": {
+      "key_string": "ENG",
+      "name": "English speaking",
+      "description": "This Meeting can be attended by speakers of English.",
+      "language": "en",
+      "format": 62
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 63,
+    "fields": {
+      "key_string": "LC",
+      "name": "Living Clean",
+      "description": "This is a discussion of the NA book Living Clean -The Journey Continues.",
+      "language": "en",
+      "format": 63
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 64,
+    "fields": {
+      "key_string": "1st",
+      "name": "First Step",
+      "description": "First Step",
+      "language": "en",
+      "format": 64
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 65,
+    "fields": {
+      "key_string": "CD",
+      "name": "Closed Discussion",
+      "description": "Closed Discussion",
+      "language": "en",
+      "format": 65
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 66,
+    "fields": {
+      "key_string": "CS",
+      "name": "Closed Speaker",
+      "description": "Closed Speaker",
+      "language": "en",
+      "format": 66
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 67,
+    "fields": {
       "key_string": "Sm",
       "name": "Smoking Permitted",
       "description": "Smoking Permitted.",
       "language": "en",
-      "world_id": "SMOK"
+      "format": 67
+    }
+  },
+  {
+    "model": "api.translatedformat",
+    "pk": 68,
+    "fields": {
+      "key_string": "JTes",
+      "name": "IN SPANISHJust for Today",
+      "description": "IN SPANISH This meeting is focused on discussion of the Just For Today text.",
+      "language": "es",
+      "format": 9
     }
   },
   {
