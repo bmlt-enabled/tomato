@@ -54,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'tomato.middleware.FormatsCacheInvalidatingMiddleware',
 ]
 
 ROOT_URLCONF = 'tomato.urls'
@@ -77,18 +78,30 @@ TEMPLATES = [
 WSGI_APPLICATION = 'tomato.wsgi.application'
 
 
-CACHE_FORMATS = True if os.getenv('CACHE_FORMATS', default='0') == '1' else False
+CACHE_FORMATS = True if os.getenv('CACHE_FORMATS') == '1' else False
 if CACHE_FORMATS:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            'LOCATION': 'blah',
-            'TIMEOUT': None,
-            'OPTIONS': {
-                'MAX_ENTRIES': 120000,
+    if os.getenv('REDIS_LOCATION'):
+        CACHES = {
+            "default": {
+                "BACKEND": "django_redis.cache.RedisCache",
+                "LOCATION": os.getenv('REDIS_LOCATION'),
+                'TIMEOUT': None,
+                "OPTIONS": {
+                    "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                }
             }
         }
-    }
+    else:
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+                'LOCATION': os.path.join(os.getcwd(), 'tomato-django-cache'),
+                'TIMEOUT': None,
+                'OPTIONS': {
+                    'MAX_ENTRIES': 200000,
+                }
+            }
+        }
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases

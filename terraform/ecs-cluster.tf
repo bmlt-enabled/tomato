@@ -33,30 +33,18 @@ resource "aws_iam_role_policy_attachment" "attach_ecr_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
-resource "aws_iam_role_policy" "allow_logging_policy" {
-  name = aws_iam_role.cluster_instance.name
-  role = aws_iam_role.cluster_instance.name
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents",
-          "logs:DescribeLogStreams"
-      ],
-      "Resource": [
-        "arn:aws:logs:*:*:*"
-      ]
-    }
-  ]
+data "aws_iam_policy_document" "cluster_instance" {
+  statement {
+    effect    = "Allow"
+    actions   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents", "logs:DescribeLogStreams"]
+    resources = ["arn:aws:logs:*:*:*"]
+  }
 }
-EOF
 
+resource "aws_iam_role_policy" "cluster_instance" {
+  name   = aws_iam_role.cluster_instance.name
+  role   = aws_iam_role.cluster_instance.name
+  policy = data.aws_iam_policy_document.cluster_instance.json
 }
 
 resource "aws_iam_instance_profile" "cluster" {
@@ -130,15 +118,18 @@ data "template_file" "user_data" {
 resource "aws_launch_configuration" "cluster" {
   security_groups             = [aws_security_group.cluster.id]
   key_name                    = aws_key_pair.main.key_name
-  image_id                    = "ami-066ce9bb9f4cbb03d"
-  instance_type               = "t2.micro"
+  image_id                    = "ami-0f161e6034a6262d8"
+  instance_type               = "t3a.micro"
   iam_instance_profile        = aws_iam_instance_profile.cluster.name
   associate_public_ip_address = false
+  user_data                   = data.template_file.user_data.rendered
+  ebs_optimized               = true
 
-  user_data = data.template_file.user_data.rendered
+  root_block_device {
+    volume_type = "gp2"
+  }
 
   lifecycle {
     create_before_destroy = true
   }
 }
-

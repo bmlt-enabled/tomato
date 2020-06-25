@@ -4,12 +4,13 @@ resource "aws_db_subnet_group" "tomato" {
 }
 
 resource "aws_db_instance" "tomato" {
-  identifier        = "tomato"
-  allocated_storage = 100
-  engine            = "postgres"
-  engine_version    = "9.5.15"
-  instance_class    = "db.t2.small"
-  storage_type      = "gp2"
+  identifier          = "tomato"
+  allocated_storage   = 100
+  engine              = "postgres"
+  engine_version      = "9.5.15"
+  instance_class      = "db.t2.small"
+  storage_type        = "gp2"
+  deletion_protection = true
 
   name     = "tomato"
   username = "tomato"

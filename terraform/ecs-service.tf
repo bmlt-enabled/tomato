@@ -99,9 +99,17 @@ resource "aws_ecs_task_definition" "webapp" {
       {
         "name": "SECRET_KEY",
         "value": "${var.secret_key}"
+      },
+      {
+        "name": "CACHE_FORMATS",
+        "value": "1"
+      },
+      {
+        "name": "REDIS_LOCATION",
+        "value": "redis://redis:6379"
       }
     ],
-    "links": [],
+    "links": ["redis"],
     "workingDirectory": "/code",
     "readonlyRootFilesystem": null,
     "image": "${aws_ecr_repository.tomato.repository_url}:latest",
@@ -123,6 +131,47 @@ resource "aws_ecs_task_definition" "webapp" {
     "cpu": 700,
     "privileged": null,
     "memoryReservation": 512,
+    "linuxParameters": {
+      "initProcessEnabled": true
+    }
+  },
+  {
+    "name": "redis",
+    "volumesFrom": [],
+    "extraHosts": null,
+    "dnsServers": null,
+    "disableNetworking": null,
+    "dnsSearchDomains": null,
+    "portMappings": [
+      {
+        "containerPort": 6379,
+        "protocol": "tcp"
+      }
+    ],
+    "hostname": null,
+    "essential": true,
+    "entryPoint": ["docker-entrypoint.sh"],
+    "mountPoints": [],
+    "ulimits": null,
+    "dockerSecurityOptions": null,
+    "environment": [],
+    "links": [],
+    "workingDirectory": "/data",
+    "readonlyRootFilesystem": null,
+    "image": "redis:6.0.5",
+    "command": ["redis-server"],
+    "user": null,
+    "dockerLabels": null,
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${aws_cloudwatch_log_group.tomato_webapp.name}",
+        "awslogs-region": "us-east-1",
+        "awslogs-stream-prefix": "redis"
+      }
+    },
+    "memoryReservation": 128,
+    "privileged": null,
     "linuxParameters": {
       "initProcessEnabled": true
     }
@@ -194,7 +243,7 @@ resource "aws_ecs_task_definition" "tomato_root_server_import" {
     },
     "cpu": 256,
     "privileged": null,
-    "memoryReservation": 384,
+    "memoryReservation": 256,
     "linuxParameters": {
       "initProcessEnabled": true
     }

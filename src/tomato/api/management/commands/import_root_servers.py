@@ -1,7 +1,5 @@
-import csv
 import json
 import logging
-import io
 import requests
 import requests.exceptions
 from django.conf import settings

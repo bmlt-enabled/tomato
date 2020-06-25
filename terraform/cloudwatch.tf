@@ -63,4 +63,3 @@ resource "aws_cloudwatch_event_target" "root_server_import" {
     task_definition_arn = aws_ecs_task_definition.tomato_root_server_import.arn
   }
 }
-
