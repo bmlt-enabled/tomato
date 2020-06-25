@@ -25,7 +25,7 @@ class FormatsCacheInvalidatingMiddleware:
             if cache_data_version:
                 cache_data_version = cache_data_version.decode('utf-8')
             if cache_data_version != current_data_version:
-                logger.info("clearing uwsgi cache, current_data_version: {}, cache_data_version: {}".format(
+                logger.info("clearing cache, current_data_version: {}, cache_data_version: {}".format(
                     current_data_version, cache_data_version
                 ))
                 cache.clear()
