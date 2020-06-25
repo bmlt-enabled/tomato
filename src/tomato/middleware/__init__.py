@@ -1,4 +1,5 @@
 import logging
+from django.conf import settings
 from django.core.cache import cache
 from ..api.models import RootServer
 
@@ -17,7 +18,7 @@ class FormatsCacheInvalidatingMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if UWSGI_ENABLED:
+        if settings.CACHE_FORMATS and UWSGI_ENABLED:
             current_data_version = RootServer.objects.order_by('-last_successful_import')
             current_data_version = current_data_version.values_list('last_successful_import', flat=True)
             current_data_version = str(current_data_version[0])
