@@ -12,8 +12,6 @@ resource "aws_db_instance" "tomato" {
   storage_type        = "gp2"
   deletion_protection = true
 
-  allow_major_version_upgrade  = true
-
   name     = "tomato"
   username = "tomato"
   password = var.rds_password
