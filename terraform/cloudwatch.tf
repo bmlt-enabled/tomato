@@ -11,8 +11,8 @@ resource "aws_cloudwatch_log_group" "tomato_root_server_import" {
 ### Running the root server import
 resource "aws_cloudwatch_event_rule" "root_server_import" {
   name                = "tomato-root-server-import"
-  description         = "Kicks off root server import every 2 hours"
-  schedule_expression = "rate(2 hours)"
+  description         = "Kicks off root server import every 12 hours"
+  schedule_expression = "rate(12 hours)"
 }
 
 data "aws_iam_policy_document" "ecs_events" {
