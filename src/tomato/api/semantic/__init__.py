@@ -296,7 +296,7 @@ field_keys_with_descriptions = OrderedDict([
     ('format_shared_id_list', 'Format Shared ID List'),
 ])
 
-distance_field_keys = ['distance_in_mi', 'distance_in_km']
+distance_field_keys = ['distance_in_miles', 'distance_in_km']
 field_keys = list(field_keys_with_descriptions.keys()) + distance_field_keys
 
 
@@ -304,7 +304,11 @@ def model_get_attr(model, attr, related_models_filter_function=None):
     def _get_attr(_attr):
         if isinstance(model, dict):
             if '.' in _attr:
-                _attr = _attr.replace('.', '__')
+                if _attr.startswith('distance.'):
+                    distance = model.get('distance')
+                    return getattr(distance, _attr.split('.')[1])
+                else:
+                    _attr = _attr.replace('.', '__')
             return model.get(_attr)
         item = model
         for a in _attr.split('.')[0:-1]:

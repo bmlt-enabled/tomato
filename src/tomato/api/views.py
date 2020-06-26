@@ -54,7 +54,7 @@ keys_not_searchable = [
     'latitude',
     'format_shared_id_list',
     'distance_in_km',
-    'distance_in_mi',
+    'distance_in_miles',
 ]
 
 valid_meeting_search_keys = [f for f in field_keys if f not in keys_not_searchable]
@@ -240,19 +240,6 @@ def get_search_results(params):
         meeting_qs = meeting_qs.filter(duration__gte=min_duration)
     if max_duration:
         meeting_qs = meeting_qs.filter(duration__lte=max_duration)
-    if data_field_keys:
-        values = []
-        for key in [k for k in data_field_keys if k not in distance_field_keys]:
-            model_field = meeting_field_map.get(key)[0]
-            if isinstance(model_field, tuple):
-                field_name = model_field[0].replace('.', '__')
-                agg_name = model_field[1]
-                meeting_qs = meeting_qs.annotate(**{agg_name: ArrayAgg(field_name)})
-                values.append(agg_name)
-            elif model_field:
-                model_field = model_field.replace('.', '__')
-                values.append(model_field)
-        meeting_qs = meeting_qs.values(*values)
     if search_string and not search_string_is_address:
         vector_fields = (
             'name',
@@ -297,7 +284,8 @@ def get_search_results(params):
                         q = q | models.Q(id=meeting_id)
                 if q:
                     meeting_qs = meeting_qs.filter(q)
-    if (long_val and lat_val and (geo_width or geo_width_km or set(data_field_keys).intersection(distance_field_keys))) or (search_string and search_string_is_address):
+    is_geo = (long_val and lat_val and (geo_width or geo_width_km or set(data_field_keys).intersection(distance_field_keys))) or (search_string and search_string_is_address)
+    if is_geo:
         # Get latitude and longitude values, either directly from the request
         # or from the an address
         try:
@@ -340,6 +328,22 @@ def get_search_results(params):
                 meeting_qs = meeting_qs.filter(point__distance_lte=(point, d))
             if sort_results_by_distance:
                 meeting_qs = meeting_qs.order_by('distance')
+    if data_field_keys:
+        values = []
+        for key in data_field_keys:
+            model_field = meeting_field_map.get(key)[0]
+            if key in distance_field_keys:
+                if is_geo:
+                    values.append('distance')
+            elif isinstance(model_field, tuple):
+                field_name = model_field[0].replace('.', '__')
+                agg_name = model_field[1]
+                meeting_qs = meeting_qs.annotate(**{agg_name: ArrayAgg(field_name)})
+                values.append(agg_name)
+            elif model_field:
+                model_field = model_field.replace('.', '__')
+                values.append(model_field)
+        meeting_qs = meeting_qs.values(*values)
     if sort_keys and not sort_results_by_distance:
         values = []
         for key in sort_keys:
