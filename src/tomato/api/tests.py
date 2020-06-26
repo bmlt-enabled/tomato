@@ -10,7 +10,7 @@ from django.urls import reverse
 from xml.etree import ElementTree as ET
 from .models import Format, Meeting, MeetingInfo
 from .semantic import model_get_value
-from .views import (field_keys, meeting_field_map, parse_time_params,
+from .views import (field_keys, meeting_field_map, parse_time_params, distance_field_keys,
                     parse_timedelta_params, service_bodies_field_map, valid_meeting_search_keys)
 
 
@@ -394,8 +394,11 @@ class GetSearchResultsTests(TestCase):
             self.assertTrue(len(response) > 0)
             for meeting in response:
                 returned_keys = list(meeting.keys())
-                self.assertEqual(len(returned_keys), 1)
-                self.assertEqual(returned_keys[0], data_field_key)
+                if data_field_key in distance_field_keys:
+                    self.assertEqual(len(returned_keys), 0)
+                else:
+                    self.assertEqual(len(returned_keys), 1)
+                    self.assertEqual(returned_keys[0], data_field_key)
 
         for i in range(len(field_keys)):
             if i >= len(field_keys) - 1:
@@ -412,9 +415,29 @@ class GetSearchResultsTests(TestCase):
             self.assertTrue(len(response) > 0)
             for meeting in response:
                 returned_keys = list(meeting.keys())
-                self.assertEqual(len(returned_keys), 2)
-                self.assertEqual(returned_keys[0], data_field_keys[0])
-                self.assertEqual(returned_keys[1], data_field_keys[1])
+                contains_distance_keys = set(data_field_keys).intersection(set(distance_field_keys))
+                if contains_distance_keys:
+                    num_distance_keys = len(contains_distance_keys)
+                    self.assertEqual(len(returned_keys), 2 - num_distance_keys)
+                else:
+                    self.assertEqual(len(returned_keys), 2)
+                    self.assertEqual(returned_keys[0], data_field_keys[0])
+                    self.assertEqual(returned_keys[1], data_field_keys[1])
+
+    def test_get_search_results_data_field_keys_distance_keys(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        data_field_keys = ['distance_in_km', 'distance_in_miles']
+        url += '?switcher=GetSearchResults&lat_val=21.3391774&long_val=-157.7036977&'
+        url += urllib.parse.urlencode({'data_field_key': ','.join(data_field_keys)})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
+        self.assertTrue(len(response) > 0)
+        for meeting in response:
+            returned_keys = list(meeting.keys())
+            self.assertEqual(len(returned_keys), 2)
+            self.assertEqual(returned_keys[0], data_field_keys[0])
+            self.assertEqual(returned_keys[1], data_field_keys[1])
 
     # starts after
     def test_get_search_results_starts_after_hour(self):
@@ -668,7 +691,7 @@ class GetSearchResultsTests(TestCase):
             prev_km = km
 
     def test_get_search_results_sort_keys(self):
-        for sort_key in field_keys:
+        for sort_key in [k for k in field_keys if k not in distance_field_keys]:
             if sort_key in ('formats', 'format_shared_id_list',):
                 continue  # not sure how this behaves... don't care
             url = reverse('semantic-query', kwargs={'format': 'json'})
@@ -694,8 +717,8 @@ class GetSearchResultsTests(TestCase):
                     self.assertTrue(sort_value >= prev_sort_value)
                 prev_sort_value = sort_value
 
-        for i in range(len(field_keys)):
-            if i >= len(field_keys) - 1:
+        for i in range(len(field_keys) - len(distance_field_keys)):
+            if i >= len(field_keys) - len(distance_field_keys) - 1:
                 continue
             sort_keys = [field_keys[i], field_keys[i + 1]]
             if 'formats' in sort_keys:
