@@ -23,7 +23,8 @@ resource "aws_db_instance" "tomato" {
   db_subnet_group_name    = aws_db_subnet_group.tomato.name
   backup_retention_period = 7
 
-  skip_final_snapshot = true
+  snapshot_identifier = "arn:aws:rds:us-east-1:198201167080:snapshot:tomato"
+  skip_final_snapshot = false
 
   tags = {
     Name = "tomato"
