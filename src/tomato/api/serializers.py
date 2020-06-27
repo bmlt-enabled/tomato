@@ -40,16 +40,29 @@ class ServiceBodySerializer(serializers.ModelSerializer):
                   'num_groups')
 
 
+class TranslatedFormatSerializer(serializers.ModelSerializer):
+    format = serializers.HyperlinkedRelatedField(
+        view_name='format-detail',
+        lookup_field='pk',
+        read_only=True
+    )
+
+    class Meta:
+        model = models.TranslatedFormat
+        fields = ('url', 'format', 'key_string', 'name', 'description', 'language')
+
+
 class FormatSerializer(serializers.HyperlinkedModelSerializer):
     root_server = serializers.HyperlinkedRelatedField(
         view_name='rootserver-detail',
         lookup_field='pk',
         read_only=True
     )
+    translatedformats = TranslatedFormatSerializer(many=True)
 
     class Meta:
         model = models.Format
-        fields = ('url', 'root_server', 'source_id', 'key_string', 'name', 'description', 'language')
+        fields = ('url', 'root_server', 'source_id', 'type', 'world_id', 'translatedformats')
 
 
 class MeetingInfoSerializer(serializers.ModelSerializer):

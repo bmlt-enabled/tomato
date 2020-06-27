@@ -26,6 +26,12 @@ class FormatViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = StandardResultsSetPagination
 
 
+class TranslatedFormatViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.TranslatedFormat.objects.all().order_by('pk')
+    serializer_class = serializers.TranslatedFormatSerializer
+    pagination_class = StandardResultsSetPagination
+
+
 class MeetingViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Meeting.objects.filter(deleted=False, published=True).order_by('pk')
     serializer_class = serializers.MeetingSerializer

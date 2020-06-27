@@ -12,6 +12,7 @@ router = routers.DefaultRouter()
 router.register(r'rootservers', viewsets.RootServerViewSet)
 router.register(r'servicebodies', viewsets.ServiceBodyViewSet)
 router.register(r'formats', viewsets.FormatViewSet)
+router.register(r'translatedformats', viewsets.TranslatedFormatViewSet)
 router.register(r'meetings', viewsets.MeetingViewSet)
 
 urlpatterns = [
