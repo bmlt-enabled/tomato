@@ -17,4 +17,3 @@ data "aws_acm_certificate" "tomato_na_bmlt" {
   statuses    = ["ISSUED"]
   most_recent = true
 }
-
