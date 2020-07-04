@@ -1,6 +1,7 @@
 import csv
 from django.db.models.query import QuerySet
 import logging
+import types
 from . import model_get_value
 
 
@@ -34,7 +35,14 @@ def models_to_csv(models, field_map, fieldnames=None):
         for k, v in field_map.items():
             if not callable(v) and len(v) > 1:
                 try:
-                    model = next(models.iterator())
+                    iterator = models.iterator()
+                    if not isinstance(iterator, types.GeneratorType):
+                        # CachingQuerySet does not return a generator, so we make one. This
+                        # allows `next()` to work without loading the entire queryset from the database
+                        def make_generator(i):
+                            yield from i
+                        iterator = make_generator(iterator)
+                    model = next(iterator)
                 except StopIteration:
                     pass
                 else:
