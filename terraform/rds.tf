@@ -11,6 +11,7 @@ resource "aws_db_instance" "tomato" {
   instance_class      = "db.t3.micro"
   storage_type        = "gp2"
   deletion_protection = true
+  multi_az            = true
 
   name     = "tomato"
   username = "tomato"
