@@ -119,7 +119,7 @@ resource "aws_launch_configuration" "cluster" {
   security_groups             = [aws_security_group.cluster.id]
   key_name                    = aws_key_pair.main.key_name
   image_id                    = "ami-0f161e6034a6262d8"
-  instance_type               = "t3a.micro"
+  instance_type               = "t3a.small"
   iam_instance_profile        = aws_iam_instance_profile.cluster.name
   associate_public_ip_address = false
   user_data                   = data.template_file.user_data.rendered

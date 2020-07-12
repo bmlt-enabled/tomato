@@ -268,6 +268,11 @@ resource "aws_ecs_service" "webapp" {
     container_port   = 8000
   }
 
+  ordered_placement_strategy {
+    type  = "spread"
+    field = "attribute:ecs.availability-zone"
+  }
+
   depends_on = [
     aws_iam_role_policy.tomato_lb,
     aws_alb_listener.tomato_https,
