@@ -2014,6 +2014,7 @@
       "bus_lines": "Bus Lines#@-@#57 89",
       "virtual_meeting_link": "asdfasdfasdf",
       "phone_meeting_number": "",
+      "virtual_meeting_additional_info" : "",
       "world_id": "G00093699",
       "comments": ""
     }
@@ -2038,6 +2039,7 @@
       "bus_lines": "",
       "virtual_meeting_link": "",
       "phone_meeting_number": "3245235234",
+      "virtual_meeting_additional_info" : "",
       "world_id": "G00294719",
       "comments": ""
     }
@@ -2062,6 +2064,7 @@
       "bus_lines": "Bus Lines#@-@#57 / 85",
       "virtual_meeting_link": "",
       "phone_meeting_number": "",
+      "virtual_meeting_additional_info" : "Zoom ID: 123-456-789",
       "world_id": "G00011860",
       "comments": ""
     }
@@ -2086,6 +2089,7 @@
       "bus_lines": "",
       "virtual_meeting_link": "",
       "phone_meeting_number": "",
+      "virtual_meeting_additional_info" : "",
       "world_id": "G00331566",
       "comments": ""
     }
@@ -2110,6 +2114,7 @@
       "bus_lines": "",
       "virtual_meeting_link": "",
       "phone_meeting_number": "",
+      "virtual_meeting_additional_info" : "",
       "world_id": "G00052334",
       "comments": "If rain, meet at Gazebo behind Queen Kapiolani statue"
     }
@@ -2134,6 +2139,7 @@
       "bus_lines": "",
       "virtual_meeting_link": "",
       "phone_meeting_number": "",
+      "virtual_meeting_additional_info" : "",
       "world_id": "G00306867",
       "comments": ""
     }
@@ -2158,6 +2164,7 @@
       "bus_lines": "",
       "virtual_meeting_link": "",
       "phone_meeting_number": "",
+      "virtual_meeting_additional_info" : "",
       "world_id": "G00330122",
       "comments": ""
     }
@@ -2182,6 +2189,7 @@
       "bus_lines": "",
       "virtual_meeting_link": "",
       "phone_meeting_number": "",
+      "virtual_meeting_additional_info" : "",
       "world_id": "G00090322",
       "comments": ""
     }
@@ -2206,6 +2214,7 @@
       "bus_lines": "",
       "virtual_meeting_link": "",
       "phone_meeting_number": "",
+      "virtual_meeting_additional_info" : "",
       "world_id": "G00052099",
       "comments": ""
     }
@@ -2230,6 +2239,7 @@
       "bus_lines": "",
       "virtual_meeting_link": "",
       "phone_meeting_number": "",
+      "virtual_meeting_additional_info" : "",
       "world_id": "G00330084",
       "comments": ""
     }
