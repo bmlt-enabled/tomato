@@ -72,7 +72,7 @@ class MeetingInfoSerializer(serializers.ModelSerializer):
                   'location_city_subsection', 'location_neighborhood', 'location_municipality',
                   'location_sub_province', 'location_province', 'location_postal_code_1',
                   'location_nation', 'train_lines', 'bus_lines', 'world_id', 'comments',
-                  'virtual_meeting_link', 'phone_meeting_number')
+                  'virtual_meeting_link', 'phone_meeting_number', 'virtual_meeting_additional_info')
 
 
 class MeetingSerializer(serializers.HyperlinkedModelSerializer):
