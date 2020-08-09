@@ -62,6 +62,11 @@ resource "aws_autoscaling_group" "cluster" {
 
   tags = [
     {
+      key                 = "Name"
+      value               = "tomato-ecs"
+      propagate_at_launch = true
+    },
+    {
       key                 = "application"
       value               = "tomato"
       propagate_at_launch = true
@@ -89,12 +94,12 @@ resource "aws_security_group" "cluster" {
     ]
   }
 
-  #ingress {
-  #  protocol    = "tcp"
-  #  from_port   = 22
-  #  to_port     = 22
-  #  cidr_blocks = ["0.0.0.0/0"]
-  #}
+//  ingress {
+//    protocol    = "tcp"
+//    from_port   = 22
+//    to_port     = 22
+//    cidr_blocks = ["71.114.11.86/32"]
+//  }
 
   egress {
     from_port   = 0
@@ -118,8 +123,8 @@ data "template_file" "user_data" {
 resource "aws_launch_configuration" "cluster" {
   security_groups             = [aws_security_group.cluster.id]
   key_name                    = aws_key_pair.main.key_name
-  image_id                    = "ami-0f161e6034a6262d8"
-  instance_type               = "t3a.small"
+  image_id                    = "ami-05250bd90f5750ed7"
+  instance_type               = "t3a.micro"
   iam_instance_profile        = aws_iam_instance_profile.cluster.name
   associate_public_ip_address = false
   user_data                   = data.template_file.user_data.rendered
