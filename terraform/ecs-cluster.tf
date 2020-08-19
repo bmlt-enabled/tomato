@@ -94,12 +94,12 @@ resource "aws_security_group" "cluster" {
     ]
   }
 
-//  ingress {
-//    protocol    = "tcp"
-//    from_port   = 22
-//    to_port     = 22
-//    cidr_blocks = ["71.114.11.86/32"]
-//  }
+  //  ingress {
+  //    protocol    = "tcp"
+  //    from_port   = 22
+  //    to_port     = 22
+  //    cidr_blocks = ["71.114.11.86/32"]
+  //  }
 
   egress {
     from_port   = 0
@@ -123,7 +123,7 @@ data "template_file" "user_data" {
 resource "aws_launch_configuration" "cluster" {
   security_groups             = [aws_security_group.cluster.id]
   key_name                    = aws_key_pair.main.key_name
-  image_id                    = "ami-05250bd90f5750ed7"
+  image_id                    = "ami-02cfc1ae415add4ce"
   instance_type               = "t3a.micro"
   iam_instance_profile        = aws_iam_instance_profile.cluster.name
   associate_public_ip_address = false
