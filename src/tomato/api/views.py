@@ -394,16 +394,33 @@ def get_field_values(params):
 
 def get_formats(params):
     root_server_id = params.get('root_server_id')
+    root_server_ids = params.get('root_server_ids')
+    root_server_ids = params.getlist('root_server_ids[]', []) if root_server_ids is None else [root_server_ids]
+    if root_server_id:
+        root_server_ids.append(root_server_id)
+    root_server_ids = [int(rs) for rs in root_server_ids]
+    root_server_ids_include = [rs for rs in root_server_ids if rs > 0]
+    root_server_ids_exclude = [abs(rs) for rs in root_server_ids if rs < 0]
+
     language = params.get('lang_enum', default='en')
     format_qs = TranslatedFormat.objects.filter(language=language)
     format_qs = format_qs.select_related('format')
-    if root_server_id:
-        format_qs = format_qs.filter(root_server_id=root_server_id)
+    if root_server_ids_include:
+        format_qs = format_qs.filter(format__root_server_id__in=root_server_ids_include)
+    if root_server_ids_exclude:
+        format_qs = format_qs.exclude(format__root_server_id__in=root_server_ids_exclude)
     return format_qs
 
 
 def get_service_bodies(params):
     root_server_id = params.get('root_server_id')
+    root_server_ids = params.get('root_server_ids')
+    root_server_ids = params.getlist('root_server_ids[]', []) if root_server_ids is None else [root_server_ids]
+    if root_server_id:
+        root_server_ids.append(root_server_id)
+    root_server_ids = [int(rs) for rs in root_server_ids]
+    root_server_ids_include = [rs for rs in root_server_ids if rs > 0]
+    root_server_ids_exclude = [abs(rs) for rs in root_server_ids if rs < 0]
 
     services = params.get('services')
     services = params.getlist('services[]', []) if services is None else [services]
@@ -416,8 +433,10 @@ def get_service_bodies(params):
         services_exclude.extend(get_child_service_bodies(services_exclude))
 
     body_qs = ServiceBody.objects.all()
-    if root_server_id:
-        body_qs = body_qs.filter(root_server_id=root_server_id)
+    if root_server_ids_include:
+        body_qs = body_qs.filter(root_server_id__in=root_server_ids_include)
+    if root_server_ids_exclude:
+        body_qs = body_qs.exclude(root_server_id__in=root_server_ids_exclude)
     if services_include:
         body_qs = body_qs.filter(id__in=services_include)
     if services_exclude:
