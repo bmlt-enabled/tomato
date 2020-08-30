@@ -1,9 +1,7 @@
 variable "rds_password" {
-  default = "1234567890"
 }
 
 variable "secret_key" {
-  default = "1234567890"
 }
 
 variable memory {
