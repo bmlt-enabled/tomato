@@ -59,20 +59,14 @@ resource "aws_cloudwatch_event_target" "root_server_import" {
   role_arn  = aws_iam_role.ecs_events.arn
 
   ecs_target {
+    launch_type         = "FARGATE"
     task_count          = 1
     task_definition_arn = aws_ecs_task_definition.tomato_root_server_import.arn
+
+    network_configuration {
+      security_groups  = [aws_security_group.cluster.id]
+      subnets          = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+      assign_public_ip = true
+    }
   }
 }
-
-### Bounching ecs instances
-//resource "aws_cloudwatch_event_rule" "refresh_ecs_instances" {
-//  name                = "tomato-refresh-ecs-instances"
-//  description         = "Refreshes all ecs instances every 3 days"
-//  schedule_expression = "rate(3 days)"
-//}
-//
-//resource "aws_cloudwatch_event_target" "refresh_ecs_instances" {
-//  rule      = aws_cloudwatch_event_rule.refresh_ecs_instances.name
-//  target_id = "lambda"
-//  arn       = aws_lambda_function.refresh_ecs_instances.arn
-//}
