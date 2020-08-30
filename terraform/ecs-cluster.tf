@@ -67,6 +67,16 @@ resource "aws_security_group" "cluster" {
     ]
   }
 
+  ingress {
+    protocol  = "tcp"
+    from_port = 8000
+    to_port   = 8000
+
+    security_groups = [
+      aws_security_group.ecs_http_load_balancers.id,
+    ]
+  }
+
   //  ingress {
   //    protocol    = "tcp"
   //    from_port   = 22
