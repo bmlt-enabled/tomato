@@ -227,7 +227,7 @@ resource "aws_ecs_service" "webapp" {
   network_configuration {
     security_groups  = [aws_security_group.cluster.id]
     subnets          = [aws_subnet.public_a.id, aws_subnet.public_b.id]
-    assign_public_ip = true
+    assign_public_ip = false
   }
 
   depends_on = [
