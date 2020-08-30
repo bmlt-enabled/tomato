@@ -23,7 +23,7 @@ resource "aws_db_instance" "tomato" {
   vpc_security_group_ids  = [aws_security_group.tomato_rds.id]
   db_subnet_group_name    = aws_db_subnet_group.tomato.name
   backup_retention_period = 7
-  
+
   skip_final_snapshot = false
 
   tags = {

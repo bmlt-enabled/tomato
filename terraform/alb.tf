@@ -77,10 +77,11 @@ resource "aws_alb" "tomato" {
 }
 
 resource "aws_alb_target_group" "tomato" {
-  name     = "tomato"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.main.id
+  name        = "tomato"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.main.id
+  target_type = "ip"
 
   deregistration_delay = 60
 

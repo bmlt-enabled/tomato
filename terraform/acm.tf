@@ -12,6 +12,11 @@ resource "aws_acm_certificate_validation" "tomato_bmltenabled" {
   validation_record_fqdns = [aws_route53_record.tomato_bmltenabled_validation.fqdn]
 }
 
+resource "aws_acm_certificate_validation" "tomato_fargate" {
+  certificate_arn         = aws_acm_certificate.tomato_bmltenabled.arn
+  validation_record_fqdns = [for record in aws_route53_record.tomato_bmltenabled_validation : record.fqdn]
+}
+
 data "aws_acm_certificate" "tomato_na_bmlt" {
   domain      = "tomato.na-bmlt.org"
   statuses    = ["ISSUED"]
