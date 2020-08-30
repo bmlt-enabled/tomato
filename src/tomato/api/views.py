@@ -188,7 +188,13 @@ def get_search_results(params):
         sort_keys = ['lang_enum', 'weekday_tinyint', 'start_time', 'id_bigint']
 
     meeting_qs = Meeting.objects.filter(deleted=False, published=True)
-    meeting_qs = meeting_qs.select_related('meetinginfo', 'service_body', 'root_server')
+    if data_field_keys:
+        select_related_fields = ['meetinginfo']
+        if 'service_body_bigint' in data_field_keys:
+            select_related_fields.append('service_body')
+            meeting_qs = meeting_qs.select_related(*select_related_fields)
+    else:
+        meeting_qs = meeting_qs.select_related('meetinginfo', 'service_body', 'root_server')
 
     if meeting_ids:
         meeting_qs = meeting_qs.filter(pk__in=meeting_ids)
@@ -333,17 +339,15 @@ def get_search_results(params):
         for key in data_field_keys:
             model_field = meeting_field_map.get(key)[0]
             if key in distance_field_keys:
-                if is_geo:
-                    values.append('distance')
+                continue
             elif isinstance(model_field, tuple):
                 field_name = model_field[0].replace('.', '__')
                 agg_name = model_field[1]
                 meeting_qs = meeting_qs.annotate(**{agg_name: ArrayAgg(field_name)})
-                values.append(agg_name)
             elif model_field:
                 model_field = model_field.replace('.', '__')
                 values.append(model_field)
-        meeting_qs = meeting_qs.values(*values)
+        meeting_qs = meeting_qs.only(*values)
     if sort_keys and not sort_results_by_distance:
         values = []
         for key in sort_keys:
@@ -526,7 +530,7 @@ def semantic_query(request, format='json'):
                     ret = models_to_json(
                         meetings,
                         meeting_field_map,
-                        related_models_filter_function=(related_models_filter_function, None),
+                        related_models_filter_function=related_models_filter_function,
                         return_attrs=data_field_keys
                     )
             else:
