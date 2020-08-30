@@ -81,14 +81,3 @@ resource "aws_security_group" "cluster" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
-data "template_file" "user_data" {
-  template = file("${path.module}/templates/user_data.sh")
-
-  vars = {
-    ecs_config        = "echo '' > /etc/ecs/ecs.config"
-    ecs_logging       = "[\"json-file\",\"awslogs\"]"
-    cluster_name      = aws_ecs_cluster.main.name
-    cloudwatch_prefix = "tomato"
-  }
-}

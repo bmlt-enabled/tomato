@@ -1,5 +1,5 @@
 data "aws_route53_zone" "bmltenabled" {
-  name = "tomato.bmltenabled.org."
+  name = "patrickj.org."
 }
 
 resource "aws_route53_record" "tomato_bmltenabled" {
@@ -28,4 +28,19 @@ resource "aws_route53_record" "tomato_bmltenabled_validation" {
   type    = each.value.type
   zone_id = each.value.zone_id
   ttl     = 60
+}
+
+
+
+# CHANGE
+resource "aws_route53_record" "bmlt_fargate" {
+  zone_id = data.aws_route53_zone.bmltenabled.id
+  name    = "tomato.${data.aws_route53_zone.bmltenabled.name}"
+  type    = "A"
+
+  alias {
+    name                   = aws_alb.tomato.dns_name
+    zone_id                = aws_alb.tomato.zone_id
+    evaluate_target_health = true
+  }
 }

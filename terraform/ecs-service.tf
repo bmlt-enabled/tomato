@@ -10,7 +10,7 @@ resource "aws_iam_role" "tomato_lb" {
       "Sid": "",
       "Effect": "Allow",
       "Principal": {
-        "Service": "ecs.amazonaws.com"
+        "Service": "ecs-tasks.amazonaws.com"
       },
       "Action": "sts:AssumeRole"
     }
@@ -31,12 +31,15 @@ resource "aws_iam_role_policy" "tomato_lb" {
     {
       "Effect": "Allow",
       "Action": [
-        "ec2:Describe*",
-        "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
-        "elasticloadbalancing:DeregisterTargets",
-        "elasticloadbalancing:Describe*",
-        "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
-        "elasticloadbalancing:RegisterTargets"
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage",
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogStreams",
+        "s3:GetObject"
       ],
       "Resource": "*"
     }

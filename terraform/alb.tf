@@ -111,7 +111,7 @@ resource "aws_alb_listener" "tomato_https" {
   load_balancer_arn = aws_alb.tomato.id
   port              = 443
   protocol          = "HTTPS"
-  certificate_arn   = data.aws_acm_certificate.tomato_na_bmlt.arn
+  certificate_arn   = aws_acm_certificate.tomato_bmltenabled.arn # CHANGE data.aws_acm_certificate.tomato_na_bmlt.arn
   ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
 
   default_action {
