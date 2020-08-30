@@ -1,5 +1,5 @@
 resource "aws_acm_certificate" "tomato_bmltenabled" {
-  domain_name       = "tomato.patrickj.org"
+  domain_name       = "tomato.patrickj.org" # CHANGE tomato.bmltenabled.org
   validation_method = "DNS"
 
   lifecycle {
