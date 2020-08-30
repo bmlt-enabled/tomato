@@ -1,5 +1,5 @@
 data "aws_route53_zone" "bmltenabled" {
-  name = "patrickj.org."  # CHANGE tomato.bmltenabled.org.
+  name = "patrickj.org." # CHANGE tomato.bmltenabled.org.
 }
 
 resource "aws_route53_record" "tomato_bmltenabled" {
