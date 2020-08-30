@@ -1,5 +1,5 @@
 resource "aws_acm_certificate" "tomato_bmltenabled" {
-  domain_name       = "tomato.patrickj.org" # CHANGE tomato.bmltenabled.org
+  domain_name       = "tomato.bmltenabled.org"
   validation_method = "DNS"
 
   lifecycle {
@@ -17,9 +17,8 @@ resource "aws_acm_certificate_validation" "tomato_fargate" {
   validation_record_fqdns = [for record in aws_route53_record.tomato_bmltenabled_validation : record.fqdn]
 }
 
-# CHANGE
-//data "aws_acm_certificate" "tomato_na_bmlt" {
-//  domain      = "tomato.na-bmlt.org"
-//  statuses    = ["ISSUED"]
-//  most_recent = true
-//}
+data "aws_acm_certificate" "tomato_na_bmlt" {
+  domain      = "tomato.na-bmlt.org"
+  statuses    = ["ISSUED"]
+  most_recent = true
+}
