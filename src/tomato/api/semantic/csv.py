@@ -35,7 +35,7 @@ def models_to_csv(models, field_map, fieldnames=None):
         for k, v in field_map.items():
             if not callable(v) and len(v) > 1:
                 try:
-                    iterator = models.iterator()
+                    iterator = models.iterator(chunk_size=10000)
                     if not isinstance(iterator, types.GeneratorType):
                         # CachingQuerySet does not return a generator, so we make one. This
                         # allows `next()` to work without loading the entire queryset from the database
@@ -58,7 +58,7 @@ def models_to_csv(models, field_map, fieldnames=None):
         header = dict(zip(writer.fieldnames, writer.fieldnames))
         try:
             yield writer.writerow(header)
-            iterator = models.iterator() if isinstance(models, QuerySet) else models
+            iterator = models.iterator(chunk_size=10000) if isinstance(models, QuerySet) else models
             for m in iterator:
                 yield model_to_csv(writer, m, field_map)
         except Exception as e:

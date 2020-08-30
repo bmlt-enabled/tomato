@@ -21,7 +21,7 @@ from .kml import apply_kml_annotations
 from .models import TranslatedFormat, Meeting, ServiceBody
 from .semantic import (field_keys, field_keys_with_descriptions, format_field_map, meeting_field_map,
                        meeting_poi_field_map, meeting_kml_field_map, server_info_field_map, service_bodies_field_map,
-                       naws_dump_field_map, distance_field_keys)
+                       naws_dump_field_map, distance_field_keys, retrieve_formats)
 from .semantic.csv import models_to_csv
 from .semantic.json import models_to_json
 from .semantic.xml import models_to_xml
@@ -344,7 +344,7 @@ def get_search_results(params):
                 field_name = model_field[0].replace('.', '__')
                 agg_name = model_field[1]
                 meeting_qs = meeting_qs.annotate(**{agg_name: ArrayAgg(field_name)})
-            elif model_field:
+            elif not callable(model_field):
                 model_field = model_field.replace('.', '__')
                 values.append(model_field)
         meeting_qs = meeting_qs.only(*values)
@@ -362,6 +362,8 @@ def get_search_results(params):
         offset = page_size * (page_num - 1)
         limit = offset + page_size
         meeting_qs = meeting_qs[offset:limit]
+    # We can't do prefetch related because we use .iterator() to stream results from the db
+    # return meeting_qs.prefetch_related('formats')
     return meeting_qs
 
 
@@ -497,23 +499,16 @@ def semantic_query(request, format='json'):
     language = params.get('lang_enum', default='en')
 
     if switcher == 'GetSearchResults':
-        def related_models_filter_function(qs):
-            if qs.model is TranslatedFormat:
-                language_qs = qs.filter(language=language)
-                if language != 'en' and not language_qs.exists():
-                    return qs.filter(language='en')
-                return language_qs.filter()
-            return qs.filter()
-
         if format in ('kml', 'poi') and 'data_field_key' in params:
             # Invalid parameter for kml and poi, as they always returns the same fields.
             params.pop('data_field_key')
         meetings = get_search_results(params)
+        retrieve_formats(language)
         data_field_keys = extract_specific_keys_param(params)
         if format in ('json', 'jsonp', 'xml'):
             if 'get_used_formats' in params or 'get_formats_only' in params:
                 formats = TranslatedFormat.objects.filter(language=language, format__id__in=meetings.values('formats'))
-                formats = formats.select_related('format')
+                formats = formats.select_related('format', 'format__root_server')
             if format in ('json', 'jsonp'):
                 if 'get_used_formats' in params or 'get_formats_only' in params:
                     if 'get_formats_only' in params:
@@ -522,7 +517,7 @@ def semantic_query(request, format='json'):
                         ret = models_to_json(
                             (meetings, formats),
                             (meeting_field_map, format_field_map),
-                            related_models_filter_function=(related_models_filter_function, None),
+                            related_models_filter_function=(None, None),
                             parent_keys=('meetings', 'formats'),
                             return_attrs=(data_field_keys, None)
                         )
@@ -530,7 +525,7 @@ def semantic_query(request, format='json'):
                     ret = models_to_json(
                         meetings,
                         meeting_field_map,
-                        related_models_filter_function=related_models_filter_function,
+                        related_models_filter_function=None,
                         return_attrs=data_field_keys
                     )
             else:
@@ -541,7 +536,7 @@ def semantic_query(request, format='json'):
                     else:
                         ret = models_to_xml(
                             meetings, meeting_field_map, 'meetings',
-                            related_models_filter_function=related_models_filter_function,
+                            related_models_filter_function=None,
                             xmlns=xmlns,
                             schema_name=switcher,
                             sub_models=formats,
@@ -551,7 +546,7 @@ def semantic_query(request, format='json'):
                 else:
                     ret = models_to_xml(
                         meetings, meeting_field_map, 'meetings',
-                        related_models_filter_function=related_models_filter_function,
+                        related_models_filter_function=None,
                         xmlns=xmlns, schema_name=switcher
                     )
         elif format == 'kml':
