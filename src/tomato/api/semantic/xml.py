@@ -60,7 +60,7 @@ def models_to_xml(models, field_map, root_element_name,
             stream.truncate(0)
 
             i = 0
-            iterator = models.iterator() if isinstance(models, QuerySet) else models
+            iterator = models.iterator(chunk_size=10000) if isinstance(models, QuerySet) else models
             for m in iterator:
                 model_to_xml(
                     writer, m, field_map, model_name,
@@ -80,7 +80,7 @@ def models_to_xml(models, field_map, root_element_name,
                 stream.truncate(0)
 
                 i = 0
-                iterator = sub_models.iterator() if isinstance(sub_models, QuerySet) else sub_models
+                iterator = sub_models.iterator(chunk_size=10000) if isinstance(sub_models, QuerySet) else sub_models
                 for m in iterator:
                     model_to_xml(
                         writer, m, sub_models_field_map, sub_model_name,

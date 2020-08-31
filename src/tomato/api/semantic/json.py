@@ -19,7 +19,7 @@ class StreamList(list):
 
     def __iter__(self):
         try:
-            for m in self.models.iterator():
+            for m in self.models.iterator(chunk_size=10000):
                 yield model_to_json(
                     m, self.field_map,
                     return_attrs=self.return_attrs,

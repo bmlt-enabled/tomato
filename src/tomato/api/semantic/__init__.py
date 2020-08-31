@@ -2,7 +2,7 @@ import datetime
 import decimal
 from collections import OrderedDict
 from django.db import models
-from ..models import ServiceBody
+from ..models import ServiceBody, TranslatedFormat
 
 
 def model_has_distance(model):
@@ -119,6 +119,37 @@ def get_naws_dump_unpublished(model):
     return ''
 
 
+formats_by_language = None
+current_formats_language = None
+
+
+def retrieve_formats(language):
+    global formats_by_language
+    global current_formats_language
+    current_formats_language = language
+    formats_qs = TranslatedFormat.objects.filter()
+    formats_qs = formats_qs.select_related('format')
+    formats_by_language = {}
+    for format in formats_qs:
+        if format.language not in formats_by_language:
+            formats_by_language[format.language] = {}
+        if format.format.id not in formats_by_language[format.language]:
+            formats_by_language[format.language][format.format.id] = format
+
+
+def get_formats_key_strings(model):
+    desired_language_formats = formats_by_language.get(current_formats_language, dict())
+    default_language_formats = formats_by_language.get('en', dict())
+    ret = []
+    for format in model.formats.all():
+        translated_format = desired_language_formats.get(format.id)
+        if not translated_format:
+            translated_format = default_language_formats.get(format.id)
+        if translated_format:
+            ret.append(translated_format.key_string)
+    return ','.join(ret)
+
+
 server_info_field_map = OrderedDict([
     ('version',          ('version',),),
     ('versionInt',       ('versionInt',),),
@@ -215,7 +246,7 @@ meeting_field_map = OrderedDict([
     ('weekday_tinyint',                 ('weekday',),),
     ('start_time',                      ('start_time',),),
     ('duration_time',                   ('duration',),),
-    ('formats',                         (('formats.translatedformats.key_string', 'formats_aggregate',),),),
+    ('formats',                         (get_formats_key_strings,),),
     ('lang_enum',                       ('language',),),
     ('longitude',                       ('longitude',),),
     ('latitude',                        ('latitude',),),
