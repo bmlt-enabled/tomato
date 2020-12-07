@@ -98,8 +98,7 @@ class Command(BaseCommand):
             root_servers = json.loads(self.request(url))
             for root_server in root_servers:
                 root_server['rootURL'] = root_server['rootURL'].strip()
-                if not root_server['rootURL'].endswith('/'):
-                    root_server['rootURL'] += '/'
+                root_server['rootURL'] = root_server['rootURL'].rstrip("/")
             root_servers = [root_server for root_server in root_servers if root_server['rootURL'] not in settings.IGNORE_ROOT_SERVERS]
         except Exception as e:
             logger.error('Error retrieving root server list: {}'.format(str(e)))
@@ -147,7 +146,7 @@ class Command(BaseCommand):
         root = RootServer.objects.get_or_create(source_id=int(root_server_json_object['id']))[0]
         root.name = root_server_json_object['name']
         root.url = root_server_json_object['rootURL']
-        root.server_info = self.request(urljoin(root.url, 'client_interface/json/?switcher=GetServerInfo'))
+        root.server_info = self.request(urljoin(root.url + "/", 'client_interface/json/?switcher=GetServerInfo'))
         root.server_info = json.dumps(json.loads(root.server_info))
         root.save()
         return root
@@ -160,7 +159,7 @@ class Command(BaseCommand):
         root.num_groups = ServiceBody.objects.filter(root_server=root, parent=None).aggregate(Sum('num_groups'))['num_groups__sum']
 
     def update_service_bodies(self, root):
-        url = urljoin(root.url, 'client_interface/json/?switcher=GetServiceBodies')
+        url = urljoin(root.url + "/", 'client_interface/json/?switcher=GetServiceBodies')
         service_bodies = json.loads(self.request(url))
         ignore_bodies = settings.IGNORE_SERVICE_BODIES.get(root.url)
         if ignore_bodies:
@@ -172,7 +171,7 @@ class Command(BaseCommand):
     def update_formats(self, root):
         formats = {}
         for language in json.loads(root.server_info)[0]['langs'].split(','):
-            url = urljoin(root.url, 'client_interface/json/?switcher=GetFormats&lang_enum={}'.format(language))
+            url = urljoin(root.url + "/", 'client_interface/json/?switcher=GetFormats&lang_enum={}'.format(language))
             for fmt in json.loads(self.request(url)):
                 if fmt['id'] not in formats:
                     formats[fmt['id']] = {}
@@ -180,7 +179,7 @@ class Command(BaseCommand):
         Format.import_from_bmlt_objects(root, formats)
 
     def update_meetings(self, root):
-        url = urljoin(root.url, 'client_interface/json/?switcher=GetSearchResults')
+        url = urljoin(root.url + "/", 'client_interface/json/?switcher=GetSearchResults')
         meetings = json.loads(self.request(url))
         ignore_bodies = settings.IGNORE_SERVICE_BODIES.get(root.url)
         if ignore_bodies:
