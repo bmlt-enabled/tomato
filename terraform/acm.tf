@@ -9,7 +9,7 @@ resource "aws_acm_certificate" "tomato_bmltenabled" {
 
 resource "aws_acm_certificate_validation" "tomato_bmltenabled" {
   certificate_arn         = aws_acm_certificate.tomato_bmltenabled.arn
-  validation_record_fqdns = [aws_route53_record.tomato_bmltenabled_validation.fqdn]
+  validation_record_fqdns = [for record in aws_route53_record.tomato_bmltenabled_validation : record.fqdn]
 }
 
 data "aws_acm_certificate" "tomato_na_bmlt" {
