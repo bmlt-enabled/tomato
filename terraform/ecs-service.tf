@@ -46,8 +46,13 @@ EOF
 
 }
 
+data "aws_iam_role" "ecs_task_role" {
+  name = "ecs-exec-task-role"
+}
+
 resource "aws_ecs_task_definition" "webapp" {
-  family = "tomato-webapp"
+  family        = "tomato-webapp"
+  task_role_arn = data.aws_iam_role.ecs_task_role.arn
 
   container_definitions = <<EOF
 [
@@ -267,7 +272,8 @@ EOF
 //}
 
 resource "aws_ecs_task_definition" "tomato_root_server_import" {
-  family = "tomato-root-server-import"
+  family        = "tomato-root-server-import"
+  task_role_arn = data.aws_iam_role.ecs_task_role.arn
 
   container_definitions = <<EOF
 [
@@ -339,12 +345,12 @@ EOF
 }
 
 resource "aws_ecs_service" "webapp" {
-  name            = "webapp"
-  cluster         = aws_ecs_cluster.main.id
-  desired_count   = 2
-  iam_role        = aws_iam_role.tomato_lb.name
-  task_definition = aws_ecs_task_definition.webapp.arn
-
+  name                               = "webapp"
+  cluster                            = aws_ecs_cluster.main.id
+  desired_count                      = 2
+  iam_role                           = aws_iam_role.tomato_lb.name
+  task_definition                    = aws_ecs_task_definition.webapp.arn
+  enable_execute_command             = true
   deployment_minimum_healthy_percent = 50
 
   load_balancer {
