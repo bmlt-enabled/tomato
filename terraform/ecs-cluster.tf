@@ -33,6 +33,11 @@ resource "aws_iam_role_policy_attachment" "attach_ecr_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
+resource "aws_iam_role_policy_attachment" "attach_ssm_policy" {
+  role       = aws_iam_role.cluster_instance.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 data "aws_iam_policy_document" "cluster_instance" {
   statement {
     effect    = "Allow"
@@ -123,7 +128,7 @@ data "template_file" "user_data" {
 resource "aws_launch_configuration" "cluster" {
   security_groups             = [aws_security_group.cluster.id]
   key_name                    = aws_key_pair.main.key_name
-  image_id                    = "ami-02cfc1ae415add4ce"
+  image_id                    = "ami-03db9b2aac6af477d"
   instance_type               = "t3.micro"
   iam_instance_profile        = aws_iam_instance_profile.cluster.name
   associate_public_ip_address = false

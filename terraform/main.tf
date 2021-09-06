@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
-    bucket  = "tomato-terraform-state-mvana"
-    key     = "state"
+    bucket  = "mvana-account-terraform"
+    key     = "tomato/state"
     region  = "us-east-1"
     profile = "mvana"
   }
