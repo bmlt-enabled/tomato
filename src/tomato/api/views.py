@@ -121,6 +121,15 @@ def get_child_service_bodies(parents):
     return ret
 
 
+def get_parent_service_bodies(children):
+    ret = []
+    parents = children
+    while parents:
+        parents = [p.parent.pk for p in ServiceBody.objects.filter(pk__in=parents) if p.parent is not None and p.parent.pk not in ret]
+        ret.extend(parents)
+    return ret
+
+
 def get_search_results(params):
     page_size = params.get('page_size')
     page_size = abs(int(page_size)) if page_size is not None else page_size
@@ -447,6 +456,10 @@ def get_service_bodies(params):
     if recursive:
         services_include.extend(get_child_service_bodies(services_include))
         services_exclude.extend(get_child_service_bodies(services_exclude))
+    parents = params.get('parents', None) == '1'
+    if parents:
+        services_include.extend(get_parent_service_bodies(services_include))
+        services_exclude.extend(get_parent_service_bodies(services_exclude))
 
     body_qs = ServiceBody.objects.all()
     if root_server_ids_include:

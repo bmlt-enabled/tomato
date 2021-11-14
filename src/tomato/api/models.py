@@ -549,7 +549,7 @@ class MeetingInfo(models.Model):
     id = models.BigAutoField(primary_key=True)
     meeting = models.OneToOneField(Meeting, on_delete=models.CASCADE)
     email = models.EmailField(null=True)
-    location_text = models.CharField(max_length=260, null=True)
+    location_text = models.CharField(max_length=512, null=True)
     location_info = models.CharField(max_length=512, null=True)
     location_street = models.CharField(max_length=255, null=True)
     location_city_subsection = models.CharField(max_length=255, null=True)
