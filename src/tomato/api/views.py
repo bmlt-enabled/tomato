@@ -121,6 +121,15 @@ def get_child_service_bodies(parents):
     return ret
 
 
+def get_parent_service_bodies(children):
+    ret = []
+    parents = children
+    while parents:
+        parents = [p.parent.pk for p in ServiceBody.objects.filter(pk__in=parents) if p.parent is not None and p.parent.pk not in ret]
+        ret.extend(parents)
+    return ret
+
+
 def get_search_results(params):
     page_size = params.get('page_size')
     page_size = abs(int(page_size)) if page_size is not None else page_size
@@ -135,6 +144,12 @@ def get_search_results(params):
     weekdays = [int(w) for w in weekdays]
     weekdays_include = [w for w in weekdays if w > 0]
     weekdays_exclude = [abs(w) for w in weekdays if w < 0]
+
+    venue_types = params.get('venue_types')
+    venue_types = params.getlist('venue_types[]', []) if venue_types is None else [venue_types]
+    venue_types = [int(vt) for vt in venue_types]
+    venue_types_include = [vt for vt in venue_types if vt > 0]
+    venue_types_exclude = [vt for vt in venue_types if vt < 0]
 
     services = params.get('services')
     services = params.getlist('services[]', []) if services is None else [services]
@@ -202,6 +217,10 @@ def get_search_results(params):
         meeting_qs = meeting_qs.filter(weekday__in=weekdays_include)
     if weekdays_exclude:
         meeting_qs = meeting_qs.exclude(weekday__in=weekdays_exclude)
+    if venue_types_include:
+        meeting_qs = meeting_qs.filter(venue_type__in=venue_types_include)
+    if venue_types_exclude:
+        meeting_qs = meeting_qs.exclude(venue_type__in=venue_types_exclude)
     if services_include:
         meeting_qs = meeting_qs.filter(service_body_id__in=services_include)
     if services_exclude:
@@ -437,6 +456,10 @@ def get_service_bodies(params):
     if recursive:
         services_include.extend(get_child_service_bodies(services_include))
         services_exclude.extend(get_child_service_bodies(services_exclude))
+    parents = params.get('parents', None) == '1'
+    if parents:
+        services_include.extend(get_parent_service_bodies(services_include))
+        services_exclude.extend(get_parent_service_bodies(services_exclude))
 
     body_qs = ServiceBody.objects.all()
     if root_server_ids_include:

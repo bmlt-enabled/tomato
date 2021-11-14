@@ -714,6 +714,8 @@ class GetSearchResultsTests(TestCase):
                         except ValueError:
                             self.fail('Invalid time')
                 if prev_sort_value:
+                    if sort_key == 'venue_type' and isinstance(prev_sort_value, float) and sort_value == '':
+                        continue
                     self.assertTrue(sort_value >= prev_sort_value)
                 prev_sort_value = sort_value
 
@@ -758,6 +760,20 @@ class GetServiceBodiesTests(TestCase):
         self.assertEqual(response['Content-Type'], 'application/json')
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
         self.assertEqual(len(response), 29)
+        body = response[0]
+        for key in body.keys():
+            self.assertIn(key, service_bodies_field_map.keys())
+        for key in service_bodies_field_map.keys():
+            self.assertIn(key, body.keys())
+
+    def test_get_service_bodies_json_parents(self):
+        url = reverse('semantic-query', kwargs={'format': 'json'})
+        url += '?switcher=GetServiceBodies&services=8&parents=1'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/json')
+        response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
+        self.assertEqual(len(response), 3)
         body = response[0]
         for key in body.keys():
             self.assertIn(key, service_bodies_field_map.keys())

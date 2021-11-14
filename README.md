@@ -35,6 +35,17 @@ https://docs.djangoproject.com/en/2.0/ref/settings/#std:setting-SECRET_KEY
 | SECRET_KEY | Secret key used for Django crypto things |
 | GOOGLE_MAPS_API_KEY | Google Maps API Key |
 
+### Start a dev db
+```
+docker run -d \
+  --name tomato \
+  -e POSTGRES_PASSWORD=tomato \
+  -e POSTGRES_USER=tomato \
+  -e POSTGRES_DB=tomato \
+  -p 5432:5432 \
+  postgis/postgis
+```
+
 ## Local cluster (beta)
 
 *No data is being populated yet*
