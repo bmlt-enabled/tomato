@@ -714,6 +714,8 @@ class GetSearchResultsTests(TestCase):
                         except ValueError:
                             self.fail('Invalid time')
                 if prev_sort_value:
+                    if sort_key == 'venue_type' and isinstance(prev_sort_value, float) and sort_value == '':
+                        continue
                     self.assertTrue(sort_value >= prev_sort_value)
                 prev_sort_value = sort_value
 
