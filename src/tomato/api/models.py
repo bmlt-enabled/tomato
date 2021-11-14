@@ -381,6 +381,7 @@ class Meeting(models.Model):
     service_body = models.ForeignKey(ServiceBody, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     weekday = models.SmallIntegerField(choices=WEEKDAY_CHOICES)
+    venue_type = models.SmallIntegerField(null=True)
     start_time = models.TimeField(null=True)
     duration = models.DurationField(null=True)
     formats = models.ManyToManyField(Format)
@@ -425,7 +426,7 @@ class Meeting(models.Model):
                 dirty = False
                 field_names = ('service_body', 'name', 'weekday', 'start_time',
                                'duration', 'language', 'latitude', 'longitude',
-                               'published', 'deleted')
+                               'published', 'deleted', 'venue_type')
                 changed_fields = []
                 for field_name in field_names:
                     if set_if_changed(meeting, field_name, bmlt_meeting[field_name]):
@@ -496,12 +497,18 @@ class Meeting(models.Model):
                         else:
                             unique_formats.append(fmt)
                     formats = unique_formats
+
+            venue_type = bmlt_meeting.get('venue_type', None)
+            if venue_type is not None:
+                venue_type = get_int(venue_type)
+
             return {
                 'source_id': get_int(bmlt_meeting, 'id_bigint'),
                 'service_body': ServiceBody.objects.get(root_server=root_server,
                                                         source_id=get_int(bmlt_meeting, 'service_body_bigint')),
                 'name': get_required_str(bmlt_meeting, 'meeting_name'),
                 'weekday': get_int(bmlt_meeting, 'weekday_tinyint', valid_choices=Meeting.VALID_WEEKDAY_INTS),
+                'venue_type': venue_type,
                 'start_time': get_time(bmlt_meeting, 'start_time'),
                 'duration': get_timedelta(bmlt_meeting, 'duration_time'),
                 'language': bmlt_meeting.get('lang_enum', 'en'),

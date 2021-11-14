@@ -1,3 +1,4 @@
+.vscode
 .idea
 *.pyc
 *.iml
@@ -8,3 +9,4 @@
 venv
 src/tomato-django-cache
 refresh_ecs_instances.zip
+__pycache__

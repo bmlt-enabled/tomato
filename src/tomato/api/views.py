@@ -136,6 +136,12 @@ def get_search_results(params):
     weekdays_include = [w for w in weekdays if w > 0]
     weekdays_exclude = [abs(w) for w in weekdays if w < 0]
 
+    venue_types = params.get('venue_types')
+    venue_types = params.getlist('venue_types[]', []) if venue_types is None else [venue_types]
+    venue_types = [int(vt) for vt in venue_types]
+    venue_types_include = [vt for vt in venue_types if vt > 0]
+    venue_types_exclude = [vt for vt in venue_types if vt < 0]
+
     services = params.get('services')
     services = params.getlist('services[]', []) if services is None else [services]
     services = [int(s) for s in services]
@@ -202,6 +208,10 @@ def get_search_results(params):
         meeting_qs = meeting_qs.filter(weekday__in=weekdays_include)
     if weekdays_exclude:
         meeting_qs = meeting_qs.exclude(weekday__in=weekdays_exclude)
+    if venue_types_include:
+        meeting_qs = meeting_qs.filter(venue_type__in=venue_types_include)
+    if venue_types_exclude:
+        meeting_qs = meeting_qs.exclude(venue_type__in=venue_types_exclude)
     if services_include:
         meeting_qs = meeting_qs.filter(service_body_id__in=services_include)
     if services_exclude:
