@@ -498,9 +498,14 @@ class Meeting(models.Model):
                             unique_formats.append(fmt)
                     formats = unique_formats
 
-            venue_type = bmlt_meeting.get('venue_type', None)
-            if venue_type is not None:
-                venue_type = get_int(venue_type)
+            venue_type = bmlt_meeting.get('venue_type')
+            if venue_type:
+                try:
+                    venue_type = int(venue_type)
+                except ValueError:
+                    raise ImportException('Malformed venue_type', bmlt_meeting)
+            else:
+                venue_type = None
 
             return {
                 'source_id': get_int(bmlt_meeting, 'id_bigint'),
