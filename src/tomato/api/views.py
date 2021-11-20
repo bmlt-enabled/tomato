@@ -427,6 +427,9 @@ def get_formats(params):
     root_server_ids_include = [rs for rs in root_server_ids if rs > 0]
     root_server_ids_exclude = [abs(rs) for rs in root_server_ids if rs < 0]
 
+    key_strings = params.get('key_strings')
+    key_strings = params.getlist('key_strings[]', []) if key_strings is None else [key_strings]
+
     language = params.get('lang_enum', default='en')
     format_qs = TranslatedFormat.objects.filter(language=language)
     format_qs = format_qs.select_related('format')
@@ -434,6 +437,8 @@ def get_formats(params):
         format_qs = format_qs.filter(format__root_server_id__in=root_server_ids_include)
     if root_server_ids_exclude:
         format_qs = format_qs.exclude(format__root_server_id__in=root_server_ids_exclude)
+    if key_strings:
+        format_qs = format_qs.filter(key_string__in=key_strings)
     return format_qs
 
 
