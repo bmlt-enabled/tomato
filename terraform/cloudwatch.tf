@@ -76,3 +76,40 @@ resource "aws_cloudwatch_event_target" "root_server_import" {
 //  target_id = "lambda"
 //  arn       = aws_lambda_function.refresh_ecs_instances.arn
 //}
+
+
+resource "aws_cloudwatch_metric_alarm" "lb_hosts" {
+  alarm_name          = "tomato-alb-unhealthy-hosts"
+  alarm_description   = "healthy hosts less than 2 for an hour"
+  actions_enabled     = true
+  comparison_operator = "LessThanThreshold"
+  datapoints_to_alarm = 1
+  evaluation_periods  = 1
+  period              = 60
+  threshold           = 2
+  statistic           = "Average"
+  treat_missing_data  = "missing"
+  metric_name         = "HealthyHostCount"
+  namespace           = "AWS/ApplicationELB"
+
+  dimensions = {
+    "LoadBalancer" = aws_alb.tomato.arn_suffix
+    "TargetGroup"  = aws_alb_target_group.tomato.arn_suffix
+  }
+
+  alarm_actions             = [aws_sns_topic.lb_hosts.arn]
+  ok_actions                = [aws_sns_topic.lb_hosts.arn]
+  insufficient_data_actions = []
+
+  tags = {
+    Name = "tomato"
+  }
+}
+
+resource "aws_sns_topic" "lb_hosts" {
+  name = "tomato-alb-healthy-host"
+
+  tags = {
+    Name = "tomato"
+  }
+}
