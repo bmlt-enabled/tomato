@@ -78,16 +78,44 @@ resource "aws_cloudwatch_event_target" "root_server_import" {
 //}
 
 
-resource "aws_cloudwatch_metric_alarm" "lb_hosts" {
-  alarm_name          = "tomato-alb-unhealthy-hosts"
-  alarm_description   = "healthy hosts less than 2 for an hour"
+resource "aws_cloudwatch_metric_alarm" "lb_hosts_lt_2" {
+  alarm_name          = "tomato-alb-unhealthy-hosts-lt-2"
+  alarm_description   = "healthy hosts less than 2 for an 20 minutes"
   actions_enabled     = true
   comparison_operator = "LessThanThreshold"
   datapoints_to_alarm = 1
   evaluation_periods  = 1
-  period              = 60
+  period              = 1200
   threshold           = 2
-  statistic           = "Average"
+  statistic           = "Maximum"
+  treat_missing_data  = "missing"
+  metric_name         = "HealthyHostCount"
+  namespace           = "AWS/ApplicationELB"
+
+  dimensions = {
+    "LoadBalancer" = aws_alb.tomato.arn_suffix
+    "TargetGroup"  = aws_alb_target_group.tomato.arn_suffix
+  }
+
+  alarm_actions             = [aws_sns_topic.lb_hosts.arn]
+  ok_actions                = [aws_sns_topic.lb_hosts.arn]
+  insufficient_data_actions = []
+
+  tags = {
+    Name = "tomato"
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "lb_hosts_lt_1" {
+  alarm_name          = "tomato-alb-unhealthy-hosts-lt-1"
+  alarm_description   = "healthy hosts less than 1 for an 5 minutes"
+  actions_enabled     = true
+  comparison_operator = "LessThanThreshold"
+  datapoints_to_alarm = 1
+  evaluation_periods  = 1
+  period              = 300
+  threshold           = 1
+  statistic           = "Maximum"
   treat_missing_data  = "missing"
   metric_name         = "HealthyHostCount"
   namespace           = "AWS/ApplicationELB"
