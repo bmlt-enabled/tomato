@@ -1,0 +1,22 @@
+{
+  "Records": [
+    {
+      "EventSource": "aws:sns",
+      "EventVersion": "1.0",
+      "EventSubscriptionArn": "arn:aws:sns:us-east-1:766033189774:tomato-alb-healthy-host:f30bc929-a316-4cbd-a38d-cfe8907d3f8c",
+      "Sns": {
+        "Type": "Notification",
+        "MessageId": "4e59d978-5db4-5675-a471-8329db91c1f1",
+        "TopicArn": "arn:aws:sns:us-east-1:766033189774:tomato-alb-healthy-host",
+        "Subject": "ALARM: \"tomato-alb-unhealthy-hosts-lt-2\" in US East (N. Virginia)",
+        "Message": "{\"AlarmName\":\"tomato-alb-unhealthy-hosts-lt-2\",\"AlarmDescription\":\"healthy hosts less than 2 for an 20 minutes\",\"AWSAccountId\":\"766033189774\",\"NewStateValue\":\"ALARM\",\"NewStateReason\":\"Threshold Crossed: 1 out of the last 1 datapoints [1.0 (07/01/22 00:03:00)] was less than the threshold (2.0) (minimum 1 datapoint for OK -> ALARM transition).\",\"StateChangeTime\":\"2022-01-07T00:05:57.126+0000\",\"Region\":\"US East (N. Virginia)\",\"AlarmArn\":\"arn:aws:cloudwatch:us-east-1:766033189774:alarm:tomato-alb-unhealthy-hosts-lt-2\",\"OldStateValue\":\"OK\",\"Trigger\":{\"MetricName\":\"HealthyHostCount\",\"Namespace\":\"AWS/ApplicationELB\",\"StatisticType\":\"Statistic\",\"Statistic\":\"MAXIMUM\",\"Unit\":null,\"Dimensions\":[{\"value\":\"targetgroup/tomato/830719e1faa145a7\",\"name\":\"TargetGroup\"},{\"value\":\"app/tomato/2998c88fe956e724\",\"name\":\"LoadBalancer\"}],\"Period\":60,\"EvaluationPeriods\":1,\"ComparisonOperator\":\"LessThanThreshold\",\"Threshold\":2.0,\"TreatMissingData\":\"missing\",\"EvaluateLowSampleCountPercentile\":\"\"}}",
+        "Timestamp": "2022-01-07T00:05:57.167Z",
+        "SignatureVersion": "1",
+        "Signature": "p5BQVkBI0I6Rc5EqHiuBn57lPGC5XbzEkLkR+Xf5dwbQ4EAnsHFU6vW1lJlzk+oumVbVdOk0EefIwbszW/NHIlCJTQhBBB+cuc9lUG/4o5SU0MYJ4Qd0sMXFLm84EI6nbFOGfPRAe4OTXSC5wlUt906V0tVRs1gQAoTtAV1jy3gHlGeKgplwozzm0U1yPREjbDtXGe7Mv9WfpTU6YvG5U2aDO5ECuhWmOeQKnCHOyTn+4B6n9obISduHsx2q43rabFb/a0JdHWRwtJqtjHIobAau/KTjBMIwEney3haTK539PSDBkyKG09rMHdPA6FeUJ8Im6dLHYQXxi5UA9KBciQ==",
+        "SigningCertUrl": "https://sns.us-east-1.amazonaws.com/SimpleNotificationService-7ff5318490ec183fbaddaa2a969abfda.pem",
+        "UnsubscribeUrl": "https://sns.us-east-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-east-1:766033189774:tomato-alb-healthy-host:f30bc929-a316-4cbd-a38d-cfe8907d3f8c",
+        "MessageAttributes": {}
+      }
+    }
+  ]
+}
