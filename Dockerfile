@@ -1,11 +1,8 @@
-FROM ubuntu:18.04
+FROM python:3.9-slim-buster
 
 RUN apt-get update -y
 RUN apt-get upgrade -y
 RUN apt-get install -y \
-  python3 \
-  python3-pip \
-  python3-dev \
   libgdal-dev \
   libspatialite-dev \
   libsqlite3-mod-spatialite \
