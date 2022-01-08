@@ -1,18 +1,18 @@
-module "sms_lambda" {
-  source               = "git::https://github.com/pjaudiomv/terraform-aws-lambda-python-archive.git"
-  src_dir              = "${path.module}/sms_lambda"
-  output_path          = "${path.module}/sms-alerts.zip"
-  install_dependencies = true
+data "archive_file" "sms_lambda" {
+  type        = "zip"
+  source_file = "sms-alerts.py"
+  output_path = "sms-alerts.zip"
 }
 
 resource "aws_lambda_function" "sms_lambda" {
-  filename                       = module.sms_lambda.archive_path
+  filename                       = data.archive_file.sms_lambda.output_path
   function_name                  = "sms-alerts"
   role                           = aws_iam_role.sms_lambda_iam_role.arn
   description                    = "Send SMS from SNS"
   handler                        = "sms-alerts.lambda_handler"
-  source_code_hash               = module.sms_lambda.source_code_hash
+  source_code_hash               = data.archive_file.sms_lambda.output_base64sha256
   runtime                        = "python3.9"
+  layers                         = ["arn:aws:lambda:us-east-1:766033189774:layer:twilio:1"]
   memory_size                    = 128
   timeout                        = 60
   reserved_concurrent_executions = 2
@@ -28,6 +28,7 @@ resource "aws_lambda_function" "sms_lambda" {
 
   lifecycle {
     ignore_changes = [
+      last_modified,
       environment.0.variables,
     ]
   }
