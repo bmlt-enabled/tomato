@@ -24,6 +24,7 @@ class FormatViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Format.objects.all().order_by('pk')
     serializer_class = serializers.FormatSerializer
     pagination_class = StandardResultsSetPagination
+    filter_fields = {"id":  ["in"]}
 
 
 class TranslatedFormatViewSet(viewsets.ReadOnlyModelViewSet):
