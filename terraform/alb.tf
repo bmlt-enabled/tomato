@@ -146,6 +146,33 @@ resource "aws_alb_listener_rule" "formats_403" {
   }
 }
 
+resource "aws_alb_listener_rule" "formats_403_all" {
+  // This blocks problematic requests from the BMLTSearch app
+  listener_arn = aws_alb_listener.tomato_https.arn
+
+  action {
+    type = "fixed-response"
+    fixed_response {
+      content_type = "application/json"
+      message_body = "{}"
+      status_code  = "403"
+    }
+  }
+
+  condition {
+    path_pattern {
+      values = ["/rest/v1/formats/"]
+    }
+  }
+
+  condition {
+    query_string {
+      key   = "format"
+      value = "json"
+    }
+  }
+}
+
 resource "aws_alb_listener_certificate" "tomato_bmlt_cert" {
   listener_arn    = aws_alb_listener.tomato_https.arn
   certificate_arn = aws_acm_certificate.tomato_bmltenabled.arn
