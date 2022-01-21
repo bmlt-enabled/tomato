@@ -134,7 +134,7 @@ resource "aws_alb_listener_rule" "formats_403" {
 
   condition {
     path_pattern {
-      values = ["/rest/v1/formats/*/"]
+      values = ["/rest/v1/formats/?*"]
     }
   }
 
