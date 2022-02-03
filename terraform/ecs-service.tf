@@ -126,7 +126,7 @@ resource "aws_ecs_task_definition" "webapp" {
     },
     "cpu": 700,
     "privileged": null,
-    "memoryReservation": 1024,
+    "memoryReservation": 512,
     "linuxParameters": {
       "initProcessEnabled": true
     }
