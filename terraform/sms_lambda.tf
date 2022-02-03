@@ -89,5 +89,4 @@ resource "aws_iam_role" "sms_lambda_iam_role" {
   description         = "Lambda role for sms"
   assume_role_policy  = data.aws_iam_policy_document.sms_lambda_assume_role.json
   managed_policy_arns = [aws_iam_policy.sms_lambda_action_role_policy.arn]
-  inline_policy {}
 }
