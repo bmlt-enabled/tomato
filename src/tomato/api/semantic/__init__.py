@@ -1,6 +1,7 @@
 import datetime
 import decimal
-from collections import OrderedDict
+import threading
+from collections import OrderedDict, deque
 from django.db import models
 from ..models import ServiceBody, TranslatedFormat
 
@@ -120,24 +121,39 @@ def get_naws_dump_unpublished(model):
 
 
 formats_by_language = None
-current_formats_language = None
+thread_formats_language: dict[int, str] = {}
+thread_history = deque()
 
 
 def retrieve_formats(language):
     global formats_by_language
-    global current_formats_language
-    current_formats_language = language
-    formats_qs = TranslatedFormat.objects.filter()
-    formats_qs = formats_qs.select_related('format')
-    formats_by_language = {}
-    for format in formats_qs:
-        if format.language not in formats_by_language:
-            formats_by_language[format.language] = {}
-        if format.format.id not in formats_by_language[format.language]:
-            formats_by_language[format.language][format.format.id] = format
+    global thread_formats_language
+
+    thread_id = threading.get_ident()
+    thread_history.append(thread_id)
+    thread_formats_language[thread_id] = language
+    if len(thread_history) > 50:
+        old_thread_id = thread_history.popleft()
+        try:
+            del thread_formats_language[old_thread_id]
+        except KeyError:
+            pass
+
+    if formats_by_language is None:
+        formats_qs = TranslatedFormat.objects.filter()
+        formats_qs = formats_qs.select_related('format')
+        _formats_by_language = {}
+        for format in formats_qs:
+            if format.language not in _formats_by_language:
+                _formats_by_language[format.language] = {}
+            if format.format.id not in _formats_by_language[format.language]:
+                _formats_by_language[format.language][format.format.id] = format
+        formats_by_language = _formats_by_language
 
 
 def get_formats_key_strings(model):
+    thread_id = threading.get_ident()
+    current_formats_language = thread_formats_language.get(thread_id, 'en')
     desired_language_formats = formats_by_language.get(current_formats_language, dict())
     default_language_formats = formats_by_language.get('en', dict())
     ret = []
