@@ -251,6 +251,7 @@ def get_search_results(params):
     if root_server_ids_exclude:
         meeting_qs = meeting_qs.exclude(root_server_id__in=root_server_ids_exclude)
     if meeting_key and meeting_key_value:
+        has_required_filter = True
         if meeting_key in valid_meeting_search_keys:
             model_field = meeting_field_map.get(meeting_key)[0]
             if isinstance(model_field, tuple):
