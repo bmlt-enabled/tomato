@@ -2,7 +2,8 @@ import datetime
 import decimal
 import logging
 import threading
-from collections import OrderedDict, deque
+from collections import OrderedDict
+from contextlib import contextmanager
 from django.db import models
 from ..models import RootServer, ServiceBody, TranslatedFormat
 
@@ -127,23 +128,13 @@ def get_naws_dump_unpublished(model):
 formats_cache_timestamp: datetime.datetime = None
 language_by_thread: dict[int, str] = {}
 formats_by_language = None
-thread_history = deque()
 
 
-def retrieve_formats(language):
+@contextmanager
+def translated_formats_context(language):
     global formats_cache_timestamp
     global formats_by_language
     global language_by_thread
-
-    thread_id = threading.get_ident()
-    thread_history.append(thread_id)
-    language_by_thread[thread_id] = language
-    if len(thread_history) > 50:
-        old_thread_id = thread_history.popleft()
-        try:
-            del language_by_thread[old_thread_id]
-        except KeyError:
-            pass
 
     last_import_timestamp: datetime.datetime = RootServer.objects.values_list("last_successful_import", flat=True).order_by("-last_successful_import").first()
     if formats_by_language is None or formats_cache_timestamp is None or (last_import_timestamp and last_import_timestamp > formats_cache_timestamp):
@@ -158,6 +149,17 @@ def retrieve_formats(language):
                 _formats_by_language[format.language][format.format.id] = format
         formats_by_language = _formats_by_language
         formats_cache_timestamp = last_import_timestamp
+
+    thread_id = threading.get_ident()
+    language_by_thread[thread_id] = language
+
+    try:
+        yield
+    finally:
+        try:
+            del language_by_thread[thread_id]
+        except KeyError:
+            pass
 
 
 def get_formats_key_strings(model):

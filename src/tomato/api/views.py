@@ -21,7 +21,7 @@ from .kml import apply_kml_annotations
 from .models import TranslatedFormat, Meeting, ServiceBody
 from .semantic import (field_keys, field_keys_with_descriptions, format_field_map, meeting_field_map,
                        meeting_poi_field_map, meeting_kml_field_map, server_info_field_map, service_bodies_field_map,
-                       naws_dump_field_map, distance_field_keys, retrieve_formats)
+                       naws_dump_field_map, distance_field_keys, translated_formats_context)
 from .semantic.csv import models_to_csv
 from .semantic.json import models_to_json
 from .semantic.xml import models_to_xml
@@ -543,62 +543,62 @@ def semantic_query(request, format='json'):
             # Invalid parameter for kml and poi, as they always returns the same fields.
             params.pop('data_field_key')
         meetings = get_search_results(params)
-        retrieve_formats(language)
-        data_field_keys = extract_specific_keys_param(params)
-        if format in ('json', 'jsonp', 'xml'):
-            if 'get_used_formats' in params or 'get_formats_only' in params:
-                formats = TranslatedFormat.objects.filter(language=language, format__id__in=meetings.values('formats'))
-                formats = formats.select_related('format', 'format__root_server')
-            if format in ('json', 'jsonp'):
+        with translated_formats_context(language):
+            data_field_keys = extract_specific_keys_param(params)
+            if format in ('json', 'jsonp', 'xml'):
                 if 'get_used_formats' in params or 'get_formats_only' in params:
-                    if 'get_formats_only' in params:
-                        ret = models_to_json(formats, format_field_map, parent_keys='formats')
+                    formats = TranslatedFormat.objects.filter(language=language, format__id__in=meetings.values('formats'))
+                    formats = formats.select_related('format', 'format__root_server')
+                if format in ('json', 'jsonp'):
+                    if 'get_used_formats' in params or 'get_formats_only' in params:
+                        if 'get_formats_only' in params:
+                            ret = models_to_json(formats, format_field_map, parent_keys='formats')
+                        else:
+                            ret = models_to_json(
+                                (meetings, formats),
+                                (meeting_field_map, format_field_map),
+                                related_models_filter_function=(None, None),
+                                parent_keys=('meetings', 'formats'),
+                                return_attrs=(data_field_keys, None)
+                            )
                     else:
                         ret = models_to_json(
-                            (meetings, formats),
-                            (meeting_field_map, format_field_map),
-                            related_models_filter_function=(None, None),
-                            parent_keys=('meetings', 'formats'),
-                            return_attrs=(data_field_keys, None)
+                            meetings,
+                            meeting_field_map,
+                            related_models_filter_function=None,
+                            return_attrs=data_field_keys
                         )
                 else:
-                    ret = models_to_json(
-                        meetings,
-                        meeting_field_map,
-                        related_models_filter_function=None,
-                        return_attrs=data_field_keys
-                    )
-            else:
-                xmlns = '{}://{}'.format(request.scheme, request.get_host())
-                if 'get_used_formats' in params or 'get_formats_only' in params:
-                    if 'get_formats_only' in params:
-                        ret = models_to_xml(formats, format_field_map, 'formats', xmlns=xmlns, schema_name='GetFormats')
+                    xmlns = '{}://{}'.format(request.scheme, request.get_host())
+                    if 'get_used_formats' in params or 'get_formats_only' in params:
+                        if 'get_formats_only' in params:
+                            ret = models_to_xml(formats, format_field_map, 'formats', xmlns=xmlns, schema_name='GetFormats')
+                        else:
+                            ret = models_to_xml(
+                                meetings, meeting_field_map, 'meetings',
+                                related_models_filter_function=None,
+                                xmlns=xmlns,
+                                schema_name=switcher,
+                                sub_models=formats,
+                                sub_models_field_map=format_field_map,
+                                sub_models_element_name='formats'
+                            )
                     else:
                         ret = models_to_xml(
                             meetings, meeting_field_map, 'meetings',
                             related_models_filter_function=None,
-                            xmlns=xmlns,
-                            schema_name=switcher,
-                            sub_models=formats,
-                            sub_models_field_map=format_field_map,
-                            sub_models_element_name='formats'
+                            xmlns=xmlns, schema_name=switcher
                         )
-                else:
-                    ret = models_to_xml(
-                        meetings, meeting_field_map, 'meetings',
-                        related_models_filter_function=None,
-                        xmlns=xmlns, schema_name=switcher
-                    )
-        elif format == 'kml':
-            meetings = apply_kml_annotations(meetings)
-            ret = models_to_xml(meetings, meeting_kml_field_map, 'kml.Document',
-                                model_name='Placemark', show_sequence_index=False)
-        elif format == 'poi':
-            meetings = meetings.order_by('weekday')
-            meetings = apply_kml_annotations(meetings)
-            ret = models_to_csv(meetings, meeting_poi_field_map)
-        elif format == 'csv':
-            ret = models_to_csv(meetings, meeting_field_map, data_field_keys)
+            elif format == 'kml':
+                meetings = apply_kml_annotations(meetings)
+                ret = models_to_xml(meetings, meeting_kml_field_map, 'kml.Document',
+                                    model_name='Placemark', show_sequence_index=False)
+            elif format == 'poi':
+                meetings = meetings.order_by('weekday')
+                meetings = apply_kml_annotations(meetings)
+                ret = models_to_csv(meetings, meeting_poi_field_map)
+            elif format == 'csv':
+                ret = models_to_csv(meetings, meeting_field_map, data_field_keys)
     else:
         xml_schema_name = None
         if switcher == 'GetNAWSDump':
