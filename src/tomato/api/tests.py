@@ -112,7 +112,7 @@ class GetSearchResultsTests(TestCase):
     # weekdays filters
     def test_get_search_results_weekdays_include_single(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&weekdays=2'
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&weekdays=2'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
@@ -122,7 +122,7 @@ class GetSearchResultsTests(TestCase):
 
     def test_get_search_results_weekdays_include_multiple(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&weekdays[]=1&weekdays[]=2'
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&weekdays[]=1&weekdays[]=2'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
@@ -141,7 +141,7 @@ class GetSearchResultsTests(TestCase):
 
     def test_get_search_results_weekdays_include_none_found(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&weekdays=7'
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&weekdays=7'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
@@ -149,7 +149,7 @@ class GetSearchResultsTests(TestCase):
 
     def test_get_search_results_weekdays_exclude_single(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&weekdays=-2'
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&weekdays=-2'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
@@ -159,7 +159,7 @@ class GetSearchResultsTests(TestCase):
 
     def test_get_search_results_weekdays_exclude_multiple(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&weekdays[]=-1&weekdays[]=-2'
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&weekdays[]=-1&weekdays[]=-2'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
@@ -200,7 +200,7 @@ class GetSearchResultsTests(TestCase):
 
     def test_get_search_results_services_include_none_found(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&services=1'
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&services=1'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
@@ -208,7 +208,7 @@ class GetSearchResultsTests(TestCase):
 
     def test_get_search_results_services_exclude_single(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&services=-5'
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&services=-5'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
@@ -218,7 +218,7 @@ class GetSearchResultsTests(TestCase):
 
     def test_get_search_results_services_exclude_multiple(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&services[]=-5&services[]=-4'
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&services[]=-5&services[]=-4'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
@@ -328,7 +328,7 @@ class GetSearchResultsTests(TestCase):
 
     def test_get_search_results_root_server_ids_exclude_single(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&root_server_ids=-2'
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=-2'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
@@ -371,7 +371,7 @@ class GetSearchResultsTests(TestCase):
             meeting = qs[0]
             value = model_get_value(meeting, model_field)
             url = reverse('semantic-query', kwargs={'format': 'json'})
-            url += '?switcher=GetSearchResults&'
+            url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&'
             url += urllib.parse.urlencode({'meeting_key': meeting_key, 'meeting_key_value': value})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
@@ -386,7 +386,7 @@ class GetSearchResultsTests(TestCase):
             if is_spatialite and data_field_key in ('formats', 'format_shared_id_list'):
                 continue
             url = reverse('semantic-query', kwargs={'format': 'json'})
-            url += '?switcher=GetSearchResults&'
+            url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&'
             url += urllib.parse.urlencode({'data_field_key': data_field_key})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
@@ -407,7 +407,7 @@ class GetSearchResultsTests(TestCase):
             if is_spatialite and ('formats' in data_field_keys or 'format_shared_id_list' in data_field_keys):
                 continue
             url = reverse('semantic-query', kwargs={'format': 'json'})
-            url += '?switcher=GetSearchResults&'
+            url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&'
             url += urllib.parse.urlencode({'data_field_key': ','.join(data_field_keys)})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
@@ -442,7 +442,7 @@ class GetSearchResultsTests(TestCase):
     # starts after
     def test_get_search_results_starts_after_hour(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&StartsAfterH=12'
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&StartsAfterH=12'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
@@ -454,7 +454,7 @@ class GetSearchResultsTests(TestCase):
 
     def test_get_search_results_starts_after_hour_and_minute(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&StartsAfterH=10&StartsAfterM=30'
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&StartsAfterH=10&StartsAfterM=30'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
@@ -470,7 +470,7 @@ class GetSearchResultsTests(TestCase):
     # starts before
     def test_get_search_results_starts_before_hour(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&StartsBeforeH=12'
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&StartsBeforeH=12'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
@@ -482,7 +482,7 @@ class GetSearchResultsTests(TestCase):
 
     def test_get_search_results_starts_before_hour_and_minute(self):
         url = reverse('semantic-query', kwargs={'format': 'json'})
-        url += '?switcher=GetSearchResults&StartsBeforeH=10&StartsBeforeM=30'
+        url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&StartsBeforeH=10&StartsBeforeM=30'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = json.loads(''.join([b.decode('utf-8') for b in response.streaming_content]))
@@ -695,7 +695,7 @@ class GetSearchResultsTests(TestCase):
             if sort_key in ('formats', 'format_shared_id_list',):
                 continue  # not sure how this behaves... don't care
             url = reverse('semantic-query', kwargs={'format': 'json'})
-            url += '?switcher=GetSearchResults&'
+            url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&'
             url += urllib.parse.urlencode({'sort_keys': sort_key})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
@@ -726,7 +726,7 @@ class GetSearchResultsTests(TestCase):
             if 'formats' in sort_keys:
                 continue
             url = reverse('semantic-query', kwargs={'format': 'json'})
-            url += '?switcher=GetSearchResults&'
+            url += '?switcher=GetSearchResults&root_server_ids[]=1&root_server_ids[]=2&'
             url += urllib.parse.urlencode({'sort_keys': ','.join(sort_keys)})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
