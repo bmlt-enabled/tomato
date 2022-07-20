@@ -1,9 +1,13 @@
 import datetime
 import decimal
+import logging
 import threading
 from collections import OrderedDict, deque
 from django.db import models
-from ..models import ServiceBody, TranslatedFormat
+from ..models import RootServer, ServiceBody, TranslatedFormat
+
+
+logger = logging.getLogger('django')
 
 
 def model_has_distance(model):
@@ -120,26 +124,30 @@ def get_naws_dump_unpublished(model):
     return ''
 
 
+formats_cache_timestamp: datetime.datetime = None
+language_by_thread: dict[int, str] = {}
 formats_by_language = None
-thread_formats_language: dict[int, str] = {}
 thread_history = deque()
 
 
 def retrieve_formats(language):
+    global formats_cache_timestamp
     global formats_by_language
-    global thread_formats_language
+    global language_by_thread
 
     thread_id = threading.get_ident()
     thread_history.append(thread_id)
-    thread_formats_language[thread_id] = language
+    language_by_thread[thread_id] = language
     if len(thread_history) > 50:
         old_thread_id = thread_history.popleft()
         try:
-            del thread_formats_language[old_thread_id]
+            del language_by_thread[old_thread_id]
         except KeyError:
             pass
 
-    if formats_by_language is None:
+    last_import_timestamp: datetime.datetime = RootServer.objects.values_list("last_successful_import", flat=True).order_by("-last_successful_import").first()
+    if formats_by_language is None or formats_cache_timestamp is None or (last_import_timestamp and last_import_timestamp > formats_cache_timestamp):
+        logger.error("populating formats cache")
         formats_qs = TranslatedFormat.objects.filter()
         formats_qs = formats_qs.select_related('format')
         _formats_by_language = {}
@@ -149,11 +157,12 @@ def retrieve_formats(language):
             if format.format.id not in _formats_by_language[format.language]:
                 _formats_by_language[format.language][format.format.id] = format
         formats_by_language = _formats_by_language
+        formats_cache_timestamp = last_import_timestamp
 
 
 def get_formats_key_strings(model):
     thread_id = threading.get_ident()
-    current_formats_language = thread_formats_language.get(thread_id, 'en')
+    current_formats_language = language_by_thread.get(thread_id, 'en')
     desired_language_formats = formats_by_language.get(current_formats_language, dict())
     default_language_formats = formats_by_language.get('en', dict())
     ret = []
