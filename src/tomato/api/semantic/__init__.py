@@ -1,8 +1,13 @@
 import datetime
 import decimal
+import logging
+import threading
 from collections import OrderedDict
 from django.db import models
-from ..models import ServiceBody, TranslatedFormat
+from ..models import RootServer, ServiceBody, TranslatedFormat
+
+
+logger = logging.getLogger('django')
 
 
 def model_has_distance(model):
@@ -119,25 +124,52 @@ def get_naws_dump_unpublished(model):
     return ''
 
 
+formats_cache_timestamp: datetime.datetime = None
 formats_by_language = None
-current_formats_language = None
+language_by_thread: dict[int, str] = {}
+thread_last_seen: dict[int, datetime.datetime] = {}
 
 
-def retrieve_formats(language):
+def set_thread_language(language):
+    global formats_cache_timestamp
     global formats_by_language
-    global current_formats_language
-    current_formats_language = language
-    formats_qs = TranslatedFormat.objects.filter()
-    formats_qs = formats_qs.select_related('format')
-    formats_by_language = {}
-    for format in formats_qs:
-        if format.language not in formats_by_language:
-            formats_by_language[format.language] = {}
-        if format.format.id not in formats_by_language[format.language]:
-            formats_by_language[format.language][format.format.id] = format
+
+    thread_id = threading.get_ident()
+    language_by_thread[thread_id] = language
+    now = datetime.datetime.now()
+    thread_last_seen[thread_id] = now
+    for _other_thread_id in thread_last_seen:
+        if thread_id != _other_thread_id:
+            last_seen = thread_last_seen.get(_other_thread_id)
+            if last_seen is not None and last_seen < now:
+                elapsed = now - last_seen
+                if elapsed >= datetime.timedelta(minutes=15):
+                    try:
+                        del language_by_thread[_other_thread_id]
+                    except KeyError:
+                        pass
+                    try:
+                        del thread_last_seen[_other_thread_id]
+                    except KeyError:
+                        pass
+
+    last_import_timestamp: datetime.datetime = RootServer.objects.values_list("last_successful_import", flat=True).order_by("-last_successful_import").first()
+    if formats_by_language is None or formats_cache_timestamp is None or (last_import_timestamp and last_import_timestamp > formats_cache_timestamp):
+        logger.error("populating formats cache")
+        formats_qs = TranslatedFormat.objects.filter()
+        formats_qs = formats_qs.select_related('format')
+        _formats_by_language = {}
+        for format in formats_qs:
+            if format.language not in _formats_by_language:
+                _formats_by_language[format.language] = {}
+            if format.format.id not in _formats_by_language[format.language]:
+                _formats_by_language[format.language][format.format.id] = format
+        formats_by_language = _formats_by_language
+        formats_cache_timestamp = last_import_timestamp
 
 
 def get_formats_key_strings(model):
+    current_formats_language = language_by_thread.get(threading.get_ident(), 'en')
     desired_language_formats = formats_by_language.get(current_formats_language, dict())
     default_language_formats = formats_by_language.get('en', dict())
     ret = []

@@ -21,7 +21,7 @@ from .kml import apply_kml_annotations
 from .models import TranslatedFormat, Meeting, ServiceBody
 from .semantic import (field_keys, field_keys_with_descriptions, format_field_map, meeting_field_map,
                        meeting_poi_field_map, meeting_kml_field_map, server_info_field_map, service_bodies_field_map,
-                       naws_dump_field_map, distance_field_keys, retrieve_formats)
+                       naws_dump_field_map, distance_field_keys, set_thread_language)
 from .semantic.csv import models_to_csv
 from .semantic.json import models_to_json
 from .semantic.xml import models_to_xml
@@ -543,7 +543,7 @@ def semantic_query(request, format='json'):
             # Invalid parameter for kml and poi, as they always returns the same fields.
             params.pop('data_field_key')
         meetings = get_search_results(params)
-        retrieve_formats(language)
+        set_thread_language(language)
         data_field_keys = extract_specific_keys_param(params)
         if format in ('json', 'jsonp', 'xml'):
             if 'get_used_formats' in params or 'get_formats_only' in params:
