@@ -386,6 +386,7 @@ def get_search_results(params):
                 values.append(model_field)
         meeting_qs = meeting_qs.order_by(*values)
     if page_size is not None and page_num is not None:
+        has_required_filter = True
         offset = page_size * (page_num - 1)
         limit = offset + page_size
         meeting_qs = meeting_qs[offset:limit]
