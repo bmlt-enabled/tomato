@@ -202,6 +202,8 @@ def get_search_results(params):
         # default sort order
         sort_keys = ['lang_enum', 'weekday_tinyint', 'start_time', 'id_bigint']
 
+    has_required_filter = False
+
     meeting_qs = Meeting.objects.filter(deleted=False, published=True)
     if data_field_keys:
         select_related_fields = ['meetinginfo']
@@ -212,6 +214,7 @@ def get_search_results(params):
         meeting_qs = meeting_qs.select_related('meetinginfo', 'service_body', 'root_server')
 
     if meeting_ids:
+        has_required_filter = True
         meeting_qs = meeting_qs.filter(pk__in=meeting_ids)
     if weekdays_include:
         meeting_qs = meeting_qs.filter(weekday__in=weekdays_include)
@@ -222,10 +225,12 @@ def get_search_results(params):
     if venue_types_exclude:
         meeting_qs = meeting_qs.exclude(venue_type__in=venue_types_exclude)
     if services_include:
+        has_required_filter = True
         meeting_qs = meeting_qs.filter(service_body_id__in=services_include)
     if services_exclude:
         meeting_qs = meeting_qs.exclude(service_body_id__in=services_exclude)
     if formats_include:
+        has_required_filter = True
         if formats_comparison_operator == 'AND':
             for id in formats_include:
                 meeting_qs = meeting_qs.filter(models.Q(formats__id=id))
@@ -241,6 +246,7 @@ def get_search_results(params):
         for id in formats_exclude:
             meeting_qs = meeting_qs.filter(~models.Q(formats__id=id))
     if root_server_ids_include:
+        has_required_filter = True
         meeting_qs = meeting_qs.filter(root_server_id__in=root_server_ids_include)
     if root_server_ids_exclude:
         meeting_qs = meeting_qs.exclude(root_server_id__in=root_server_ids_exclude)
@@ -256,7 +262,7 @@ def get_search_results(params):
         meeting_qs = meeting_qs.filter(start_time__gt=starts_after)
     if starts_before:
         meeting_qs = meeting_qs.filter(start_time__lt=starts_before)
-    if ends_before: 
+    if ends_before:
         exp = models.F('start_time') + models.F('duration')
         exp_wrapper = models.ExpressionWrapper(exp, output_field=models.TimeField())
         meeting_qs = meeting_qs.annotate(end_time=exp_wrapper)
@@ -266,6 +272,7 @@ def get_search_results(params):
     if max_duration:
         meeting_qs = meeting_qs.filter(duration__lte=max_duration)
     if search_string and not search_string_is_address:
+        has_required_filter = True
         vector_fields = (
             'name',
             'meetinginfo__location_text',
@@ -313,6 +320,7 @@ def get_search_results(params):
     if is_geo:
         # Get latitude and longitude values, either directly from the request
         # or from the an address
+        has_required_filter = True
         try:
             get_nearest = False
             if search_string and search_string_is_address:
@@ -381,6 +389,9 @@ def get_search_results(params):
         offset = page_size * (page_num - 1)
         limit = offset + page_size
         meeting_qs = meeting_qs[offset:limit]
+    if not has_required_filter:
+        logger.error("GetSearchResults request did not have a required filter")
+        return meeting_qs.none()
     # We can't do prefetch related because we use .iterator() to stream results from the db
     # return meeting_qs.prefetch_related('formats')
     return meeting_qs
