@@ -14,23 +14,22 @@ resource "aws_s3_bucket" "tomato_webapp_alb_logs" {
 resource "aws_s3_bucket_policy" "tomato_webapp_alb_logs" {
   bucket = aws_s3_bucket.tomato_webapp_alb_logs.id
 
-  policy = <<EOF
-{
-  "Id": "Policy1521565569242",
-  "Version": "2012-10-17",
-  "Statement": [
+  policy = jsonencode(
     {
-      "Sid": "Stmt1521565353380",
-      "Action": "s3:PutObject",
-      "Effect": "Allow",
-      "Resource": "${aws_s3_bucket.tomato_webapp_alb_logs.arn}/*",
-      "Principal": {
-        "AWS": "arn:aws:iam::127311923021:root"
-      }
-    }
-  ]
-}
-EOF
+      Id      = "Policy1521565569242"
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Sid      = "Stmt1521565353380"
+          Action   = "s3:PutObject"
+          Effect   = "Allow"
+          Resource = "${aws_s3_bucket.tomato_webapp_alb_logs.arn}/*"
+          Principal = {
+            AWS = "arn:aws:iam::127311923021:root"
+          }
+        }
+      ]
+  })
 
 }
 

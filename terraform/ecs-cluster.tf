@@ -4,23 +4,20 @@ resource "aws_ecs_cluster" "main" {
 
 resource "aws_iam_role" "cluster_instance" {
   name = aws_ecs_cluster.main.name
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
+  assume_role_policy = jsonencode(
     {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ec2.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
-
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Sid    = ""
+          Effect = "Allow"
+          Principal = {
+            Service = "ec2.amazonaws.com"
+          }
+          Action = "sts:AssumeRole"
+        }
+      ]
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "attach_ecs_policy" {
@@ -65,23 +62,18 @@ resource "aws_autoscaling_group" "cluster" {
   desired_capacity     = 2
   launch_configuration = aws_launch_configuration.cluster.name
 
-  tags = [
-    {
-      key                 = "Name"
-      value               = "tomato-ecs"
+  dynamic "tag" {
+    for_each = {
+      Name        = "tomato-ecs"
+      application = "tomato"
+      environment = "production"
+    }
+    content {
+      key                 = tag.key
+      value               = tag.value
       propagate_at_launch = true
-    },
-    {
-      key                 = "application"
-      value               = "tomato"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "environment"
-      value               = "production"
-      propagate_at_launch = true
-    },
-  ]
+    }
+  }
 }
 
 resource "aws_security_group" "cluster" {
@@ -99,29 +91,11 @@ resource "aws_security_group" "cluster" {
     ]
   }
 
-  //  ingress {
-  //    protocol    = "tcp"
-  //    from_port   = 22
-  //    to_port     = 22
-  //    cidr_blocks = ["0.0.0.0/0"]
-  //  }
-
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-data "template_file" "user_data" {
-  template = file("${path.module}/templates/user_data.sh")
-
-  vars = {
-    ecs_config        = "echo '' > /etc/ecs/ecs.config"
-    ecs_logging       = "[\"json-file\",\"awslogs\"]"
-    cluster_name      = aws_ecs_cluster.main.name
-    cloudwatch_prefix = "tomato"
   }
 }
 
@@ -132,8 +106,15 @@ resource "aws_launch_configuration" "cluster" {
   instance_type               = "t3.micro"
   iam_instance_profile        = aws_iam_instance_profile.cluster.name
   associate_public_ip_address = false
-  user_data                   = data.template_file.user_data.rendered
-  ebs_optimized               = false
+  user_data = templatefile("${path.module}/templates/user_data.sh",
+    {
+      ecs_config        = "echo '' > /etc/ecs/ecs.config"
+      ecs_logging       = "[\"json-file\",\"awslogs\"]"
+      cluster_name      = aws_ecs_cluster.main.name
+      cloudwatch_prefix = "tomato"
+    }
+  )
+  ebs_optimized = false
 
   lifecycle {
     create_before_destroy = true

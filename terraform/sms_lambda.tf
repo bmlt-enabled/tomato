@@ -27,10 +27,7 @@ resource "aws_lambda_function" "sms_lambda" {
   }
 
   lifecycle {
-    ignore_changes = [
-      last_modified,
-      environment.0.variables,
-    ]
+    ignore_changes = [environment.0.variables]
   }
 }
 

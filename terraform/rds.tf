@@ -7,13 +7,13 @@ resource "aws_db_instance" "tomato" {
   identifier          = "tomato"
   allocated_storage   = 100
   engine              = "postgres"
-  engine_version      = "12.7"
+  engine_version      = "12.11"
   instance_class      = "db.t3.micro"
   storage_type        = "gp2"
   deletion_protection = true
   multi_az            = false
 
-  name     = "tomato"
+  db_name  = "tomato"
   username = "tomato"
   password = var.rds_password
   port     = 5432

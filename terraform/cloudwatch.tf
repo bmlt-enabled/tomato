@@ -61,6 +61,7 @@ resource "aws_cloudwatch_event_target" "root_server_import" {
   ecs_target {
     task_count          = 1
     task_definition_arn = aws_ecs_task_definition.tomato_root_server_import.arn
+    launch_type         = "EC2"
   }
 }
 
