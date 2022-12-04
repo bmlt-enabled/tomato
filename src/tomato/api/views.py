@@ -392,7 +392,7 @@ def get_search_results(params):
         limit = offset + page_size
         meeting_qs = meeting_qs[offset:limit]
     if not has_required_filter:
-        logger.error("GetSearchResults request did not have a required filter")
+        logger.error(f"GetSearchResults request did not have a required filter {str(params)}")
         return meeting_qs.none()
     # We can't do prefetch related because we use .iterator() to stream results from the db
     # return meeting_qs.prefetch_related('formats')
@@ -440,6 +440,15 @@ def get_formats(params):
     root_server_ids_include = [rs for rs in root_server_ids if rs > 0]
     root_server_ids_exclude = [abs(rs) for rs in root_server_ids if rs < 0]
 
+    format_ids = params.get('format_ids')
+    if format_ids:
+        format_ids = [f.strip() for f in format_ids.split(',')]
+    else:
+        format_ids = params.getlist('format_ids[]', [])
+    format_ids = [int(f) for f in format_ids]
+    format_ids_include = [f for f in format_ids if f > 0]
+    format_ids_exclude = [abs(f) for f in format_ids if f < 0]
+
     key_strings = params.get('key_strings')
     key_strings = params.getlist('key_strings[]', []) if key_strings is None else [key_strings]
 
@@ -450,6 +459,10 @@ def get_formats(params):
         format_qs = format_qs.filter(format__root_server_id__in=root_server_ids_include)
     if root_server_ids_exclude:
         format_qs = format_qs.exclude(format__root_server_id__in=root_server_ids_exclude)
+    if format_ids_include:
+        format_qs = format_qs.filter(format__id__in=format_ids_include)
+    if format_ids_exclude:
+        format_qs = format_qs.exclude(format__id__in=format_ids_exclude)
     if key_strings:
         format_qs = format_qs.filter(key_string__in=key_strings)
     return format_qs
