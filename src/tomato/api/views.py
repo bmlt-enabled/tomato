@@ -443,6 +443,7 @@ def get_formats(params):
     format_ids = params.get('format_ids')
     if format_ids:
         format_ids = [f.strip() for f in format_ids.split(',')]
+        format_ids = [f for f in format_ids if f and (f.isnumeric() or (f[0] == '-' and f[1:].isnumeric()))]
     else:
         format_ids = params.getlist('format_ids[]', [])
     format_ids = [int(f) for f in format_ids]
