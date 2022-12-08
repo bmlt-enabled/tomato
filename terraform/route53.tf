@@ -1,31 +1,12 @@
-data "aws_route53_zone" "bmltenabled" {
-  name = "tomato.bmltenabled.org."
-}
-
 resource "aws_route53_record" "tomato_bmltenabled" {
-  zone_id = data.aws_route53_zone.bmltenabled.id
-  name    = data.aws_route53_zone.bmltenabled.name
-  type    = "A"
+  zone_id         = data.aws_route53_zone.tomato_bmltenabled_org.id
+  name            = data.aws_route53_zone.tomato_bmltenabled_org.name
+  type            = "A"
+  allow_overwrite = true
 
   alias {
-    name                   = aws_alb.tomato.dns_name
-    zone_id                = aws_alb.tomato.zone_id
-    evaluate_target_health = false
+    name                   = data.aws_lb.main.dns_name
+    zone_id                = data.aws_lb.main.zone_id
+    evaluate_target_health = true
   }
-}
-
-resource "aws_route53_record" "tomato_bmltenabled_validation" {
-  for_each = {
-    for dvo in aws_acm_certificate.tomato_bmltenabled.domain_validation_options : dvo.domain_name => {
-      name    = dvo.resource_record_name
-      record  = dvo.resource_record_value
-      type    = dvo.resource_record_type
-      zone_id = data.aws_route53_zone.bmltenabled.zone_id
-    }
-  }
-  name    = each.value.name
-  records = [each.value.record]
-  type    = each.value.type
-  zone_id = each.value.zone_id
-  ttl     = 60
 }

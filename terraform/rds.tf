@@ -1,56 +1,35 @@
-resource "aws_db_subnet_group" "tomato" {
-  name       = "tomato"
-  subnet_ids = [aws_subnet.public_a.id, aws_subnet.public_b.id]
+resource "aws_db_subnet_group" "aggregator" {
+  name       = "aggregator"
+  subnet_ids = data.aws_subnets.main.ids
 }
 
-resource "aws_db_instance" "tomato" {
-  identifier          = "tomato"
+resource "aws_db_instance" "aggregator" {
+  identifier          = "aggregator"
   allocated_storage   = 100
-  engine              = "postgres"
-  engine_version      = "12.11"
+  engine              = "mysql"
+  engine_version      = "8.0.28"
   instance_class      = "db.t3.micro"
   storage_type        = "gp2"
   deletion_protection = true
   multi_az            = false
-
-  db_name  = "tomato"
-  username = "tomato"
-  password = var.rds_password
-  port     = 5432
+  db_name             = "aggregator"
+  username            = "aggregator"
+  password            = var.rds_password
+  port                = 3306
 
   apply_immediately       = true
   publicly_accessible     = true
-  vpc_security_group_ids  = [aws_security_group.tomato_rds.id]
-  db_subnet_group_name    = aws_db_subnet_group.tomato.name
+  vpc_security_group_ids  = [data.aws_security_group.rds_mysql.id]
+  db_subnet_group_name    = aws_db_subnet_group.aggregator.name
   backup_retention_period = 7
 
   skip_final_snapshot = false
 
   tags = {
-    Name = "tomato"
+    Name = "aggregator"
   }
 
   lifecycle {
     ignore_changes = [snapshot_identifier]
   }
 }
-
-resource "aws_security_group" "tomato_rds" {
-  name   = "tomato-rds"
-  vpc_id = aws_vpc.main.id
-
-  ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = [aws_subnet.public_a.cidr_block, aws_subnet.public_b.cidr_block]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-

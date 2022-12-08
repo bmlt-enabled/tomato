@@ -1,7 +1,8 @@
-variable "rds_password" {
-  type = string
+variable "GOOGLE_API_KEY" {
+  type      = string
+  sensitive = true
 }
 
-variable "secret_key" {
+variable "rds_password" {
   type = string
 }
