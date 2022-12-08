@@ -11,7 +11,7 @@ resource "aws_lb_target_group" "aggregator" {
   }
 }
 
-resource "aws_alb_listener_rule" "aggregator" {
+resource "aws_lb_listener_rule" "aggregator" {
   listener_arn = data.aws_lb_listener.main_443.arn
 
   action {
