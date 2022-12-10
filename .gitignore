@@ -7,7 +7,4 @@
 *.tfvars
 *.tfstate.backup
 venv
-src/tomato-django-cache
-refresh_ecs_instances.zip
-__pycache__
-terraform/sms-alerts.zip
+*.zip
