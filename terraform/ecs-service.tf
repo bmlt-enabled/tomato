@@ -215,7 +215,7 @@ resource "aws_ecs_task_definition" "aggregator_import" {
             awslogs-stream-prefix = "daemon"
           }
         }
-        memoryReservation = 256
+        memoryReservation = 320
         linuxParameters = {
           initProcessEnabled = true
         }
