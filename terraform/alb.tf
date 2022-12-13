@@ -25,3 +25,18 @@ resource "aws_lb_listener_rule" "aggregator" {
     }
   }
 }
+
+resource "aws_lb_listener_rule" "aggregator_na-bmlt_org" {
+  listener_arn = data.aws_lb_listener.main_443.arn
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.aggregator.arn
+  }
+
+  condition {
+    host_header {
+      values = ["tomato.na-bmlt.org"]
+    }
+  }
+}
