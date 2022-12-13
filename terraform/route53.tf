@@ -10,3 +10,16 @@ resource "aws_route53_record" "tomato_bmltenabled" {
     evaluate_target_health = true
   }
 }
+
+resource "aws_route53_record" "tomato_na-bmlt_org" {
+  zone_id         = data.aws_route53_zone.na-bmlt_org.id
+  name            = "tomato.${data.aws_route53_zone.na-bmlt_org.name}"
+  type            = "A"
+  allow_overwrite = true
+
+  alias {
+    name                   = data.aws_lb.main.dns_name
+    zone_id                = data.aws_lb.main.zone_id
+    evaluate_target_health = true
+  }
+}

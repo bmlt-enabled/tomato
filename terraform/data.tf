@@ -210,3 +210,8 @@ data "aws_iam_role" "ecs_service" {
 data "aws_route53_zone" "tomato_bmltenabled_org" {
   name = "tomato.bmltenabled.org."
 }
+
+data "aws_route53_zone" "na-bmlt_org" {
+  name         = "na-bmlt.org."
+  private_zone = false
+}
