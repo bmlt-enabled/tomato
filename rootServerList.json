@@ -18,7 +18,6 @@
 {"id":"124","name":"NA Australia","rootURL":"https://www.na.org.au/main_server/"},
 {"id":"126","name":"NA Sweden","rootURL":"https://www.nasverige.org/main_server/"},
 {"id":"127","name":"Michigan NA","rootURL":"https://michigan-na.org/bmlt/"},
-{"id":"128","name":"Central Indiana","rootURL":"https://centralindianana.org/main_server/"},
 {"id":"129","name":"NA Minnesota","rootURL":"https://bmlt.naminnesota.org/main_server/"},
 {"id":"131","name":"NA Colorado","rootURL":"https://nacolorado.org/meetingList/main_server/"},
 {"id":"132","name":"Arizona Region","rootURL":"https://www.arizona-na.org/bmlt/main_server/"},
@@ -37,5 +36,6 @@
 {"id":"149","name":"Polish Region","rootURL":"https://bmltadmin.anonimowinarkomani.org/main_server/"},
 {"id":"151","name":"Alaska Region","rootURL":"https://akna.org/bmlt/main_server/"},
 {"id":"152","name":"Western States Zonal Forum","rootURL":"https://bmlt.wszf.org/main_server/"},
-{"id":"153","name":"Tri-State Region","rootURL":"https://tsrscna.org/bmlt_dev/main_server/"}
+{"id":"153","name":"Tri-State Region","rootURL":"https://tsrscna.org/bmlt_dev/main_server/"},
+{"id":"154","name":"Indiana Region","rootURL":"https://dev.naindiana.org/wp/main_server/"}
 ]
