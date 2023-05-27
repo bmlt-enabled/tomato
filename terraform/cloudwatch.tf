@@ -29,6 +29,7 @@ resource "aws_cloudwatch_event_target" "aggregator_import" {
     task_count          = 1
     task_definition_arn = aws_ecs_task_definition.aggregator_import.arn
     launch_type         = "EC2"
+    propagate_tags      = "TASK_DEFINITION"
   }
 }
 
