@@ -32,7 +32,7 @@ resource "aws_iam_role" "eventbridge" {
       Action = "sts:AssumeRole"
       Effect = "Allow"
       Principal = {
-        Service = "events.amazonaws.com"
+        Service = ["ssm.amazonaws.com", "events.amazonaws.com"]
       }
     }]
   })
@@ -42,11 +42,18 @@ resource "aws_iam_role_policy" "eventbridge" {
   role = aws_iam_role.eventbridge.name
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Action   = ["autoscaling:StartInstanceRefresh"]
-      Effect   = "Allow"
-      Resource = "*"
-    }]
+    Statement = [
+      {
+        Action   = ["autoscaling:StartInstanceRefresh", "ssm:StartAutomationExecution", "sts:AssumeRole"]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+      {
+        Action   = ["iam:PassRole"]
+        Effect   = "Allow"
+        Resource = aws_iam_role.eventbridge.arn
+      }
+    ]
   })
 }
 
@@ -59,6 +66,6 @@ resource "aws_cloudwatch_event_target" "start_asg_refresh" {
   rule      = aws_cloudwatch_event_rule.bi_monthly.name
   target_id = "startAggregatorASGRefresh"
   # See https://github.com/hashicorp/terraform-provider-aws/issues/6461#issuecomment-510845647
-  arn       = replace(aws_ssm_document.aggregator_refresh_asg.arn, "document/", "automation-definition/")
-  role_arn  = aws_iam_role.eventbridge.arn
+  arn      = replace(aws_ssm_document.aggregator_refresh_asg.arn, "document/", "automation-definition/")
+  role_arn = aws_iam_role.eventbridge.arn
 }
