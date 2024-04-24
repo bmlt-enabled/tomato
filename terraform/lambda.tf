@@ -10,7 +10,7 @@ resource "aws_lambda_function" "aggregator_lambda" {
   role                           = aws_iam_role.aggregator_lambda.arn
   handler                        = "aggregator_lambda.lambda_handler"
   source_code_hash               = data.archive_file.aggregator_lambda.output_base64sha256
-  runtime                        = "python3.9"
+  runtime                        = "python3.11"
   memory_size                    = 128
   timeout                        = 30
   reserved_concurrent_executions = 1
