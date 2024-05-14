@@ -42,11 +42,12 @@ locals {
 }
 
 resource "aws_launch_template" "aggregator_cluster" {
-  name_prefix   = local.aggregator_cluster_name
-  image_id      = data.aws_ami.ecs.image_id
-  instance_type = "t3a.small"
-  key_name      = data.aws_key_pair.this.key_name
-  user_data     = data.cloudinit_config.aggregator_cluster.rendered
+  name_prefix            = local.aggregator_cluster_name
+  image_id               = data.aws_ami.ecs.image_id
+  instance_type          = "t3a.small"
+  key_name               = data.aws_key_pair.this.key_name
+  user_data              = data.cloudinit_config.aggregator_cluster.rendered
+  update_default_version = true
 
   iam_instance_profile {
     name = data.aws_iam_instance_profile.ecs.name
