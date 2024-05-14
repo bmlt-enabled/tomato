@@ -6,9 +6,13 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
-    template = {
-      source  = "hashicorp/template"
-      version = "~> 2.2"
+    cloudinit = {
+      source  = "hashicorp/cloudinit"
+      version = "~> 2.3"
+    }
+    archive = {
+      source  = "hashicorp/archive"
+      version = "~> 2.4"
     }
   }
 
