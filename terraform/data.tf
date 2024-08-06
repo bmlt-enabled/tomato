@@ -45,6 +45,11 @@ data "aws_subnets" "main" {
     name   = "vpc-id"
     values = [data.aws_vpc.main.id]
   }
+
+  filter {
+    name   = "tag:Name"
+    values = ["bmlt-a", "bmlt-b"]
+  }
 }
 
 data "aws_subnet" "main" {
