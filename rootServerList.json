@@ -38,5 +38,6 @@
 {"id":"154","name":"Indiana Region","rootURL":"https://bmlt.naindiana.org/main_server/"},
 {"id":"155","name":"Montana Region","rootURL":"https://bmlt.mtrna.org/prod/"},
 {"id":"156","name":"NA Switzerland","rootURL":"https://bmlt.narcotics-anonymous.ch/main_server/"},
-{"id":"157","name":"Chicagoland Region","rootURL":"https://bmlt.chicagona.org/main_server/"}
+{"id":"157","name":"Chicagoland Region","rootURL":"https://bmlt.chicagona.org/main_server/"},
+{"id":"158","name":"Spanish Region","rootURL":"https://www.narcoticosanonimos.es/bmlt/main_server/"}
 ]
